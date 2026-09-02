@@ -1,0 +1,246 @@
+const Event = require('../models/Event');
+const { uploadBannerToDrive, deleteFileFromDrive } = require('../utils/googleDrive');
+
+// 1. Upload Event Banner to Google Drive API
+exports.uploadBanner = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No image file uploaded' });
+    }
+
+    const { mimetype, size, originalname, buffer } = req.file;
+
+    // Validate format (JPG, PNG, WEBP)
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(mimetype.toLowerCase())) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid image format. Only JPG, PNG, and WEBP files are allowed.'
+      });
+    }
+
+    // Validate maximum file size (5 MB)
+    const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+    if (size > MAX_SIZE) {
+      return res.status(400).json({
+        success: false,
+        message: 'File size exceeds maximum limit of 5 MB.'
+      });
+    }
+
+    // Upload to Google Drive
+    const result = await uploadBannerToDrive(buffer, originalname, mimetype);
+
+    // If an old Google Drive file ID was provided, delete it to keep storage organized
+    if (req.body && req.body.oldDriveFileId) {
+      await deleteFileFromDrive(req.body.oldDriveFileId);
+    }
+
+    res.json({
+      success: true,
+      message: 'Banner image uploaded to Google Drive successfully',
+      bannerImage: result.bannerImage,
+      driveFileId: result.fileId,
+      storageMode: result.storageMode
+    });
+  } catch (error) {
+    console.error('Banner upload error:', error);
+    res.status(500).json({ success: false, message: error.message || 'Image upload failed' });
+  }
+};
+
+// 2. Get all events directly from MongoDB
+exports.getEvents = async (req, res) => {
+  try {
+    const isAdmin = req.query.admin === 'true';
+    const query = isAdmin
+      ? {}
+      : { $or: [{ isPublished: true }, { status: 'Published' }, { status: 'Upcoming' }] };
+
+    let events = await Event.find(query).sort({ createdAt: -1 });
+
+    // Auto-seed initial sample events if collection is empty
+    if (events.length === 0) {
+      console.log('Seeding initial sample events...');
+      const sampleEvents = [
+        {
+          title: 'VANA Grand Musical Night 2026',
+          category: 'Concerts',
+          eventType: 'Ticketed',
+          status: 'Published',
+          isPublished: true,
+          eventDate: '2026-09-15',
+          startTime: '06:00 PM',
+          endTime: '10:00 PM',
+          organizer: 'Vana Entertainments',
+          venue: { name: 'Vana Main Auditorium', city: 'Bhagalpur' },
+          price: 999,
+          description: 'Experience an extraordinary evening of live music, mesmerizing visuals, and interactive auditorium seating featuring First Floor Balcony & Ground Floor tiers.',
+          bannerImage: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80',
+          ticketTiers: [
+            { tierName: 'Silver (First Floor)', price: 999, totalSeats: 352, availableSeats: 352 },
+            { tierName: 'Gold Pass', price: 1499, totalSeats: 450, availableSeats: 450 },
+            { tierName: 'Platinum Pass', price: 2499, totalSeats: 200, availableSeats: 200 },
+            { tierName: 'VIP Lounge', price: 4999, totalSeats: 26, availableSeats: 26 }
+          ]
+        },
+        {
+          title: 'Global Tech & Creator Summit',
+          category: 'Corporate Events',
+          eventType: 'Ticketed',
+          status: 'Published',
+          isPublished: true,
+          eventDate: '2026-10-01',
+          startTime: '10:00 AM',
+          endTime: '05:00 PM',
+          organizer: 'Vana Corporate',
+          venue: { name: 'Vana Main Auditorium', city: 'Bhagalpur' },
+          price: 1499,
+          description: 'Connect with industry leaders, tech visionaries, and creative entrepreneurs in an immersive auditorium layout.',
+          bannerImage: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=1200&q=80',
+          ticketTiers: [
+            { tierName: 'Silver (First Floor)', price: 999, totalSeats: 352, availableSeats: 352 },
+            { tierName: 'Gold Pass', price: 1499, totalSeats: 450, availableSeats: 450 },
+            { tierName: 'Platinum Pass', price: 2499, totalSeats: 200, availableSeats: 200 },
+            { tierName: 'VIP Lounge', price: 4999, totalSeats: 26, availableSeats: 26 }
+          ]
+        }
+      ];
+
+      await Event.insertMany(sampleEvents);
+      events = await Event.find(query).sort({ createdAt: -1 });
+    }
+
+    res.json({ success: true, count: events.length, data: events });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// 3. Get single event by ID directly from MongoDB
+exports.getEventById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const event = await Event.findById(id);
+
+    if (!event) {
+      return res.status(404).json({ success: false, message: 'Event not found' });
+    }
+
+    res.json({ success: true, data: event });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// 4. Create Event (Admin - MongoDB)
+exports.createEvent = async (req, res) => {
+  try {
+    const {
+      title, category, eventType, status, isPublished, eventDate,
+      startTime, endTime, organizer, venue, price, description,
+      bannerImage, driveFileId, ticketTiers
+    } = req.body;
+
+    const eventPayload = {
+      title,
+      category: category || 'Corporate Events',
+      eventType: eventType || 'Ticketed',
+      status: status || 'Published',
+      isPublished: isPublished !== undefined ? isPublished : (status !== 'Unpublished'),
+      eventDate,
+      startTime: startTime || '10:00 AM',
+      endTime: endTime || '05:00 PM',
+      organizer: organizer || 'Vana Entertainments',
+      venue: typeof venue === 'object' ? venue : { name: venue || 'Auditorium Hall', city: 'Bhagalpur' },
+      price: price ? Number(price) : 0,
+      description: description || '',
+      bannerImage: bannerImage || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80',
+      driveFileId: driveFileId || '',
+      ticketTiers: ticketTiers && ticketTiers.length > 0 ? ticketTiers : [
+        { tierName: 'Standard Pass', price: Number(price) || 999, totalSeats: 100, availableSeats: 100 }
+      ]
+    };
+
+    const event = await Event.create(eventPayload);
+
+    res.status(201).json({ success: true, message: 'Event created successfully', data: event });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// 5. Update Event (Admin - MongoDB)
+exports.updateEvent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = { ...req.body };
+
+    if (updateData.status) {
+      updateData.isPublished = updateData.status !== 'Unpublished';
+    }
+
+    if (updateData.price && (!updateData.ticketTiers || updateData.ticketTiers.length === 0)) {
+      updateData.ticketTiers = [
+        { tierName: 'Standard Pass', price: Number(updateData.price), totalSeats: 100, availableSeats: 100 }
+      ];
+    }
+
+    const existingEvent = await Event.findById(id);
+
+    // Check if Google Drive banner was replaced, cleanup old file
+    if (existingEvent && existingEvent.driveFileId && updateData.driveFileId && existingEvent.driveFileId !== updateData.driveFileId) {
+      await deleteFileFromDrive(existingEvent.driveFileId);
+    }
+
+    const updatedEvent = await Event.findByIdAndUpdate(id, updateData, { new: true });
+
+    res.json({ success: true, message: 'Event updated successfully', data: updatedEvent });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// 6. Quick Toggle Publish / Unpublish Status (Admin - MongoDB)
+exports.togglePublishStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const event = await Event.findById(id);
+
+    if (!event) {
+      return res.status(404).json({ success: false, message: 'Event not found' });
+    }
+
+    const newIsPublished = !event.isPublished;
+    const newStatus = newIsPublished ? 'Published' : 'Unpublished';
+
+    const updatedEvent = await Event.findByIdAndUpdate(id, { isPublished: newIsPublished, status: newStatus }, { new: true });
+
+    res.json({
+      success: true,
+      message: `Event status updated to ${newStatus}`,
+      data: updatedEvent
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// 7. Delete Event (Admin - MongoDB)
+exports.deleteEvent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const event = await Event.findById(id);
+
+    if (event) {
+      if (event.driveFileId) {
+        await deleteFileFromDrive(event.driveFileId);
+      }
+      await Event.findByIdAndDelete(id);
+    }
+
+    res.json({ success: true, message: 'Event and associated Google Drive image deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

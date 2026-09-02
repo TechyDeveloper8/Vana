@@ -1,0 +1,238 @@
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { fetchAPI } from '../services/api';
+import AdminSidebar from '../components/AdminSidebar';
+import { Line, Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+export default function AdminDashboard() {
+  const { user, isLoginHidden, toggleHideLogin } = useAuth();
+
+  const [stats, setStats] = useState({
+    totalEvents: 0,
+    activeEvents: 0,
+    totalBookings: 0,
+    totalRevenue: 0,
+    monthlyChart: { labels: [], data: [] },
+    weeklyBookingsChart: { labels: [], data: [] }
+  });
+
+  const [bookings, setBookings] = useState([]);
+
+  useEffect(() => {
+    fetchAPI('/admin/stats')
+      .then((res) => {
+        if (res.stats) setStats(res.stats);
+      })
+      .catch(() => {});
+
+    fetchAPI('/booking/all')
+      .then((res) => {
+        if (res.data) setBookings(res.data);
+      })
+      .catch(() => {});
+  }, []);
+
+  const totalCheckedIn = bookings.filter((b) => b.isCheckedIn).length;
+  const totalNotAvailable = bookings.filter((b) => !b.isCheckedIn).length;
+
+  const revenueData = {
+    labels: stats.monthlyChart?.labels?.length ? stats.monthlyChart.labels : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    datasets: [
+      {
+        label: 'Monthly Revenue (₹)',
+        data: stats.monthlyChart?.data?.length ? stats.monthlyChart.data : [0, 0, 0, 0, 0, 0],
+        borderColor: '#ff3b00',
+        backgroundColor: 'rgba(255,59,0,0.1)',
+        tension: 0.4,
+        fill: true
+      }
+    ]
+  };
+
+  const bookingData = {
+    labels: stats.weeklyBookingsChart?.labels?.length ? stats.weeklyBookingsChart.labels : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    datasets: [
+      {
+        label: 'Weekly Ticket Sales',
+        data: stats.weeklyBookingsChart?.data?.length ? stats.weeklyBookingsChart.data : [0, 0, 0, 0, 0, 0, 0],
+        backgroundColor: '#0f172a'
+      }
+    ]
+  };
+
+  return (
+    <div className="admin-layout">
+      <AdminSidebar />
+
+      <div className="admin-content">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '20px' }}>
+          <div>
+            <h2 style={{ fontSize: '1.8rem', color: '#0f172a', margin: 0 }}>Welcome, {user?.name || 'Admin'}</h2>
+            <p style={{ color: '#64748b', margin: '4px 0 0' }}>Vana Entertainments Management Portal</p>
+          </div>
+          <Link to="/admin/events" className="primary-btn">
+            + Create New Event
+          </Link>
+        </div>
+
+        {/* Quick System Control: Hide / Show Public Login Option */}
+        <div
+          style={{
+            background: isLoginHidden ? '#fff1f2' : '#f0fdf4',
+            border: `1px solid ${isLoginHidden ? '#fecdd3' : '#bbf7d0'}`,
+            padding: '16px 20px',
+            borderRadius: '12px',
+            marginBottom: '24px',
+            display: 'flex',
+            alignItems: 'center',
+            justify: 'space-between',
+            flexWrap: 'wrap',
+            gap: '12px'
+          }}
+        >
+          <div>
+            <h4 style={{ margin: 0, fontSize: '0.95rem', color: isLoginHidden ? '#9f1239' : '#166534', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <i className={`fa-solid ${isLoginHidden ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+              Public Header Login Link: {isLoginHidden ? 'HIDDEN' : 'VISIBLE'}
+            </h4>
+            <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#475569' }}>
+              {isLoginHidden
+                ? 'The Login link in the website header is currently hidden from public visitors.'
+                : 'The Login & Book Ticket links are active and visible in the header.'}
+            </p>
+          </div>
+          <button
+            onClick={() => toggleHideLogin(!isLoginHidden)}
+            style={{
+              padding: '8px 16px',
+              borderRadius: '8px',
+              border: 'none',
+              fontWeight: 600,
+              cursor: 'pointer',
+              background: isLoginHidden ? '#e11d48' : '#16a34a',
+              color: '#ffffff',
+              fontSize: '0.85rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            {isLoginHidden ? 'Unhide Login Option' : 'Hide Login Option'}
+          </button>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="stats-grid">
+          <div className="stat-card">
+            <h4>TOTAL REVENUE</h4>
+            <div className="number" style={{ color: '#ff3b00' }}>₹{(stats.totalRevenue || 0).toLocaleString()}</div>
+          </div>
+          <div className="stat-card">
+            <h4>TOTAL BOOKINGS</h4>
+            <div className="number">{stats.totalBookings || 0}</div>
+          </div>
+          <div className="stat-card" style={{ borderLeft: '4px solid #10b981' }}>
+            <h4>PRESENT (CHECKED IN)</h4>
+            <div className="number" style={{ color: '#10b981' }}>{totalCheckedIn}</div>
+          </div>
+          <div className="stat-card" style={{ borderLeft: '4px solid #ef4444' }}>
+            <h4>NOT AVAILABLE (ABSENT)</h4>
+            <div className="number" style={{ color: '#ef4444' }}>{totalNotAvailable}</div>
+          </div>
+        </div>
+
+        {/* Analytics Charts */}
+        <div className="admin-charts-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginBottom: '40px' }}>
+          <div style={{ background: '#fff', padding: '25px', borderRadius: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
+            <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', color: '#0f172a' }}>Revenue Overview</h3>
+            <Line data={revenueData} />
+          </div>
+          <div style={{ background: '#fff', padding: '25px', borderRadius: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
+            <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', color: '#0f172a' }}>Ticket Bookings Trend</h3>
+            <Bar data={bookingData} />
+          </div>
+        </div>
+
+        {/* Recent Bookings & Gate Attendance Table */}
+        <div style={{ background: '#fff', padding: '25px', borderRadius: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '1.2rem', margin: 0, color: '#0f172a' }}>Recent Ticket Bookings & Gate Attendance</h3>
+            <Link to="/admin/bookings" style={{ color: '#2563eb', fontWeight: 600, fontSize: '0.9rem', textDecoration: 'none' }}>
+              View Full Attendance Audit →
+            </Link>
+          </div>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b', fontSize: '0.85rem' }}>
+                  <th style={{ padding: '12px' }}>BOOKING ID</th>
+                  <th style={{ padding: '12px' }}>CUSTOMER</th>
+                  <th style={{ padding: '12px' }}>EVENT</th>
+                  <th style={{ padding: '12px' }}>QTY</th>
+                  <th style={{ padding: '12px' }}>AMOUNT</th>
+                  <th style={{ padding: '12px' }}>ATTENDANCE STATUS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bookings.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: 'center', padding: '30px', color: '#94a3b8' }}>
+                      No ticket bookings registered in the system yet.
+                    </td>
+                  </tr>
+                ) : (
+                  bookings.slice(0, 10).map((b) => (
+                    <tr key={b._id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                      <td style={{ padding: '12px', fontWeight: 600 }}>{b.bookingId}</td>
+                      <td style={{ padding: '12px' }}>{b.userName}<br/><span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{b.userEmail}</span></td>
+                      <td style={{ padding: '12px' }}>{b.eventTitle}</td>
+                      <td style={{ padding: '12px' }}>{b.quantity}</td>
+                      <td style={{ padding: '12px', fontWeight: 600, color: '#ff3b00' }}>₹{b.totalAmount}</td>
+                      <td style={{ padding: '12px' }}>
+                        <span
+                          style={{
+                            background: b.isCheckedIn ? '#dcfce7' : '#fee2e2',
+                            color: b.isCheckedIn ? '#15803d' : '#b91c1c',
+                            padding: '4px 10px',
+                            borderRadius: '12px',
+                            fontSize: '0.8rem',
+                            fontWeight: 700
+                          }}
+                        >
+                          {b.isCheckedIn ? '✓ Present' : '❌ Not Available'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
