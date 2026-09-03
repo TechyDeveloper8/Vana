@@ -10,7 +10,7 @@ export default function Navbar() {
   const isActive = (path) => (location.pathname === path ? 'active' : '');
 
   return (
-    <header>
+    <header className="navbar-golden">
       <div className="container">
         <Link to="/" className="logo-brand">
           <img
@@ -20,10 +20,6 @@ export default function Navbar() {
           />
         </Link>
 
-
-
-
-
         <nav>
           <ul className={mobileOpen ? 'show' : ''}>
             <li><Link to="/about" className={isActive('/about')} onClick={() => setMobileOpen(false)}>About</Link></li>
@@ -32,10 +28,9 @@ export default function Navbar() {
             <li><Link to="/gallery" className={isActive('/gallery')} onClick={() => setMobileOpen(false)}>Gallery</Link></li>
             <li><Link to="/contact" className={isActive('/contact')} onClick={() => setMobileOpen(false)}>Contact</Link></li>
 
-
             {user?.role === 'admin' && (
               <li>
-                <Link to="/admin/dashboard" style={{ color: 'var(--gold-accent)', fontWeight: 700 }} onClick={() => setMobileOpen(false)}>
+                <Link to="/admin/dashboard" className="nav-admin-link" onClick={() => setMobileOpen(false)}>
                   <i className="fa-solid fa-crown"></i> Admin Dashboard
                 </Link>
               </li>
@@ -44,12 +39,12 @@ export default function Navbar() {
             {user ? (
               <>
                 <li>
-                  <Link to="/dashboard" className={isActive('/dashboard')} onClick={() => setMobileOpen(false)} style={{ color: 'var(--gold-accent)', fontWeight: 600 }}>
+                  <Link to="/dashboard" className={`nav-dash-link ${isActive('/dashboard')}`} onClick={() => setMobileOpen(false)}>
                     <i className="fa-solid fa-gauge-high" style={{ marginRight: '6px' }}></i> My Dashboard
                   </Link>
                 </li>
                 <li>
-                  <button onClick={() => { setMobileOpen(false); logout(); }} className="btn-outline" style={{ padding: '8px 18px', fontSize: '0.85rem' }}>
+                  <button onClick={() => { setMobileOpen(false); logout(); }} className="nav-logout-btn">
                     Logout ({user.name ? user.name.split(' ')[0] : 'User'})
                   </button>
                 </li>
@@ -57,12 +52,12 @@ export default function Navbar() {
             ) : !isLoginHidden ? (
               <>
                 <li>
-                  <Link to="/login" className={isActive('/login')} onClick={() => setMobileOpen(false)} style={{ fontWeight: 600 }}>
+                  <Link to="/login" className={`nav-login-link ${isActive('/login')}`} onClick={() => setMobileOpen(false)}>
                     <i className="fa-solid fa-right-to-bracket" style={{ marginRight: '6px' }}></i> Login
                   </Link>
                 </li>
                 <li>
-                  <Link to="/login" className="primary-btn" style={{ padding: '10px 24px', fontSize: '0.88rem' }} onClick={() => setMobileOpen(false)}>
+                  <Link to="/login" className="nav-book-btn" onClick={() => setMobileOpen(false)}>
                     <i className="fa-solid fa-ticket"></i> Book Ticket
                   </Link>
                 </li>
