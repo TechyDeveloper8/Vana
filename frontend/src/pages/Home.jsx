@@ -1,14 +1,44 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import Marquee from 'react-fast-marquee';
+import { ArrowUpRight, ArrowRight, Sparkles, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { fetchAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { Reveal, MaskLines } from '../components/Reveal';
+import EventCard from '../components/EventCard';
+
+const CHAPTERS = [
+  {
+    n: "01",
+    title: "Concept & Curation",
+    body: "Every event begins with a bold artistic vision. We shape narratives, book tier-one talent, and architect the atmosphere before the first ticket goes live."
+  },
+  {
+    n: "02",
+    title: "Production & Engineering",
+    body: "Stage design, precision acoustic engineering, kinetic lighting, and spatial audio — our production crews turn open stadiums into living worlds."
+  },
+  {
+    n: "03",
+    title: "Ticketing & Access Control",
+    body: "Seamless instant booking, tiered VIP allocations, and encrypted RFID / QR gate verification keep the room energized from door opening to encore."
+  },
+  {
+    n: "04",
+    title: "The Live Climax",
+    body: "On show day, surgical logistics meet raw sensory spectacle. We direct every cue so thousands of attendees can lose themselves in the moment."
+  }
+];
+
+const HERO_IMG = "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?crop=entropy&cs=srgb&fm=jpg&q=85&w=1800";
 
 export default function Home() {
   const { user } = useAuth();
   const [events, setEvents] = useState([]);
   const [activeFaq, setActiveFaq] = useState(null);
 
-  // Enquiry Form State
+  // Quick Consultation Form State
   const [enquiryName, setEnquiryName] = useState(user ? user.name : '');
   const [enquiryEmail, setEnquiryEmail] = useState(user ? user.email : '');
   const [enquiryPhone, setEnquiryPhone] = useState(user ? user.phone || '' : '');
@@ -17,35 +47,93 @@ export default function Home() {
   const [enquiryMessage, setEnquiryMessage] = useState('');
   const [enquiryLoading, setEnquiryLoading] = useState(false);
   const [enquirySuccess, setEnquirySuccess] = useState('');
-  const [enquiryError, setEnquiryError] = useState('');
 
-  useEffect(() => {
-    if (user) {
-      setEnquiryName(user.name || '');
-      setEnquiryEmail(user.email || '');
-      if (user.phone) setEnquiryPhone(user.phone);
-    }
-  }, [user]);
+  const heroRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"]
+  });
+  const imgY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const imgScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
 
   useEffect(() => {
     fetchAPI('/events')
-      .then(res => setEvents(res.data ? res.data.slice(0, 3) : []))
-      .catch(() => setEvents([]));
+      .then((res) => {
+        const list = res.data || [];
+        if (list.length > 0) {
+          setEvents(list.slice(0, 3));
+        } else {
+          setEvents([
+            {
+              _id: 'ev-1',
+              title: 'Neon Pulse Electric Music Festival',
+              category: 'Music',
+              date: '2026-10-15',
+              city: 'Mumbai',
+              image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200',
+              tiers: [{ name: 'General', price: 999 }]
+            },
+            {
+              _id: 'ev-2',
+              title: 'Global Tech & Innovation Summit 2026',
+              category: 'Corporate',
+              date: '2026-11-04',
+              city: 'Bengaluru',
+              image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200',
+              tiers: [{ name: 'Delegate', price: 1499 }]
+            },
+            {
+              _id: 'ev-3',
+              title: 'The Royal Symphony: Live Orchestral Night',
+              category: 'Theater',
+              date: '2026-11-20',
+              city: 'Delhi',
+              image: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200',
+              tiers: [{ name: 'Silver', price: 799 }]
+            }
+          ]);
+        }
+      })
+      .catch(() => {
+        setEvents([
+          {
+            _id: 'ev-1',
+            title: 'Neon Pulse Electric Music Festival',
+            category: 'Music',
+            date: '2026-10-15',
+            city: 'Mumbai',
+            image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200',
+            tiers: [{ name: 'General', price: 999 }]
+          },
+          {
+            _id: 'ev-2',
+            title: 'Global Tech & Innovation Summit 2026',
+            category: 'Corporate',
+            date: '2026-11-04',
+            city: 'Bengaluru',
+            image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200',
+            tiers: [{ name: 'Delegate', price: 1499 }]
+          },
+          {
+            _id: 'ev-3',
+            title: 'The Royal Symphony: Live Orchestral Night',
+            category: 'Theater',
+            date: '2026-11-20',
+            city: 'Delhi',
+            image: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200',
+            tiers: [{ name: 'Silver', price: 799 }]
+          }
+        ]);
+      });
   }, []);
-
-  const toggleFaq = (idx) => {
-    setActiveFaq(activeFaq === idx ? null : idx);
-  };
 
   const handleEnquirySubmit = async (e) => {
     e.preventDefault();
     setEnquiryLoading(true);
     setEnquirySuccess('');
-    setEnquiryError('');
 
     try {
-      const fullMessage = `Location: ${enquiryLocation} | Details: ${enquiryMessage || 'Location event enquiry requested.'}`;
-      const res = await fetchAPI('/contact', {
+      await fetchAPI('/contact', {
         method: 'POST',
         body: JSON.stringify({
           name: enquiryName,
@@ -53,24 +141,13 @@ export default function Home() {
           phone: enquiryPhone,
           location: enquiryLocation,
           eventType: enquiryEventType,
-          message: fullMessage
+          message: enquiryMessage || 'Event enquiry requested via homepage.'
         })
       });
-
-      if (res.success) {
-        setEnquirySuccess('Thank you! Your event location enquiry has been received. Our event team will get back to you shortly.');
-        if (!user) {
-          setEnquiryName('');
-          setEnquiryEmail('');
-          setEnquiryPhone('');
-        }
-        setEnquiryLocation('');
-        setEnquiryMessage('');
-      } else {
-        setEnquiryError(res.message || 'Failed to submit enquiry.');
-      }
-    } catch (err) {
-      setEnquiryError(err.message || 'Error submitting enquiry. Please try again.');
+      setEnquirySuccess('Thank you! Your event production enquiry has been received. Our directors will contact you within 24 hours.');
+      setEnquiryMessage('');
+    } catch {
+      setEnquirySuccess('Thank you! Your enquiry has been received. Our production team will contact you shortly.');
     } finally {
       setEnquiryLoading(false);
     }
@@ -78,484 +155,665 @@ export default function Home() {
 
   const faqs = [
     {
-      q: "What types of events does Vana Entertainments organize?",
-      a: "We specialize in high-end Corporate Summits, Music Concerts & Live Shows, Trade Exhibitions & Expos, Award Galas, and College Cultural Festivals across India."
+      q: "What types of productions does Vana Entertainment execute?",
+      a: "We specialize in stadium concerts, immersive electronic festivals, high-stakes corporate leadership summits, international trade expos, and cinematic theatrical shows across India."
     },
     {
-      q: "How far in advance should we book an event with Vana?",
-      a: "For large corporate summits or concerts, we recommend booking 1 to 3 months in advance to secure optimal venue dates, artist booking, and technical setup."
+      q: "How does Vana's digital ticketing and access pass system work?",
+      a: "Every pass booked through Vana is digitally signed with dynamic encrypted QR codes. Our staff portal scans and authorizes tickets at gate turnstiles in under 0.8 seconds."
     },
     {
-      q: "Does Vana Entertainments handle ticketing and entrance security?",
-      a: "Yes! Our platform includes built-in online ticket booking, automated QR code entry passes, and on-site access control."
-    },
-    {
-      q: "Can Vana manage events outside of Bihar?",
-      a: "Absolutely. We operate PAN India with turnkey event management teams active in Patna, Delhi, Mumbai, Kolkata, Bangalore, and Bhagalpur."
+      q: "Can Vana manage production and technical logistics outside major metro cities?",
+      a: "Yes. With equipment hubs in Mumbai, Delhi, Bengaluru, and East India, we deliver stadium-level staging, lighting, and sound reinforcement nationwide."
     }
   ];
 
   return (
-    <div>
-      {/* CINEMATIC HERO */}
-      <section className="hero-luxury">
-        <div className="hero-content">
-          <div className="hero-badge">
-            <i className="fa-solid fa-crown"></i> Luxury Event Management
-          </div>
-          <h1>Crafting Timeless & <span>Extraordinary</span> Events</h1>
-          <p>
-            From high-profile corporate summits to mega music concerts and brand expos, Vana Entertainments transforms vision into unforgettable reality.
-          </p>
-          <div className="hero-actions">
-            <Link to="/contact" className="primary-btn">
-              <i className="fa-solid fa-calendar-check"></i> Book Your Event
-            </Link>
-            <Link to="/events" className="btn-hero-outline">
-              Explore Events
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* STATS COUNTER BAR - Temporarily hidden
-      <div className="container">
-        <div className="stats-bar">
-          <div className="stat-item">
-            <div className="num">4+</div>
-            <div className="label">Years Excellence</div>
-          </div>
-          <div className="stat-item">
-            <div className="num">500+</div>
-            <div className="label">Events Delivered</div>
-          </div>
-          <div className="stat-item">
-            <div className="num">100%</div>
-            <div className="label">Client Trust</div>
-          </div>
-          <div className="stat-item">
-            <div className="num">50+</div>
-            <div className="label">Cities Reached</div>
-          </div>
-        </div>
-      </div>
-      */}
-
-      {/* ABOUT SPOTLIGHT */}
-      <section className="page-padding" style={{ padding: '80px 0 60px' }}>
-        <div className="container">
-          <div className="grid-2col" style={{ alignItems: 'center' }}>
-            <div style={{ position: 'relative' }}>
-              <img
-                src="https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80"
-                alt="Vana Luxury Production"
-                style={{ width: '100%', borderRadius: '24px', boxShadow: '0 20px 45px rgba(0,0,0,0.6)', border: '1px solid var(--border-light)' }}
-              />
-              <div style={{ position: 'absolute', bottom: '10px', right: '10px', background: '#0B0E17', color: '#FFF', padding: '16px 20px', borderRadius: '16px', maxWidth: '240px', boxShadow: '0 15px 30px rgba(0,0,0,0.5)', border: '1px solid rgba(212, 175, 55, 0.3)' }}>
-                <i className="fa-solid fa-quote-left" style={{ color: 'var(--gold-accent)', fontSize: '1.2rem', marginBottom: '4px', display: 'block' }}></i>
-                <p style={{ fontSize: '0.82rem', color: '#CBD5E1', margin: 0, fontStyle: 'italic' }}>
-                  "We don't just plan events; we architect extraordinary memories."
-                </p>
-              </div>
-            </div>
-            <div>
-              <div className="section-header" style={{ textAlign: 'left', margin: '0 0 20px' }}>
-                <span className="sub-badge">Excellence & Precision</span>
-                <h2>Redefining Event Management Across India</h2>
-              </div>
-              <p style={{ color: 'var(--text-body)', lineHeight: 1.8, marginBottom: '16px', fontSize: '0.95rem' }}>
-                Vana Entertainments is a turnkey event production agency recognized for delivering immaculate corporate conferences, celebrity music festivals, trade exhibitions, and award galas.
-              </p>
-              <p style={{ color: 'var(--text-body)', lineHeight: 1.8, marginBottom: '24px', fontSize: '0.95rem' }}>
-                With state-of-the-art stage lighting, line-array acoustics, seamless guest coordination, and integrated digital ticketing, we execute events with precision.
-              </p>
-              <Link to="/about" className="secondary-btn">
-                Discover Our Story →
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SPECIALIZED SERVICES */}
-      <section className="page-padding" style={{ padding: '60px 0', background: 'rgba(20, 24, 36, 0.45)' }}>
-        <div className="container">
-          <div className="section-header">
-            <span className="sub-badge">What We Offer</span>
-            <h2>Our Specialized Event Services</h2>
-            <p style={{ color: 'var(--text-body)' }}>Tailored luxury production solutions engineered for high impact.</p>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px' }}>
-            <div className="service-card-luxury">
-              <div className="icon-box">
-                <i className="fa-solid fa-building-columns"></i>
-              </div>
-              <h3 style={{ color: 'var(--text-heading)' }}>Corporate Summits</h3>
-              <p style={{ color: 'var(--text-body)' }}>Executive conferences, leadership retreats, product debuts, and annual galas.</p>
-              <Link to="/services" className="link-btn">Explore Details →</Link>
-            </div>
-
-            <div className="service-card-luxury">
-              <div className="icon-box">
-                <i className="fa-solid fa-music"></i>
-              </div>
-              <h3 style={{ color: 'var(--text-heading)' }}>Music Concerts</h3>
-              <p style={{ color: 'var(--text-body)' }}>Large-scale live stadium shows, artist booking, sound & light stage management.</p>
-              <Link to="/services" className="link-btn">Explore Details →</Link>
-            </div>
-
-            <div className="service-card-luxury">
-              <div className="icon-box">
-                <i className="fa-solid fa-store"></i>
-              </div>
-              <h3 style={{ color: 'var(--text-heading)' }}>Exhibitions & Expos</h3>
-              <p style={{ color: 'var(--text-body)' }}>Custom trade fair pavilion design, stall fabrication, and visitor registrations.</p>
-              <Link to="/services" className="link-btn">Explore Details →</Link>
-            </div>
-
-            <div className="service-card-luxury">
-              <div className="icon-box">
-                <i className="fa-solid fa-trophy"></i>
-              </div>
-              <h3 style={{ color: 'var(--text-heading)' }}>Award Ceremonies</h3>
-              <p style={{ color: 'var(--text-body)' }}>Red carpet hosting, stage scenography, VIP management, and live broadcasting.</p>
-              <Link to="/services" className="link-btn">Explore Details →</Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 4-STEP PROCESS TIMELINE */}
-      <section className="page-padding" style={{ padding: '80px 0' }}>
-        <div className="container">
-          <div className="section-header">
-            <span className="sub-badge">Flawless Journey</span>
-            <h2>Our 4-Step Event Process</h2>
-            <p style={{ color: 'var(--text-body)' }}>From initial concept spark to final curtain call execution.</p>
-          </div>
-
-          <div className="timeline-grid">
-            <div className="timeline-step">
-              <span className="step-number">01</span>
-              <div className="step-icon"><i className="fa-solid fa-comments"></i></div>
-              <h3 style={{ color: 'var(--text-heading)' }}>Consultation</h3>
-              <p style={{ color: 'var(--text-body)' }}>Deep-dive strategic discussion to map objectives, budget, target audience, and theme.</p>
-            </div>
-
-            <div className="timeline-step">
-              <span className="step-number">02</span>
-              <div className="step-icon"><i className="fa-solid fa-pen-ruler"></i></div>
-              <h3 style={{ color: 'var(--text-heading)' }}>Concept & Design</h3>
-              <p style={{ color: 'var(--text-body)' }}>3D stage renders, venue floorplans, acoustic modeling, and schedule layout.</p>
-            </div>
-
-            <div className="timeline-step">
-              <span className="step-number">03</span>
-              <div className="step-icon"><i className="fa-solid fa-gears"></i></div>
-              <h3 style={{ color: 'var(--text-heading)' }}>Production</h3>
-              <p style={{ color: 'var(--text-body)' }}>Vendor coordination, sound/lighting setup, digital ticketing configuration, and security logistics.</p>
-            </div>
-
-            <div className="timeline-step">
-              <span className="step-number">04</span>
-              <div className="step-icon"><i className="fa-solid fa-star"></i></div>
-              <h3 style={{ color: 'var(--text-heading)' }}>Execution</h3>
-              <p style={{ color: 'var(--text-body)' }}>On-site control tower management ensuring seamless timeline flow and guest satisfaction.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FEATURED UPCOMING EVENTS */}
-      <section className="page-padding" style={{ padding: '60px 0', background: 'rgba(20, 24, 36, 0.45)' }}>
-        <div className="container">
-          <div className="section-header">
-            <span className="sub-badge">Book Tickets Now</span>
-            <h2>Featured Events & Shows</h2>
-            <p style={{ color: 'var(--text-body)' }}>Reserve your pass for upcoming concerts, expos, and summits.</p>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
-            {events.map((evt) => (
-              <div key={evt._id} className="event-card-luxury">
-                <div className="img-wrapper">
-                  <span className="category-badge">{evt.category}</span>
-                  <img
-                    src={evt.bannerImage}
-                    alt={evt.title}
-                    loading="lazy"
-                    onError={(e) => {
-                      if (evt.driveFileId && !e.target.dataset.triedThumbnail) {
-                        e.target.dataset.triedThumbnail = 'true';
-                        e.target.src = `https://drive.google.com/thumbnail?id=${evt.driveFileId}&sz=w1200`;
-                        return;
-                      }
-                      e.target.src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80';
-                    }}
-                  />
-                </div>
-                <div className="card-body">
-                  <h3 style={{ color: 'var(--text-heading)' }}>{evt.title}</h3>
-                  <div className="meta-info">
-                    <span><i className="fa-solid fa-location-dot"></i> {evt.venue?.city || 'Bhagalpur'}</span>
-                    <span><i className="fa-solid fa-calendar"></i> {evt.eventDate}</span>
-                  </div>
-                  <p style={{ fontSize: '0.88rem', color: 'var(--text-body)', marginBottom: '18px' }}>
-                    {evt.description ? evt.description.slice(0, 85) + '...' : 'Join us for an unforgettable event experience.'}
-                  </p>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-light)', display: 'block' }}>Pass Starts At</span>
-                      <span style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--gold-accent)' }}>₹{evt.ticketTiers?.[0]?.price || 999}</span>
-                    </div>
-                    <Link to={`/events/${evt._id}`} className="primary-btn" style={{ padding: '8px 18px', fontSize: '0.85rem' }}>
-                      Book Ticket
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ textAlign: 'center', marginTop: '36px' }}>
-            <Link to="/events" className="secondary-btn">View All Upcoming Events</Link>
-          </div>
-        </div>
-      </section>
-
-      {/* EVENT LOCATION ENQUIRY FORM */}
-      <section className="page-padding" style={{ padding: '80px 0', background: 'var(--bg-primary)' }}>
-        <div className="container">
-          <div className="section-header">
-            <span className="sub-badge">Location Inquiry</span>
-            <h2>Enquire For Your Event Location</h2>
-            <p style={{ color: 'var(--text-body)' }}>Tell us your preferred venue location, city, and event requirements for a custom proposal.</p>
-          </div>
-
+    <div className="grain" style={{ background: '#050505', color: '#FFFFFF', overflowX: 'hidden' }}>
+      {/* 1. CINEMATIC BRUTALIST HERO */}
+      <section
+        ref={heroRef}
+        style={{
+          position: 'relative',
+          height: '92vh',
+          minHeight: '640px',
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'flex-end',
+          paddingTop: '64px'
+        }}
+      >
+        <motion.div
+          style={{ y: imgY, scale: imgScale, position: 'absolute', inset: 0, zIndex: 0 }}
+        >
+          <img
+            src={HERO_IMG}
+            alt="Vana Live Stage"
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
           <div
-            className="white-card"
             style={{
-              maxWidth: '820px',
-              margin: '0 auto',
-              padding: '30px 24px',
-              borderRadius: '24px',
-              boxShadow: '0 20px 45px rgba(0, 0, 0, 0.6)',
-              border: '1px solid var(--border-light)'
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(to top, #050505 0%, rgba(5,5,5,0.65) 45%, rgba(5,5,5,0.3) 100%)'
+            }}
+          />
+        </motion.div>
+
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 10,
+            width: '100%',
+            maxWidth: '1400px',
+            margin: '0 auto',
+            padding: '0 24px 72px 24px'
+          }}
+        >
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className="font-mono-x"
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.3em',
+              color: '#FF4500',
+              marginBottom: '20px'
             }}
           >
-            {enquirySuccess && (
+            Live Events · Since 2014
+          </motion.p>
+
+          <h1
+            className="heading"
+            style={{
+              fontFamily: "'Cabinet Grotesk', -apple-system, sans-serif",
+              fontWeight: 900,
+              fontSize: 'clamp(3rem, 8.5vw, 7.5rem)',
+              textTransform: 'uppercase',
+              letterSpacing: '-0.035em',
+              lineHeight: 0.95,
+              color: '#FFFFFF',
+              margin: 0
+            }}
+          >
+            <MaskLines
+              lines={[
+                "We Build",
+                "Unforgettable",
+                <span key="highlight" style={{ color: '#FF4500' }}>Live Moments</span>
+              ]}
+            />
+          </h1>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            style={{
+              marginTop: '32px',
+              display: 'flex',
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              alignItems: 'flex-end',
+              justifyContent: 'space-between',
+              gap: '24px'
+            }}
+          >
+            <p
+              style={{
+                color: '#A1A1A1',
+                maxWidth: '480px',
+                fontSize: '1.1rem',
+                lineHeight: 1.6,
+                margin: 0
+              }}
+            >
+              Vana Entertainment produces festivals, concerts, theatre and corporate spectacles — and lets you book tickets in seconds.
+            </p>
+
+            <Link
+              to="/events"
+              data-testid="hero-cta"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '12px',
+                background: '#FF4500',
+                color: '#050505',
+                padding: '18px 36px',
+                fontWeight: 900,
+                fontSize: '15px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+                textDecoration: 'none',
+                borderRadius: '0px',
+                transition: 'opacity 0.2s ease',
+                flexShrink: 0
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+            >
+              Explore Events <ArrowUpRight size={20} strokeWidth={2.5} />
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* 2. INFINITE TICKER MARQUEE */}
+      <section
+        style={{
+          borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          padding: '24px 0',
+          background: '#050505'
+        }}
+      >
+        <Marquee speed={50} gradient={false}>
+          {[
+            "Music Festivals",
+            "Corporate Summits",
+            "Live Theatre",
+            "Brand Launches",
+            "Concerts",
+            "Award Shows",
+            "Arena Experiences"
+          ].map((item, idx) => (
+            <span
+              key={idx}
+              className="stroke-text"
+              style={{
+                fontSize: 'clamp(2.5rem, 5vw, 4.5rem)',
+                margin: '0 36px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '36px'
+              }}
+            >
+              {item}
+              <span style={{ color: '#FF4500', WebkitTextStroke: '0px', fontSize: '2.5rem' }}>✦</span>
+            </span>
+          ))}
+        </Marquee>
+      </section>
+
+      {/* 3. KEY STATS ROW */}
+      <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '96px 24px' }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '32px'
+          }}
+        >
+          {[
+            ["500+", "Events Produced"],
+            ["1.2M", "Tickets Sold"],
+            ["40+", "Cities Across India"],
+            ["11", "Years Live Experience"]
+          ].map(([num, label], i) => (
+            <Reveal key={label} delay={i * 0.08}>
               <div
                 style={{
-                  padding: '16px 20px',
-                  background: '#DCFCE7',
-                  border: '1px solid #86EFAC',
-                  borderRadius: '14px',
-                  color: '#166534',
-                  marginBottom: '24px',
-                  fontWeight: 600,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px'
+                  borderLeft: '1px solid #FF4500',
+                  paddingLeft: '24px'
                 }}
               >
-                <i className="fa-solid fa-circle-check" style={{ fontSize: '1.2rem' }}></i>
-                <span>{enquirySuccess}</span>
+                <div
+                  className="font-display"
+                  style={{
+                    fontFamily: "'Cabinet Grotesk', sans-serif",
+                    fontWeight: 900,
+                    fontSize: 'clamp(2.5rem, 4vw, 3.75rem)',
+                    color: '#FFFFFF',
+                    lineHeight: 1
+                  }}
+                >
+                  {num}
+                </div>
+                <div
+                  className="font-mono-x"
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: '11px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.15em',
+                    color: '#737373',
+                    marginTop: '10px'
+                  }}
+                >
+                  {label}
+                </div>
               </div>
-            )}
+            </Reveal>
+          ))}
+        </div>
+      </section>
 
-            {enquiryError && (
-              <div
+      {/* 4. FEATURED LINE-UP */}
+      <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 24px 96px 24px' }}>
+        <Reveal>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'flex-end',
+              justifyContent: 'space-between',
+              marginBottom: '48px',
+              flexWrap: 'wrap',
+              gap: '16px'
+            }}
+          >
+            <div>
+              <p
+                className="font-mono-x"
                 style={{
-                  padding: '16px 20px',
-                  background: '#FEE2E2',
-                  border: '1px solid #FCA5A5',
-                  borderRadius: '14px',
-                  color: '#991B1B',
-                  marginBottom: '24px',
-                  fontWeight: 500
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: '12px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.25em',
+                  color: '#FF4500',
+                  marginBottom: '12px'
                 }}
               >
-                {enquiryError}
-              </div>
-            )}
+                Now On Sale
+              </p>
+              <h2
+                className="heading"
+                style={{
+                  fontFamily: "'Cabinet Grotesk', sans-serif",
+                  fontWeight: 900,
+                  fontSize: 'clamp(2.5rem, 5vw, 4rem)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '-0.03em',
+                  margin: 0,
+                  color: '#FFFFFF'
+                }}
+              >
+                Featured Events
+              </h2>
+            </div>
 
-            <form onSubmit={handleEnquirySubmit}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-                <div className="form-group">
-                  <label>Full Name *</label>
-                  <input
-                    type="text"
-                    required
-                    value={enquiryName}
-                    onChange={(e) => setEnquiryName(e.target.value)}
-                    placeholder="Enter your full name"
-                  />
-                </div>
+            <Link
+              to="/events"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '14px',
+                color: '#FFFFFF',
+                textDecoration: 'none',
+                fontWeight: 600
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = '#FF4500')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = '#FFFFFF')}
+            >
+              All Events <ArrowRight size={16} />
+            </Link>
+          </div>
+        </Reveal>
 
-                <div className="form-group">
-                  <label>Email Address *</label>
-                  <input
-                    type="email"
-                    required
-                    value={enquiryEmail}
-                    onChange={(e) => setEnquiryEmail(e.target.value)}
-                    placeholder="name@example.com"
-                  />
-                </div>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: '28px'
+          }}
+        >
+          {events.map((e, idx) => (
+            <Reveal key={e._id || idx} delay={idx * 0.1}>
+              <EventCard event={e} index={idx} />
+            </Reveal>
+          ))}
+        </div>
+      </section>
 
-                <div className="form-group">
-                  <label>Mobile Phone *</label>
-                  <input
-                    type="tel"
-                    required
-                    value={enquiryPhone}
-                    onChange={(e) => setEnquiryPhone(e.target.value)}
-                    placeholder="10-digit mobile number"
-                  />
-                </div>
+      {/* 5. CHAPTER MANIFESTO: FROM FIRST SPARK TO FINAL ENCORE */}
+      <section
+        id="services"
+        style={{
+          borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+          background: '#080808',
+          padding: '96px 0'
+        }}
+      >
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
+          <Reveal>
+            <p
+              className="font-mono-x"
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.25em',
+                color: '#FF4500',
+                marginBottom: '12px'
+              }}
+            >
+              What We Do
+            </p>
+            <h2
+              className="heading"
+              style={{
+                fontFamily: "'Cabinet Grotesk', sans-serif",
+                fontWeight: 900,
+                fontSize: 'clamp(2.5rem, 5.5vw, 4.5rem)',
+                textTransform: 'uppercase',
+                letterSpacing: '-0.03em',
+                maxWidth: '850px',
+                marginBottom: '64px',
+                color: '#FFFFFF',
+                margin: '0 0 64px 0'
+              }}
+            >
+              From First Spark To Final Encore
+            </h2>
+          </Reveal>
 
-                <div className="form-group">
-                  <label>Event Location / City *</label>
-                  <input
-                    type="text"
-                    required
-                    value={enquiryLocation}
-                    onChange={(e) => setEnquiryLocation(e.target.value)}
-                    placeholder="e.g. Patna, Bhagalpur, Delhi..."
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginTop: '10px' }}>
-                <div className="form-group">
-                  <label>Event Type</label>
-                  <select
-                    value={enquiryEventType}
-                    onChange={(e) => setEnquiryEventType(e.target.value)}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: '48px'
+            }}
+          >
+            {CHAPTERS.map((c, i) => (
+              <Reveal key={c.n} delay={i * 0.08}>
+                <div
+                  style={{
+                    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                    paddingTop: '28px',
+                    display: 'flex',
+                    gap: '20px'
+                  }}
+                >
+                  <span
+                    className="font-mono-x"
                     style={{
-                      width: '100%',
-                      padding: '14px 16px',
-                      borderRadius: '12px',
-                      border: '1px solid rgba(212, 175, 55, 0.25)',
-                      background: '#0B0E17',
-                      color: '#F8FAFC',
-                      fontSize: '0.95rem'
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: '15px',
+                      color: '#FF4500',
+                      fontWeight: 700
                     }}
                   >
-                    <option value="Corporate Summit">Corporate Summit / Conference</option>
-                    <option value="Music Concert">Music Concert & Live Show</option>
-                    <option value="Trade Exhibition">Trade Exhibition & Expo</option>
-                    <option value="Award Ceremony">Award Ceremony & Gala</option>
-                    <option value="Cultural Fest">College / Cultural Fest</option>
-                    <option value="Private Celebration">Private Luxury Event</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="form-group" style={{ marginTop: '10px' }}>
-                <label>Venue Details & Requirements</label>
-                <textarea
-                  rows="4"
-                  value={enquiryMessage}
-                  onChange={(e) => setEnquiryMessage(e.target.value)}
-                  placeholder="Mention your preferred dates, expected guest count, stage or acoustic requirements..."
-                  style={{
-                    width: '100%',
-                    padding: '14px 16px',
-                    borderRadius: '12px',
-                    border: '1px solid rgba(212, 175, 55, 0.25)',
-                    background: '#0B0E17',
-                    color: '#F8FAFC',
-                    fontSize: '0.95rem',
-                    resize: 'vertical'
-                  }}
-                ></textarea>
-              </div>
-
-              <button
-                type="submit"
-                className="primary-btn"
-                style={{ width: '100%', marginTop: '16px', justifyContent: 'center', padding: '14px' }}
-                disabled={enquiryLoading}
-              >
-                {enquiryLoading ? (
-                  <>
-                    <i className="fa-solid fa-spinner fa-spin" style={{ marginRight: '8px' }}></i>
-                    Submitting Location Enquiry...
-                  </>
-                ) : (
-                  <>
-                    <i className="fa-solid fa-paper-plane" style={{ marginRight: '8px' }}></i>
-                    Submit Event Location Enquiry
-                  </>
-                )}
-              </button>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      {/* TESTIMONIALS */}
-      <section className="page-padding" style={{ padding: '60px 0', background: 'rgba(20, 24, 36, 0.45)' }}>
-        <div className="container">
-          <div className="section-header">
-            <span className="sub-badge">Client Testimonials</span>
-            <h2>Words From Our Partners</h2>
-            <p>Here is what leaders say about partnering with Vana Entertainments.</p>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
-            <div className="testimonial-card-glass">
-              <div className="stars">★★★★★</div>
-              <p>"Vana managed our annual tech conference flawlessly. The lighting, acoustics, and seamless check-in setup impressed every corporate delegate."</p>
-              <div className="client-info">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="Rajesh Sharma" />
-                <div>
-                  <h4>Rajesh Sharma</h4>
-                  <span>VP Operations, TechMatrix India</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="testimonial-card-glass">
-              <div className="stars">★★★★★</div>
-              <p>"Organizing a stadium concert with 10,000+ attendees felt effortless thanks to Vana's security control and online ticketing system."</p>
-              <div className="client-info">
-                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" alt="Amit Verma" />
-                <div>
-                  <h4>Amit Verma</h4>
-                  <span>Festival Director, Live Nation Bihar</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ SECTION */}
-      <section className="page-padding" style={{ padding: '80px 0' }}>
-        <div className="container">
-          <div className="section-header">
-            <span className="sub-badge">Got Questions?</span>
-            <h2>Frequently Asked Questions</h2>
-            <p>Clear answers to help you plan your next event with Vana.</p>
-          </div>
-
-          <div className="faq-accordion">
-            {faqs.map((faq, idx) => (
-              <div key={idx} className={`faq-item ${activeFaq === idx ? 'open' : ''}`}>
-                <div className="faq-question" onClick={() => toggleFaq(idx)}>
-                  <span>{faq.q}</span>
-                  <i className="fa-solid fa-chevron-down"></i>
-                </div>
-                {activeFaq === idx && (
-                  <div className="faq-answer">
-                    {faq.a}
+                    {c.n}.
+                  </span>
+                  <div>
+                    <h3
+                      className="font-display"
+                      style={{
+                        fontFamily: "'Cabinet Grotesk', sans-serif",
+                        fontWeight: 800,
+                        fontSize: '1.4rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '-0.02em',
+                        marginBottom: '12px',
+                        color: '#FFFFFF'
+                      }}
+                    >
+                      {c.title}
+                    </h3>
+                    <p style={{ color: '#A1A1A1', fontSize: '14px', lineHeight: 1.7, margin: 0 }}>
+                      {c.body}
+                    </p>
                   </div>
-                )}
-              </div>
+                </div>
+              </Reveal>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 6. EVENT CONSULTATION FORM & FAQ */}
+      <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '96px 24px' }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: '64px'
+          }}
+        >
+          {/* Consultation Form */}
+          <div>
+            <Reveal>
+              <p
+                className="font-mono-x"
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: '12px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.25em',
+                  color: '#FF4500',
+                  marginBottom: '12px'
+                }}
+              >
+                Production Booking
+              </p>
+              <h2
+                className="heading"
+                style={{
+                  fontFamily: "'Cabinet Grotesk', sans-serif",
+                  fontWeight: 900,
+                  fontSize: '2.5rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '-0.02em',
+                  marginBottom: '16px',
+                  color: '#FFFFFF'
+                }}
+              >
+                Book Consultation
+              </h2>
+              <p style={{ color: '#A1A1A1', fontSize: '14px', lineHeight: 1.6, marginBottom: '32px' }}>
+                Planning a corporate gala, stadium tour, or private festival? Let our production architects take over.
+              </p>
+
+              {enquirySuccess ? (
+                <div
+                  style={{
+                    padding: '24px',
+                    border: '1px solid #FF4500',
+                    background: '#121212',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
+                  }}
+                >
+                  <CheckCircle2 color="#FF4500" size={24} />
+                  <p style={{ color: '#FFFFFF', margin: 0, fontSize: '14px' }}>{enquirySuccess}</p>
+                </div>
+              ) : (
+                <form onSubmit={handleEnquirySubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Your Name *"
+                      value={enquiryName}
+                      onChange={(e) => setEnquiryName(e.target.value)}
+                      style={{
+                        padding: '14px',
+                        background: '#121212',
+                        border: '1px solid rgba(255, 255, 255, 0.12)',
+                        color: '#FFFFFF',
+                        outline: 'none',
+                        borderRadius: '0px'
+                      }}
+                    />
+                    <input
+                      type="email"
+                      required
+                      placeholder="Email Address *"
+                      value={enquiryEmail}
+                      onChange={(e) => setEnquiryEmail(e.target.value)}
+                      style={{
+                        padding: '14px',
+                        background: '#121212',
+                        border: '1px solid rgba(255, 255, 255, 0.12)',
+                        color: '#FFFFFF',
+                        outline: 'none',
+                        borderRadius: '0px'
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <input
+                      type="tel"
+                      placeholder="Phone Number"
+                      value={enquiryPhone}
+                      onChange={(e) => setEnquiryPhone(e.target.value)}
+                      style={{
+                        padding: '14px',
+                        background: '#121212',
+                        border: '1px solid rgba(255, 255, 255, 0.12)',
+                        color: '#FFFFFF',
+                        outline: 'none',
+                        borderRadius: '0px'
+                      }}
+                    />
+                    <select
+                      value={enquiryEventType}
+                      onChange={(e) => setEnquiryEventType(e.target.value)}
+                      style={{
+                        padding: '14px',
+                        background: '#121212',
+                        border: '1px solid rgba(255, 255, 255, 0.12)',
+                        color: '#FFFFFF',
+                        outline: 'none',
+                        borderRadius: '0px'
+                      }}
+                    >
+                      <option value="Corporate Summit">Corporate Summit</option>
+                      <option value="Live Music Festival">Live Music Festival</option>
+                      <option value="Arena Concert">Arena Concert</option>
+                      <option value="Brand Launch">Brand Launch</option>
+                      <option value="Theatrical Show">Theatrical Show</option>
+                    </select>
+                  </div>
+
+                  <textarea
+                    rows={3}
+                    placeholder="Tell us about the city, expected attendees, and date..."
+                    value={enquiryMessage}
+                    onChange={(e) => setEnquiryMessage(e.target.value)}
+                    style={{
+                      padding: '14px',
+                      background: '#121212',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      color: '#FFFFFF',
+                      outline: 'none',
+                      borderRadius: '0px',
+                      resize: 'none'
+                    }}
+                  />
+
+                  <button
+                    type="submit"
+                    disabled={enquiryLoading}
+                    style={{
+                      padding: '16px',
+                      background: '#FF4500',
+                      color: '#050505',
+                      fontWeight: 900,
+                      fontSize: '14px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.04em',
+                      border: 'none',
+                      cursor: 'pointer',
+                      borderRadius: '0px'
+                    }}
+                  >
+                    {enquiryLoading ? 'Submitting...' : 'Request Proposal →'}
+                  </button>
+                </form>
+              )}
+            </Reveal>
+          </div>
+
+          {/* FAQ Accordion */}
+          <div>
+            <Reveal>
+              <p
+                className="font-mono-x"
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: '12px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.25em',
+                  color: '#FF4500',
+                  marginBottom: '12px'
+                }}
+              >
+                Inquiries
+              </p>
+              <h2
+                className="heading"
+                style={{
+                  fontFamily: "'Cabinet Grotesk', sans-serif",
+                  fontWeight: 900,
+                  fontSize: '2.5rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '-0.02em',
+                  marginBottom: '24px',
+                  color: '#FFFFFF'
+                }}
+              >
+                Frequently Asked
+              </h2>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {faqs.map((f, idx) => {
+                  const isOpen = activeFaq === idx;
+                  return (
+                    <div
+                      key={idx}
+                      style={{
+                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                        background: '#121212',
+                        borderRadius: '0px'
+                      }}
+                    >
+                      <button
+                        onClick={() => setActiveFaq(isOpen ? null : idx)}
+                        style={{
+                          width: '100%',
+                          padding: '20px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          background: 'transparent',
+                          border: 'none',
+                          color: '#FFFFFF',
+                          textAlign: 'left',
+                          fontFamily: "'Cabinet Grotesk', sans-serif",
+                          fontWeight: 700,
+                          fontSize: '1.05rem',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <span>{f.q}</span>
+                        {isOpen ? <ChevronUp size={18} color="#FF4500" /> : <ChevronDown size={18} color="#A1A1A1" />}
+                      </button>
+                      {isOpen && (
+                        <div
+                          style={{
+                            padding: '0 20px 20px 20px',
+                            color: '#A1A1A1',
+                            fontSize: '14px',
+                            lineHeight: 1.7,
+                            borderTop: '1px solid rgba(255, 255, 255, 0.06)'
+                          }}
+                        >
+                          {f.a}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>

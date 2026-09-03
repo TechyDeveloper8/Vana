@@ -1,100 +1,310 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Instagram, Twitter, Youtube, ArrowUpRight } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer style={{ background: '#0B0E17', color: '#E5E7EB', paddingTop: '60px', paddingBottom: '30px', borderTop: '1px solid var(--border-light)' }}>
-      <div className="container footer-container">
-        {/* Brand Column */}
-        <div>
-          <Link to="/" className="logo-brand" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' }}>
-            <div>
-              <span className="brand-name" style={{ color: 'var(--gold-accent)', fontSize: '1.4rem', letterSpacing: '0.05em', fontFamily: "'Playfair Display', Georgia, serif" }}>VANA</span>
-              <span className="brand-tag" style={{ fontSize: '0.62rem', letterSpacing: '0.2em', color: '#E7DDD1' }}>ENTERTAINMENTS</span>
+    <footer
+      style={{
+        background: '#050505',
+        borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+        paddingTop: '96px',
+        paddingBottom: '40px',
+        position: 'relative',
+        zIndex: 10
+      }}
+    >
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
+        {/* Giant Interactive "LET'S TALK" CTA */}
+        <Link
+          to="/contact"
+          data-testid="footer-cta"
+          style={{
+            display: 'block',
+            textDecoration: 'none',
+            marginBottom: '64px'
+          }}
+          className="footer-hero-link group"
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <h2
+              className="heading stroke-text"
+              style={{
+                fontSize: 'clamp(4rem, 15vw, 12rem)',
+                lineHeight: 0.85,
+                margin: 0,
+                transition: 'color 0.4s ease, -webkit-text-stroke 0.4s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#FF4500';
+                e.currentTarget.style.webkitTextStroke = '0px';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = 'transparent';
+                e.currentTarget.style.webkitTextStroke = '1px rgba(255,255,255,0.25)';
+              }}
+            >
+              Let&apos;s Talk
+            </h2>
+            <div
+              style={{
+                width: '64px',
+                height: '64px',
+                background: '#FF4500',
+                color: '#050505',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'transform 0.3s ease'
+              }}
+            >
+              <ArrowUpRight size={32} strokeWidth={2.5} />
             </div>
-          </Link>
-          <p style={{ fontSize: '0.9rem', color: '#9CA3AF', marginBottom: '20px', lineHeight: 1.6 }}>
-            India’s premier luxury event management firm creating unforgettable corporate summits, live concerts, brand activations, and cultural festivals.
-          </p>
-          <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-            <a href="#" style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#141824', border: '1px solid rgba(212, 175, 55, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--gold-accent)' }}>
-              <i className="fa-brands fa-instagram"></i>
-            </a>
-            <a href="#" style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#141824', border: '1px solid rgba(212, 175, 55, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--gold-accent)' }}>
-              <i className="fa-brands fa-facebook-f"></i>
-            </a>
-            <a href="#" style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#141824', border: '1px solid rgba(212, 175, 55, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--gold-accent)' }}>
-              <i className="fa-brands fa-linkedin-in"></i>
-            </a>
-            <a href="#" style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#141824', border: '1px solid rgba(212, 175, 55, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--gold-accent)' }}>
-              <i className="fa-brands fa-youtube"></i>
-            </a>
           </div>
-        </div>
+        </Link>
 
-        {/* Navigation */}
-        <div>
-          <h3 style={{ color: '#FFFFFF', fontSize: '1.1rem', marginBottom: '16px', fontFamily: "'Playfair Display', Georgia, serif" }}>Quick Links</h3>
-          <ul style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.9rem' }}>
-            <li><Link to="/about" style={{ color: '#9CA3AF' }}>About Vana</Link></li>
-            <li><Link to="/services" style={{ color: '#9CA3AF' }}>Services Showcase</Link></li>
-            <li><Link to="/events" style={{ color: '#9CA3AF' }}>Browse Events</Link></li>
-            <li><Link to="/gallery" style={{ color: '#9CA3AF' }}>Visual Portfolio</Link></li>
-            <li><Link to="/contact" style={{ color: '#9CA3AF' }}>Book Consultation</Link></li>
-          </ul>
-        </div>
-
-        {/* Legal & Non-Refundable Policies */}
-        <div>
-          <h3 style={{ color: '#D4AF37', fontSize: '1.1rem', marginBottom: '16px', fontFamily: "'Playfair Display', Georgia, serif" }}>
-            Legal & Policies
-          </h3>
-          <ul style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.9rem' }}>
-            <li>
-              <Link to="/terms-and-conditions" style={{ color: '#9CA3AF', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                <i className="fa-solid fa-file-contract" style={{ color: '#B8860B' }}></i> Terms & Conditions
-              </Link>
-            </li>
-            <li>
-              <Link to="/terms-and-conditions" style={{ color: '#F87171', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                <i className="fa-solid fa-ban" style={{ color: '#EF4444' }}></i> Non-Refundable Policy
-              </Link>
-            </li>
-            <li>
-              <Link to="/privacy-policy" style={{ color: '#9CA3AF', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                <i className="fa-solid fa-shield-halved" style={{ color: '#B8860B' }}></i> Privacy Policy
-              </Link>
-            </li>
-          </ul>
-          
-          <div style={{ marginTop: '16px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '10px 14px', borderRadius: '8px', fontSize: '0.78rem', color: '#FCA5A5' }}>
-            <i className="fa-solid fa-circle-info" style={{ marginRight: '6px' }}></i>
-            Notice: All event tickets & seating passes are <strong>100% Non-Refundable</strong>.
+        {/* Columns Grid */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: '40px',
+            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+            paddingTop: '48px',
+            marginBottom: '48px'
+          }}
+        >
+          {/* Brand & Mission */}
+          <div style={{ gridColumn: 'span 2' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+              <span style={{ width: '10px', height: '10px', background: '#FF4500', display: 'inline-block' }} />
+              <span
+                className="font-display"
+                style={{
+                  fontFamily: "'Cabinet Grotesk', sans-serif",
+                  fontWeight: 900,
+                  fontSize: '1.25rem',
+                  textTransform: 'uppercase',
+                  color: '#FFFFFF'
+                }}
+              >
+                Vana Entertainment
+              </span>
+            </div>
+            <p style={{ color: '#A1A1A1', fontSize: '14px', lineHeight: 1.7, maxWidth: '420px', marginBottom: '24px' }}>
+              We design, produce and deliver unforgettable live spectacles — from high-voltage music festivals and arena concerts to flagship corporate summits.
+            </p>
+            <div
+              className="font-mono-x"
+              style={{
+                fontSize: '11px',
+                color: '#737373',
+                fontFamily: "'JetBrains Mono', monospace",
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em'
+              }}
+            >
+              Presence: Mumbai · Bengaluru · Delhi · Bhagalpur
+            </div>
           </div>
-        </div>
 
-        {/* Contact Info */}
-        <div>
-          <h3 style={{ color: '#FFFFFF', fontSize: '1.1rem', marginBottom: '16px', fontFamily: "'Playfair Display', Georgia, serif" }}>Head Office</h3>
-          <p style={{ marginBottom: '10px', fontSize: '0.9rem', color: '#9CA3AF' }}><i className="fa-solid fa-location-dot" style={{ color: '#D4AF37', marginRight: '8px' }}></i> Karmanchak, Bhagalpur, Bihar - 812001</p>
-          <p style={{ marginBottom: '10px', fontSize: '0.9rem', color: '#9CA3AF' }}><i className="fa-solid fa-envelope" style={{ color: '#D4AF37', marginRight: '8px' }}></i> enquiry@vanaentertainments.com</p>
-          <p style={{ marginBottom: '10px', fontSize: '0.9rem', color: '#9CA3AF' }}><i className="fa-solid fa-phone" style={{ color: '#D4AF37', marginRight: '8px' }}></i> +91-9798988829</p>
-        </div>
-      </div>
-
-      {/* Copyright Bar */}
-      <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', marginTop: '40px', paddingTop: '20px', textAlign: 'center', fontSize: '0.85rem', color: '#6B7280' }}>
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+          {/* Quick Navigation */}
           <div>
-            © 2026 Vana Entertainments. All Rights Reserved. Managed By Zentra Digital.
+            <p
+              className="font-mono-x"
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: '11px',
+                color: '#737373',
+                textTransform: 'uppercase',
+                letterSpacing: '0.15em',
+                marginBottom: '18px'
+              }}
+            >
+              Navigation
+            </p>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <li>
+                <Link to="/events" style={{ color: '#A1A1A1', textDecoration: 'none', fontSize: '14px' }}>
+                  Live Events
+                </Link>
+              </li>
+              <li>
+                <Link to="/services" style={{ color: '#A1A1A1', textDecoration: 'none', fontSize: '14px' }}>
+                  Production Services
+                </Link>
+              </li>
+              <li>
+                <Link to="/about" style={{ color: '#A1A1A1', textDecoration: 'none', fontSize: '14px' }}>
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link to="/gallery" style={{ color: '#A1A1A1', textDecoration: 'none', fontSize: '14px' }}>
+                  Gallery & Moments
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" style={{ color: '#A1A1A1', textDecoration: 'none', fontSize: '14px' }}>
+                  Contact Consultation
+                </Link>
+              </li>
+            </ul>
           </div>
-          <div style={{ display: 'flex', gap: '20px' }}>
-            <Link to="/terms-and-conditions" style={{ color: '#9CA3AF' }}>Terms & Conditions</Link>
-            <span style={{ color: '#4B5563' }}>•</span>
-            <Link to="/terms-and-conditions" style={{ color: '#F87171' }}>Non-Refundable Policy</Link>
-            <span style={{ color: '#4B5563' }}>•</span>
-            <Link to="/privacy-policy" style={{ color: '#9CA3AF' }}>Privacy Policy</Link>
+
+          {/* Legal Policies */}
+          <div>
+            <p
+              className="font-mono-x"
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: '11px',
+                color: '#737373',
+                textTransform: 'uppercase',
+                letterSpacing: '0.15em',
+                marginBottom: '18px'
+              }}
+            >
+              Policies & Legal
+            </p>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <li>
+                <Link to="/terms-and-conditions" style={{ color: '#A1A1A1', textDecoration: 'none', fontSize: '14px' }}>
+                  Terms & Conditions
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms-and-conditions" style={{ color: '#EF4444', textDecoration: 'none', fontSize: '14px', fontWeight: 600 }}>
+                  100% Non-Refundable Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/privacy-policy" style={{ color: '#A1A1A1', textDecoration: 'none', fontSize: '14px' }}>
+                  Privacy Policy
+                </Link>
+              </li>
+            </ul>
           </div>
+
+          {/* Connect & Social */}
+          <div>
+            <p
+              className="font-mono-x"
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: '11px',
+                color: '#737373',
+                textTransform: 'uppercase',
+                letterSpacing: '0.15em',
+                marginBottom: '18px'
+              }}
+            >
+              Connect
+            </p>
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+              <a
+                href="#"
+                aria-label="Instagram"
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  color: '#FFFFFF',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#FF4500';
+                  e.currentTarget.style.color = '#FF4500';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                  e.currentTarget.style.color = '#FFFFFF';
+                }}
+              >
+                <Instagram size={18} />
+              </a>
+              <a
+                href="#"
+                aria-label="Twitter"
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  color: '#FFFFFF',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#FF4500';
+                  e.currentTarget.style.color = '#FF4500';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                  e.currentTarget.style.color = '#FFFFFF';
+                }}
+              >
+                <Twitter size={18} />
+              </a>
+              <a
+                href="#"
+                aria-label="YouTube"
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  color: '#FFFFFF',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#FF4500';
+                  e.currentTarget.style.color = '#FF4500';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                  e.currentTarget.style.color = '#FFFFFF';
+                }}
+              >
+                <Youtube size={18} />
+              </a>
+            </div>
+            <p className="font-mono-x" style={{ fontSize: '12px', color: '#737373', fontFamily: "'JetBrains Mono', monospace" }}>
+              hello@vana.live
+            </p>
+          </div>
+        </div>
+
+        {/* Bottom Bar */}
+        <div
+          className="font-mono-x"
+          style={{
+            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+            paddingTop: '28px',
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '16px',
+            fontSize: '11px',
+            color: '#737373',
+            fontFamily: "'JetBrains Mono', monospace"
+          }}
+        >
+          <span>© {new Date().getFullYear()} VANA ENTERTAINMENT. ALL RIGHTS RESERVED.</span>
+          <span style={{ color: '#A1A1A1', textAlign: 'center', letterSpacing: '0.05em' }}>
+            Managed by <strong style={{ color: '#FFFFFF' }}>Zentra Digital</strong>
+          </span>
+          <span>MUMBAI — BENGALURU — DELHI — BHAGALPUR</span>
         </div>
       </div>
     </footer>

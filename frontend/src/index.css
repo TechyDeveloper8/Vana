@@ -1,56 +1,60 @@
 /* ==========================================
-   VANA ENTERTAINMENTS - LUXURY BLACK & GOLD DESIGN SYSTEM
+   VANA ENTERTAINMENT - BRUTALIST DARK DESIGN SYSTEM
    Signature Color Palette:
-   - Primary Background: #0A0D14 (Obsidian Velvet Black)
-   - Secondary / Surface: #121622 (Deep Charcoal Slate)
-   - Card Surface: #141824 (Rich Slate Card)
-   - Gold Metallic: #D4AF37 & #F5D77F (Royal Champagne Gold)
-   - Borders: rgba(212, 175, 55, 0.25) (Subtle Gold Hairline)
-   - Headings: #F8FAFC (Crisp Pearl White)
-   - Body Text: #CBD5E1 (Silver Slate)
+   - Primary Background: #050505 (Pitch Void Black)
+   - Surface / Card: #121212 (Industrial Slate Card)
+   - Secondary: #1A1A1A (Graphite Dark)
+   - Electric Orange Accent: #FF4500 (Electric Blaze Orange)
+   - Borders: rgba(255, 255, 255, 0.08) / #282828 (Hairline Divider)
+   - Headings: #FFFFFF (Cabinet Grotesk 900)
+   - Body Text: #A1A1A1 (Satoshi Sans)
+   - Mono Tags & Stats: #D4D4D8 (JetBrains Mono)
+   - Geometry: 0px Sharp Brutalist Radius
    ========================================== */
 
 :root {
-  --bg-primary: #0A0D14;
-  --bg-secondary: #0F131D;
-  --bg-surface: #141824;
-  --bg-card: #141824;
-  --bg-card-hover: #1A1F2E;
-  --bg-glass: rgba(20, 24, 36, 0.88);
-  --bg-dark-accent: #07090E;
+  --bg-primary: #050505;
+  --bg-secondary: #0A0A0A;
+  --bg-surface: #121212;
+  --bg-card: #121212;
+  --bg-card-hover: #181818;
+  --bg-glass: rgba(5, 5, 5, 0.75);
+  --bg-dark-accent: #020202;
   
-  --text-heading: #F8FAFC;
-  --text-body: #CBD5E1;
-  --text-light: #94A3B8;
-  --text-muted: #64748B;
+  --text-heading: #FFFFFF;
+  --text-body: #A1A1A1;
+  --text-light: #737373;
+  --text-muted: #525252;
   
-  --border-light: rgba(212, 175, 55, 0.22);
-  --border-gold: rgba(212, 175, 55, 0.45);
+  --border-light: rgba(255, 255, 255, 0.08);
+  --border-gold: #FF4500;
   --border-dark: rgba(255, 255, 255, 0.08);
+  --border-border: rgba(255, 255, 255, 0.08);
   
-  --gold-primary: #D4AF37;
-  --gold-accent: #F5D77F;
-  --gold-dark: #997316;
-  --gold-glow: rgba(212, 175, 55, 0.35);
-  --gold-gradient: linear-gradient(135deg, #F9DF8D 0%, #D4AF37 50%, #B8860B 100%);
-  --gold-gradient-subtle: linear-gradient(135deg, rgba(249, 223, 141, 0.15) 0%, rgba(212, 175, 55, 0.05) 100%);
-  --dark-gradient: linear-gradient(180deg, #0A0D14 0%, #141824 100%);
-  --dark-accent: #0A0D14;
+  --gold-primary: #FF4500;
+  --gold-accent: #FF5722;
+  --gold-dark: #D83A00;
+  --gold-glow: rgba(255, 69, 0, 0.4);
+  --gold-gradient: linear-gradient(135deg, #FF6B35 0%, #FF4500 50%, #D83A00 100%);
+  --gold-gradient-subtle: linear-gradient(135deg, rgba(255, 69, 0, 0.15) 0%, rgba(255, 69, 0, 0.04) 100%);
+  --dark-gradient: linear-gradient(180deg, #050505 0%, #121212 100%);
+  --dark-accent: #050505;
   
-  --font-heading: 'Playfair Display', Georgia, serif;
-  --font-body: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  --font-heading: 'Cabinet Grotesk', -apple-system, sans-serif;
+  --font-body: 'Satoshi', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
   
-  --radius-sm: 8px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
-  --radius-full: 9999px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-full: 0px;
   
-  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.6);
-  --shadow-hover: 0 20px 45px rgba(0, 0, 0, 0.8), 0 0 25px rgba(212, 175, 55, 0.22);
-  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
-  --shadow-gold: 0 10px 30px rgba(212, 175, 55, 0.3);
+  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.8);
+  --shadow-hover: 0 20px 45px rgba(0, 0, 0, 0.9), 0 0 25px rgba(255, 69, 0, 0.25);
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.7);
+  --shadow-gold: 0 10px 30px rgba(255, 69, 0, 0.35);
   
-  --transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Reset & Global Base */
@@ -63,6 +67,25 @@
 html {
   scroll-behavior: smooth;
   color-scheme: dark;
+  scrollbar-width: thin;
+  scrollbar-color: #FF4500 #0a0a0a;
+}
+
+::selection {
+  background: #FF4500;
+  color: #050505;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #FF4500;
 }
 
 body {
@@ -75,12 +98,63 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Brutalist Typography & Visual Utilities */
+.font-display {
+  font-family: 'Cabinet Grotesk', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+.font-mono-x {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.heading {
+  font-family: 'Cabinet Grotesk', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: -0.03em !important;
+  line-height: 0.95 !important;
+}
+
+.glass {
+  background: rgba(5, 5, 5, 0.75) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.grain {
+  position: relative;
+}
+
+.grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.stroke-text {
+  color: transparent !important;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.25);
+  font-family: 'Cabinet Grotesk', -apple-system, sans-serif !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+}
+
+.line-mask {
+  overflow: hidden;
+  display: block;
+}
+
 h1, h2, h3, h4, h5, h6 {
   color: var(--text-heading);
   font-family: var(--font-heading);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.25;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
 }
 
 a {

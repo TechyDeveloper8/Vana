@@ -157,48 +157,58 @@ export default function UserDashboard() {
       <div className="container">
         {/* User Greeting Banner */}
         <div
-          className="white-card"
+          className="grain"
           style={{
             padding: '36px',
-            marginBottom: '30px',
-            background: 'linear-gradient(135deg, #0B0E17 0%, #141824 100%)',
-            border: '1px solid rgba(212, 175, 55, 0.3)',
+            marginBottom: '32px',
+            background: '#121212',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
             color: '#FFFFFF',
-            borderRadius: '24px',
-            boxShadow: '0 15px 40px rgba(0,0,0,0.6)',
+            borderRadius: '0px',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
             flexWrap: 'wrap',
-            gap: '20px'
+            gap: '24px'
           }}
         >
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
               <span
+                className="font-mono-x"
                 style={{
-                  background: 'var(--gold-gradient)',
-                  color: '#0A0D14',
-                  fontSize: '0.75rem',
+                  background: '#FF4500',
+                  color: '#050505',
+                  fontSize: '11px',
                   fontWeight: 800,
-                  padding: '4px 12px',
-                  borderRadius: '20px',
+                  padding: '4px 10px',
+                  borderRadius: '0px',
                   textTransform: 'uppercase',
-                  letterSpacing: '1px'
+                  letterSpacing: '0.1em'
                 }}
               >
-                Vana Account Dashboard
+                Control Center
               </span>
-              <span style={{ fontSize: '0.85rem', color: 'var(--gold-accent)' }}>
-                <i className="fa-solid fa-user-check" style={{ marginRight: '6px' }}></i>
-                Signed In
+              <span className="font-mono-x" style={{ fontSize: '12px', color: '#FF4500' }}>
+                <i className="fa-solid fa-circle-check" style={{ marginRight: '6px' }}></i>
+                Active Session
               </span>
             </div>
-            <h2 style={{ fontSize: '2rem', margin: '6px 0', color: '#F8FAFC', fontWeight: 700 }}>
-              Welcome Back, {user?.name || 'User'}!
+            <h2
+              className="heading"
+              style={{
+                fontFamily: "'Cabinet Grotesk', sans-serif",
+                fontSize: 'clamp(1.8rem, 4vw, 2.75rem)',
+                margin: '6px 0',
+                color: '#FFFFFF',
+                fontWeight: 900,
+                textTransform: 'uppercase'
+              }}
+            >
+              Welcome, {user?.name || 'User'}
             </h2>
-            <p style={{ color: '#94A3B8', fontSize: '0.95rem', margin: 0 }}>
-              <i className="fa-regular fa-envelope" style={{ marginRight: '8px', color: 'var(--gold-accent)' }}></i>
+            <p className="font-mono-x" style={{ color: '#737373', fontSize: '13px', margin: 0, fontFamily: "'JetBrains Mono', monospace" }}>
+              <i className="fa-regular fa-envelope" style={{ marginRight: '8px', color: '#FF4500' }}></i>
               {user?.email}
             </p>
           </div>
@@ -206,61 +216,91 @@ export default function UserDashboard() {
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
             <button
               onClick={loadUserData}
-              className="btn-outline"
-              style={{ color: 'var(--gold-accent)', borderColor: 'rgba(212, 175, 55, 0.4)', padding: '10px 20px', fontSize: '0.9rem' }}
+              style={{
+                color: '#FFFFFF',
+                background: '#050505',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                padding: '12px 20px',
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                borderRadius: '0px',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#FF4500')}
+              onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)')}
             >
-              <i className="fa-solid fa-arrows-rotate" style={{ marginRight: '8px' }}></i>
-              Refresh Dashboard
+              <i className="fa-solid fa-arrows-rotate" style={{ marginRight: '8px', color: '#FF4500' }}></i>
+              Sync Passes
             </button>
-            <Link to="/events" className="primary-btn" style={{ padding: '10px 22px', fontSize: '0.9rem' }}>
+            <Link
+              to="/events"
+              style={{
+                padding: '12px 24px',
+                fontSize: '13px',
+                background: '#FF4500',
+                color: '#050505',
+                fontWeight: 900,
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+                textDecoration: 'none',
+                borderRadius: '0px'
+              }}
+            >
               <i className="fa-solid fa-ticket" style={{ marginRight: '8px' }}></i>
-              Book New Event
+              Explore Events
             </Link>
           </div>
         </div>
 
         {/* Top Navigation Tabs (Bookings vs Location Enquiries) */}
-        <div style={{ display: 'flex', gap: '16px', marginBottom: '28px', borderBottom: '2px solid rgba(212, 175, 55, 0.25)', paddingBottom: '12px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '12px', marginBottom: '28px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '16px', flexWrap: 'wrap' }}>
           <button
             onClick={() => setDashboardTab('passes')}
             style={{
-              padding: '12px 24px',
-              borderRadius: '14px',
-              border: dashboardTab === 'passes' ? '1px solid var(--gold-primary)' : '1px solid rgba(212, 175, 55, 0.25)',
-              fontWeight: 700,
-              fontSize: '1rem',
+              padding: '10px 24px',
+              borderRadius: '0px',
+              border: dashboardTab === 'passes' ? '1px solid #FF4500' : '1px solid rgba(255, 255, 255, 0.12)',
+              fontWeight: 800,
+              fontSize: '13px',
+              fontFamily: "'JetBrains Mono', monospace",
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '10px',
-              background: dashboardTab === 'passes' ? 'var(--gold-gradient)' : '#141824',
-              color: dashboardTab === 'passes' ? '#0A0D14' : '#CBD5E1',
-              boxShadow: dashboardTab === 'passes' ? '0 8px 25px rgba(212, 175, 55, 0.35)' : 'none'
+              gap: '8px',
+              background: dashboardTab === 'passes' ? '#FF4500' : '#121212',
+              color: dashboardTab === 'passes' ? '#050505' : '#A1A1A1',
+              transition: 'all 0.2s ease'
             }}
           >
-            <i className="fa-solid fa-qrcode" style={{ color: dashboardTab === 'passes' ? '#0A0D14' : 'var(--gold-accent)' }}></i>
+            <i className="fa-solid fa-qrcode"></i>
             My Booked Passes ({bookings.length})
           </button>
 
           <button
             onClick={() => setDashboardTab('enquiries')}
             style={{
-              padding: '12px 24px',
-              borderRadius: '14px',
-              border: dashboardTab === 'enquiries' ? '1px solid var(--gold-primary)' : '1px solid rgba(212, 175, 55, 0.25)',
-              fontWeight: 700,
-              fontSize: '1rem',
+              padding: '10px 24px',
+              borderRadius: '0px',
+              border: dashboardTab === 'enquiries' ? '1px solid #FF4500' : '1px solid rgba(255, 255, 255, 0.12)',
+              fontWeight: 800,
+              fontSize: '13px',
+              fontFamily: "'JetBrains Mono', monospace",
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '10px',
-              background: dashboardTab === 'enquiries' ? 'var(--gold-gradient)' : '#141824',
-              color: dashboardTab === 'enquiries' ? '#0A0D14' : '#CBD5E1',
-              boxShadow: dashboardTab === 'enquiries' ? '0 8px 25px rgba(212, 175, 55, 0.35)' : 'none'
+              gap: '8px',
+              background: dashboardTab === 'enquiries' ? '#FF4500' : '#121212',
+              color: dashboardTab === 'enquiries' ? '#050505' : '#A1A1A1',
+              transition: 'all 0.2s ease'
             }}
           >
-            <i className="fa-solid fa-location-dot" style={{ color: dashboardTab === 'enquiries' ? '#0A0D14' : 'var(--gold-accent)' }}></i>
-            My Event Location Enquiries ({enquiries.length})
+            <i className="fa-solid fa-location-dot"></i>
+            Event Enquiries ({enquiries.length})
           </button>
         </div>
 
@@ -301,51 +341,53 @@ export default function UserDashboard() {
                 marginBottom: '32px'
               }}
             >
-              <div className="white-card" style={{ padding: '24px', borderRadius: '18px', borderLeft: '4px solid var(--gold-primary)' }}>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>
+              <div style={{ padding: '24px', borderRadius: '0px', background: '#121212', border: '1px solid rgba(255, 255, 255, 0.08)', borderLeft: '3px solid #FF4500' }}>
+                <p className="font-mono-x" style={{ fontSize: '11px', color: '#737373', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 600 }}>
                   Total Bookings
                 </p>
-                <h3 style={{ fontSize: '2.2rem', color: '#F8FAFC', margin: '8px 0 0 0' }}>{bookings.length}</h3>
+                <h3 className="font-display" style={{ fontSize: '2.4rem', color: '#FFFFFF', margin: '8px 0 0 0', fontWeight: 900 }}>{bookings.length}</h3>
               </div>
 
-              <div className="white-card" style={{ padding: '24px', borderRadius: '18px', borderLeft: '4px solid #F59E0B' }}>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>
-                  Valid Passes (Pending Entry)
+              <div style={{ padding: '24px', borderRadius: '0px', background: '#121212', border: '1px solid rgba(255, 255, 255, 0.08)', borderLeft: '3px solid #F59E0B' }}>
+                <p className="font-mono-x" style={{ fontSize: '11px', color: '#737373', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 600 }}>
+                  Valid Passes (Pending)
                 </p>
-                <h3 style={{ fontSize: '2.2rem', color: '#F59E0B', margin: '8px 0 0 0' }}>{pendingCount}</h3>
+                <h3 className="font-display" style={{ fontSize: '2.4rem', color: '#F59E0B', margin: '8px 0 0 0', fontWeight: 900 }}>{pendingCount}</h3>
               </div>
 
-              <div className="white-card" style={{ padding: '24px', borderRadius: '18px', borderLeft: '4px solid #10B981' }}>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>
-                  Verified Entries (Done)
+              <div style={{ padding: '24px', borderRadius: '0px', background: '#121212', border: '1px solid rgba(255, 255, 255, 0.08)', borderLeft: '3px solid #10B981' }}>
+                <p className="font-mono-x" style={{ fontSize: '11px', color: '#737373', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 600 }}>
+                  Verified Entries
                 </p>
-                <h3 style={{ fontSize: '2.2rem', color: '#10B981', margin: '8px 0 0 0' }}>{checkedInCount}</h3>
+                <h3 className="font-display" style={{ fontSize: '2.4rem', color: '#10B981', margin: '8px 0 0 0', fontWeight: 900 }}>{checkedInCount}</h3>
               </div>
 
-              <div className="white-card" style={{ padding: '24px', borderRadius: '18px', borderLeft: '4px solid #3B82F6' }}>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>
+              <div style={{ padding: '24px', borderRadius: '0px', background: '#121212', border: '1px solid rgba(255, 255, 255, 0.08)', borderLeft: '3px solid #FF4500' }}>
+                <p className="font-mono-x" style={{ fontSize: '11px', color: '#737373', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 600 }}>
                   Total Passes Owned
                 </p>
-                <h3 style={{ fontSize: '2.2rem', color: '#3B82F6', margin: '8px 0 0 0' }}>{totalPasses}</h3>
+                <h3 className="font-display" style={{ fontSize: '2.4rem', color: '#FF4500', margin: '8px 0 0 0', fontWeight: 900 }}>{totalPasses}</h3>
               </div>
             </div>
 
             {/* Filter Sub-Tabs */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '15px' }}>
-              <h3 style={{ fontSize: '1.5rem', margin: 0, color: 'var(--text-heading)' }}>My Event QR Passes</h3>
+              <h3 className="heading" style={{ fontSize: '1.5rem', margin: 0, color: '#FFFFFF' }}>My Event QR Passes</h3>
 
-              <div style={{ display: 'flex', gap: '10px', background: '#0B0E17', padding: '6px', borderRadius: '14px', border: '1px solid rgba(212, 175, 55, 0.2)' }}>
+              <div style={{ display: 'flex', gap: '8px', background: '#121212', padding: '6px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
                 <button
                   onClick={() => setActiveTab('all')}
                   style={{
-                    padding: '8px 18px',
-                    borderRadius: '10px',
+                    padding: '8px 16px',
+                    borderRadius: '0px',
                     border: 'none',
-                    fontWeight: 600,
-                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    fontSize: '12px',
+                    fontFamily: "'JetBrains Mono', monospace",
                     cursor: 'pointer',
-                    background: activeTab === 'all' ? 'var(--gold-gradient)' : 'transparent',
-                    color: activeTab === 'all' ? '#0A0D14' : '#CBD5E1'
+                    background: activeTab === 'all' ? '#FF4500' : 'transparent',
+                    color: activeTab === 'all' ? '#050505' : '#A1A1A1',
+                    textTransform: 'uppercase'
                   }}
                 >
                   All ({bookings.length})
@@ -353,29 +395,33 @@ export default function UserDashboard() {
                 <button
                   onClick={() => setActiveTab('pending')}
                   style={{
-                    padding: '8px 18px',
-                    borderRadius: '10px',
+                    padding: '8px 16px',
+                    borderRadius: '0px',
                     border: 'none',
-                    fontWeight: 600,
-                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    fontSize: '12px',
+                    fontFamily: "'JetBrains Mono', monospace",
                     cursor: 'pointer',
-                    background: activeTab === 'pending' ? '#D97706' : 'transparent',
-                    color: activeTab === 'pending' ? '#FFF' : '#CBD5E1'
+                    background: activeTab === 'pending' ? '#FF4500' : 'transparent',
+                    color: activeTab === 'pending' ? '#050505' : '#A1A1A1',
+                    textTransform: 'uppercase'
                   }}
                 >
-                  Entry Pending ({pendingCount})
+                  Pending ({pendingCount})
                 </button>
                 <button
                   onClick={() => setActiveTab('checkedin')}
                   style={{
-                    padding: '8px 18px',
-                    borderRadius: '10px',
+                    padding: '8px 16px',
+                    borderRadius: '0px',
                     border: 'none',
-                    fontWeight: 600,
-                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    fontSize: '12px',
+                    fontFamily: "'JetBrains Mono', monospace",
                     cursor: 'pointer',
-                    background: activeTab === 'checkedin' ? '#16A34A' : 'transparent',
-                    color: activeTab === 'checkedin' ? '#FFF' : '#CBD5E1'
+                    background: activeTab === 'checkedin' ? '#10B981' : 'transparent',
+                    color: activeTab === 'checkedin' ? '#050505' : '#A1A1A1',
+                    textTransform: 'uppercase'
                   }}
                 >
                   Entry Done ({checkedInCount})
@@ -384,18 +430,30 @@ export default function UserDashboard() {
             </div>
 
             {filteredBookings.length === 0 ? (
-              <div class="white-card" style={{ padding: '60px 20px', textAlign: 'center', borderRadius: '20px' }}>
-                <i class="fa-solid fa-ticket-simple" style={{ fontSize: '3.5rem', color: '#CBD5E1', marginBottom: '16px' }}></i>
-                <h4 style={{ fontSize: '1.4rem', color: '#334155', marginBottom: '8px' }}>
+              <div style={{ padding: '64px 20px', textAlign: 'center', background: '#121212', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                <i className="fa-solid fa-ticket-simple" style={{ fontSize: '3rem', color: '#333333', marginBottom: '16px' }}></i>
+                <h4 className="heading" style={{ fontSize: '1.4rem', color: '#FFFFFF', marginBottom: '8px' }}>
                   {activeTab === 'all' ? 'No Booked Passes Found' : 'No Passes Match This Filter'}
                 </h4>
-                <p style={{ color: '#64748B', maxWidth: '450px', margin: '0 auto 24px auto', fontSize: '0.95rem' }}>
+                <p style={{ color: '#737373', maxWidth: '450px', margin: '0 auto 24px auto', fontSize: '14px' }}>
                   {activeTab === 'all'
                     ? "You haven't booked any event passes yet. Browse our live events and secure your tickets online."
                     : 'Select another filter tab to view your other pass reservations.'}
                 </p>
                 {activeTab === 'all' && (
-                  <Link to="/events" class="primary-btn">
+                  <Link
+                    to="/events"
+                    style={{
+                      display: 'inline-block',
+                      padding: '12px 28px',
+                      background: '#FF4500',
+                      color: '#050505',
+                      fontWeight: 900,
+                      fontSize: '13px',
+                      textTransform: 'uppercase',
+                      textDecoration: 'none'
+                    }}
+                  >
                     Browse Events & Book Pass
                   </Link>
                 )}
@@ -404,29 +462,28 @@ export default function UserDashboard() {
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
                   gap: '24px'
                 }}
               >
                 {filteredBookings.map((booking) => (
                   <div
                     key={booking._id}
-                    className="white-card"
                     style={{
-                      borderRadius: '20px',
+                      borderRadius: '0px',
                       overflow: 'hidden',
                       display: 'flex',
                       flexDirection: 'column',
-                      border: booking.isCheckedIn ? '2px solid rgba(34, 197, 94, 0.6)' : '1px solid var(--border-light)',
-                      boxShadow: 'var(--shadow-hover)',
+                      background: '#121212',
+                      border: booking.isCheckedIn ? '1px solid #10B981' : '1px solid rgba(255, 255, 255, 0.08)',
                       position: 'relative'
                     }}
                   >
                     {/* Header Verification Badge */}
                     <div
                       style={{
-                        background: booking.isCheckedIn ? 'rgba(34, 197, 94, 0.12)' : 'rgba(212, 175, 55, 0.12)',
-                        borderBottom: booking.isCheckedIn ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(212, 175, 55, 0.25)',
+                        background: booking.isCheckedIn ? 'rgba(16, 185, 129, 0.12)' : 'rgba(255, 69, 0, 0.12)',
+                        borderBottom: booking.isCheckedIn ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(255, 69, 0, 0.25)',
                         padding: '12px 20px',
                         display: 'flex',
                         justifyContent: 'space-between',
@@ -434,44 +491,56 @@ export default function UserDashboard() {
                       }}
                     >
                       <span
+                        className="font-mono-x"
                         style={{
-                          fontSize: '0.82rem',
+                          fontSize: '11px',
                           fontWeight: 700,
-                          color: booking.isCheckedIn ? '#4ADE80' : 'var(--gold-accent)',
+                          color: booking.isCheckedIn ? '#10B981' : '#FF4500',
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '6px'
+                          gap: '6px',
+                          textTransform: 'uppercase'
                         }}
                       >
                         <i className={`fa-solid ${booking.isCheckedIn ? 'fa-circle-check' : 'fa-clock'}`}></i>
-                        {booking.isCheckedIn ? 'ENTRY DONE (CHECKED IN)' : 'VALID PASS - ENTRY PENDING'}
+                        {booking.isCheckedIn ? 'ENTRY VERIFIED' : 'VALID PASS · PENDING'}
                       </span>
 
-                      <span style={{ fontSize: '0.78rem', color: '#94A3B8', fontWeight: 600 }}>
+                      <span className="font-mono-x" style={{ fontSize: '11px', color: '#737373', fontWeight: 600 }}>
                         {booking.bookingId}
                       </span>
                     </div>
 
                     {/* Body Content */}
                     <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                      <h4 style={{ fontSize: '1.25rem', marginBottom: '8px', color: 'var(--text-heading)', fontWeight: 700 }}>
+                      <h4
+                        className="font-display"
+                        style={{
+                          fontSize: '1.25rem',
+                          marginBottom: '8px',
+                          color: '#FFFFFF',
+                          fontWeight: 800,
+                          textTransform: 'uppercase',
+                          letterSpacing: '-0.02em'
+                        }}
+                      >
                         {booking.eventTitle}
                       </h4>
 
-                      <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginBottom: '16px' }}>
-                        <i className="fa-regular fa-calendar" style={{ marginRight: '6px', color: 'var(--gold-accent)' }}></i>
+                      <p className="font-mono-x" style={{ fontSize: '11px', color: '#737373', marginBottom: '16px' }}>
+                        <i className="fa-regular fa-calendar" style={{ marginRight: '6px', color: '#FF4500' }}></i>
                         Booked on {new Date(booking.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </p>
 
                       {/* QR Code Presentation Box */}
                       <div
                         style={{
-                          background: '#0B0E17',
-                          borderRadius: '16px',
+                          background: '#050505',
+                          borderRadius: '0px',
                           padding: '16px',
                           textAlign: 'center',
                           marginBottom: '20px',
-                          border: '1px dashed rgba(212, 175, 55, 0.35)'
+                          border: '1px dashed rgba(255, 69, 0, 0.35)'
                         }}
                       >
                         {booking.qrCodeUrl ? (
@@ -481,8 +550,8 @@ export default function UserDashboard() {
                             style={{
                               width: '150px',
                               height: '150px',
-                              borderRadius: '12px',
-                              border: '2px solid var(--gold-primary)',
+                              borderRadius: '0px',
+                              border: '2px solid #FF4500',
                               padding: '6px',
                               background: '#FFF',
                               margin: '0 auto 10px auto',
@@ -490,42 +559,42 @@ export default function UserDashboard() {
                             }}
                           />
                         ) : (
-                          <div style={{ padding: '20px', color: '#64748B' }}>QR Code Unavailable</div>
+                          <div style={{ padding: '20px', color: '#737373' }}>QR Code Unavailable</div>
                         )}
-                        <p style={{ fontSize: '0.78rem', color: '#94A3B8', margin: 0, fontWeight: 500 }}>
-                          Scan QR at event venue gate for instant entry
+                        <p className="font-mono-x" style={{ fontSize: '11px', color: '#737373', margin: 0, textTransform: 'uppercase' }}>
+                          Scan QR at event gate turnstiles
                         </p>
                       </div>
 
                       {/* Booking Metadata list */}
-                      <div style={{ fontSize: '0.88rem', color: 'var(--text-body)', marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div style={{ fontSize: '13px', color: '#A1A1A1', marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span style={{ color: '#94A3B8' }}>Attendee Name:</span>
-                          <strong style={{ color: '#F8FAFC' }}>{booking.userName}</strong>
+                          <span style={{ color: '#737373' }}>Attendee Name:</span>
+                          <strong style={{ color: '#FFFFFF' }}>{booking.userName}</strong>
                         </div>
                         {booking.userPhone && (
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
-                            <span style={{ color: '#94A3B8' }}>Mobile:</span>
-                            <span style={{ color: '#F8FAFC', fontWeight: 600 }}>{booking.userPhone}</span>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                            <span style={{ color: '#737373' }}>Mobile:</span>
+                            <span style={{ color: '#FFFFFF', fontWeight: 600 }}>{booking.userPhone}</span>
                           </div>
                         )}
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span style={{ color: '#94A3B8' }}>Showtime:</span>
-                          <strong style={{ color: '#60A5FA', fontSize: '0.84rem' }}>
+                          <span style={{ color: '#737373' }}>Showtime:</span>
+                          <strong style={{ color: '#FF4500', fontSize: '12px' }} className="font-mono-x">
                             {booking.showtimeDate && booking.showtimeDate !== 'Default'
                               ? (isNaN(new Date(booking.showtimeDate)) ? booking.showtimeDate : new Date(booking.showtimeDate).toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }))
                               : 'Main Performance Show'}
                           </strong>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span style={{ color: '#94A3B8' }}>Pass Quantity:</span>
-                          <strong style={{ color: '#F8FAFC' }}>{booking.quantity} Reserved Pass(es)</strong>
+                          <span style={{ color: '#737373' }}>Pass Quantity:</span>
+                          <strong style={{ color: '#FFFFFF' }}>{booking.quantity} Reserved Pass(es)</strong>
                         </div>
 
                         {/* Visual Seat Badges */}
                         {booking.selectedSeats && booking.selectedSeats.length > 0 && (
-                          <div style={{ background: '#0B0E17', padding: '10px 12px', borderRadius: '12px', border: '1px solid rgba(212, 175, 55, 0.25)', margin: '4px 0' }}>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--gold-accent)', fontWeight: 800, textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
+                          <div style={{ background: '#050505', padding: '10px 12px', border: '1px solid rgba(255, 255, 255, 0.08)', margin: '4px 0' }}>
+                            <span className="font-mono-x" style={{ fontSize: '10px', color: '#FF4500', fontWeight: 800, textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
                               <i className="fa-solid fa-chair" style={{ marginRight: '6px' }}></i>
                               Reserved Seats ({booking.selectedSeats.length}):
                             </span>
@@ -533,88 +602,81 @@ export default function UserDashboard() {
                               {booking.selectedSeats.map((s) => (
                                 <span
                                   key={s.seatId || s.displayLabel}
+                                  className="font-mono-x"
                                   style={{
-                                    background: '#141824',
-                                    border: '1px solid var(--gold-primary)',
-                                    borderRadius: '6px',
+                                    background: '#121212',
+                                    border: '1px solid #FF4500',
+                                    borderRadius: '0px',
                                     padding: '3px 8px',
-                                    fontSize: '0.76rem',
+                                    fontSize: '11px',
                                     fontWeight: 700,
-                                    color: '#F8FAFC',
+                                    color: '#FFFFFF',
                                     display: 'inline-flex',
                                     alignItems: 'center',
                                     gap: '4px'
                                   }}
                                 >
                                   <span>Seat {s.displayLabel || s.seatId}</span>
-                                  <span style={{ color: 'var(--gold-accent)', background: 'rgba(212, 175, 55, 0.15)', padding: '1px 5px', borderRadius: '4px', fontSize: '0.68rem' }}>
+                                  <span style={{ color: '#FF4500', background: 'rgba(255, 69, 0, 0.15)', padding: '1px 5px', fontSize: '10px' }}>
                                     {s.category || 'General'}
                                   </span>
-                                  {s.section && (
-                                    <span style={{ color: '#94A3B8', fontSize: '0.68rem' }}>
-                                      {s.section}
-                                    </span>
-                                  )}
                                 </span>
                               ))}
                             </div>
                           </div>
                         )}
 
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span style={{ color: '#94A3B8' }}>Total Paid:</span>
-                          <strong style={{ color: 'var(--gold-accent)', fontSize: '1rem' }}>₹{booking.totalAmount}</strong>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '8px', marginTop: '4px' }}>
+                          <span style={{ color: '#737373' }}>Total Paid:</span>
+                          <strong className="font-display" style={{ color: '#FF4500', fontSize: '1.2rem', fontWeight: 900 }}>₹{booking.totalAmount}</strong>
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
-                          <span style={{ color: '#94A3B8' }}>Payment Gateway:</span>
-                          <span style={{ color: '#4ADE80', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <i className="fa-solid fa-circle-check" style={{ fontSize: '0.75rem' }}></i>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                          <span style={{ color: '#737373' }}>Payment:</span>
+                          <span style={{ color: '#10B981', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <i className="fa-solid fa-circle-check" style={{ fontSize: '11px' }}></i>
                             {booking.paymentGateway || 'Cashfree'} ({booking.paymentMethod || 'Paid'})
                           </span>
                         </div>
-                        {booking.cashfreeOrderId && (
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#94A3B8' }}>
-                            <span>CF Order ID:</span>
-                            <span style={{ fontFamily: 'monospace', fontWeight: 600, color: '#CBD5E1' }}>{booking.cashfreeOrderId}</span>
-                          </div>
-                        )}
-
-                        {booking.isCheckedIn && (
-                          <div
-                            style={{
-                              marginTop: '8px',
-                              padding: '10px 12px',
-                              background: 'rgba(34, 197, 94, 0.12)',
-                              borderRadius: '10px',
-                              fontSize: '0.8rem',
-                              color: '#4ADE80',
-                              border: '1px solid rgba(34, 197, 94, 0.3)'
-                            }}
-                          >
-                            <i className="fa-solid fa-shield-check" style={{ marginRight: '6px' }}></i>
-                            Entry Scanned at:{' '}
-                            <strong>
-                              {booking.checkInTime ? new Date(booking.checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Verified'}
-                            </strong>
-                            {booking.checkInGate && ` via Gate: ${booking.checkInGate}`}
-                          </div>
-                        )}
                       </div>
 
                       {/* Actions */}
                       <div style={{ marginTop: 'auto', display: 'flex', gap: '10px' }}>
                         <button
                           onClick={() => setSelectedPass(booking)}
-                          className="primary-btn"
-                          style={{ flex: 1, padding: '10px 12px', fontSize: '0.85rem', justifyContent: 'center' }}
+                          style={{
+                            flex: 1,
+                            padding: '12px',
+                            fontSize: '12px',
+                            background: '#FF4500',
+                            color: '#050505',
+                            fontWeight: 900,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                            border: 'none',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px'
+                          }}
                         >
-                          <i className="fa-solid fa-qrcode" style={{ marginRight: '6px' }}></i>
+                          <i className="fa-solid fa-qrcode"></i>
                           Expand QR Pass
                         </button>
                         <button
                           onClick={() => handlePrintPass(booking)}
-                          className="btn-outline"
-                          style={{ padding: '10px 14px', fontSize: '0.85rem', color: 'var(--gold-accent)', borderColor: 'rgba(212, 175, 55, 0.4)' }}
+                          style={{
+                            padding: '12px 16px',
+                            fontSize: '13px',
+                            color: '#FFFFFF',
+                            background: '#050505',
+                            border: '1px solid rgba(255, 255, 255, 0.15)',
+                            cursor: 'pointer',
+                            borderRadius: '0px',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#FF4500')}
+                          onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)')}
                           title="Print / Save Pass PDF"
                         >
                           <i className="fa-solid fa-print"></i>
@@ -631,22 +693,46 @@ export default function UserDashboard() {
         {/* SECTION 2: LOCATION ENQUIRIES TAB */}
         {!loading && dashboardTab === 'enquiries' && (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h3 style={{ fontSize: '1.5rem', margin: 0, color: 'var(--text-heading)' }}>My Location & Event Enquiries</h3>
-              <Link to="/#enquiry" className="primary-btn" style={{ padding: '8px 18px', fontSize: '0.88rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+              <h3 className="heading" style={{ fontSize: '1.5rem', margin: 0, color: '#FFFFFF' }}>My Location & Event Enquiries</h3>
+              <Link
+                to="/#enquiry"
+                style={{
+                  padding: '10px 20px',
+                  fontSize: '12px',
+                  background: '#FF4500',
+                  color: '#050505',
+                  fontWeight: 900,
+                  textTransform: 'uppercase',
+                  textDecoration: 'none',
+                  borderRadius: '0px'
+                }}
+              >
                 <i className="fa-solid fa-plus" style={{ marginRight: '6px' }}></i>
-                Submit New Enquiry
+                New Enquiry
               </Link>
             </div>
 
             {enquiries.length === 0 ? (
-              <div className="white-card" style={{ padding: '60px 20px', textAlign: 'center', borderRadius: '20px' }}>
-                <i className="fa-solid fa-location-dot" style={{ fontSize: '3.5rem', color: '#475569', marginBottom: '16px' }}></i>
-                <h4 style={{ fontSize: '1.4rem', color: 'var(--text-heading)', marginBottom: '8px' }}>No Event Enquiries Found</h4>
-                <p style={{ color: 'var(--text-light)', maxWidth: '450px', margin: '0 auto 24px auto', fontSize: '0.95rem' }}>
-                  You haven't submitted any event location enquiries yet. Submit an enquiry on our home page for custom venue booking & management.
+              <div style={{ padding: '60px 20px', textAlign: 'center', background: '#121212', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                <i className="fa-solid fa-location-dot" style={{ fontSize: '3rem', color: '#333333', marginBottom: '16px' }}></i>
+                <h4 className="heading" style={{ fontSize: '1.4rem', color: '#FFFFFF', marginBottom: '8px' }}>No Event Enquiries Found</h4>
+                <p style={{ color: '#737373', maxWidth: '450px', margin: '0 auto 24px auto', fontSize: '14px' }}>
+                  You haven't submitted any event location enquiries yet. Submit an enquiry for custom venue booking & production management.
                 </p>
-                <Link to="/" className="primary-btn">
+                <Link
+                  to="/"
+                  style={{
+                    display: 'inline-block',
+                    padding: '12px 28px',
+                    background: '#FF4500',
+                    color: '#050505',
+                    fontWeight: 900,
+                    fontSize: '13px',
+                    textTransform: 'uppercase',
+                    textDecoration: 'none'
+                  }}
+                >
                   Submit Location Enquiry
                 </Link>
               </div>
@@ -655,12 +741,11 @@ export default function UserDashboard() {
                 {enquiries.map((enquiry) => (
                   <div
                     key={enquiry._id || enquiry.id}
-                    className="white-card"
                     style={{
-                      borderRadius: '20px',
+                      borderRadius: '0px',
                       padding: '24px',
-                      border: '1px solid var(--border-light)',
-                      boxShadow: 'var(--shadow-hover)',
+                      background: '#121212',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'space-between'
@@ -669,37 +754,38 @@ export default function UserDashboard() {
                     <div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                         <span
+                          className="font-mono-x"
                           style={{
-                            background: 'rgba(212, 175, 55, 0.15)',
-                            color: 'var(--gold-accent)',
+                            background: 'rgba(255, 69, 0, 0.12)',
+                            color: '#FF4500',
                             fontWeight: 700,
-                            fontSize: '0.8rem',
-                            padding: '4px 12px',
-                            borderRadius: '12px',
-                            border: '1px solid rgba(212, 175, 55, 0.3)'
+                            fontSize: '11px',
+                            padding: '4px 10px',
+                            border: '1px solid rgba(255, 69, 0, 0.3)',
+                            textTransform: 'uppercase'
                           }}
                         >
                           {enquiry.eventType || 'Event Enquiry'}
                         </span>
                         <span
+                          className="font-mono-x"
                           style={{
-                            fontSize: '0.78rem',
+                            fontSize: '11px',
                             fontWeight: 700,
                             padding: '4px 10px',
-                            borderRadius: '12px',
                             background:
                               enquiry.status === 'Resolved'
-                                ? 'rgba(34, 197, 94, 0.12)'
+                                ? 'rgba(16, 185, 129, 0.12)'
                                 : enquiry.status === 'Contacted'
                                 ? 'rgba(59, 130, 246, 0.12)'
                                 : 'rgba(245, 158, 11, 0.12)',
                             color:
                               enquiry.status === 'Resolved'
-                                ? '#4ADE80'
+                                ? '#10B981'
                                 : enquiry.status === 'Contacted'
                                 ? '#60A5FA'
-                                : '#FBBF24',
-                            border: `1px solid ${enquiry.status === 'Resolved' ? 'rgba(34, 197, 94, 0.3)' : enquiry.status === 'Contacted' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`
+                                : '#F59E0B',
+                            border: `1px solid ${enquiry.status === 'Resolved' ? 'rgba(16, 185, 129, 0.3)' : enquiry.status === 'Contacted' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`
                           }}
                         >
                           ● {enquiry.status || 'New'}
@@ -707,18 +793,18 @@ export default function UserDashboard() {
                       </div>
 
                       {enquiry.location && (
-                        <p style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--gold-accent)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <i className="fa-solid fa-location-dot"></i> {enquiry.location}
+                        <p style={{ fontSize: '1rem', fontWeight: 700, color: '#FFFFFF', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <i className="fa-solid fa-location-dot" style={{ color: '#FF4500' }}></i> {enquiry.location}
                         </p>
                       )}
 
-                      <p style={{ fontSize: '0.88rem', color: 'var(--text-body)', lineHeight: 1.6, marginBottom: '16px', background: '#0B0E17', padding: '14px', borderRadius: '12px', border: '1px solid rgba(212, 175, 55, 0.25)' }}>
+                      <p style={{ fontSize: '13px', color: '#A1A1A1', lineHeight: 1.6, marginBottom: '16px', background: '#050505', padding: '14px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
                         "{enquiry.message}"
                       </p>
                     </div>
 
-                    <div style={{ borderTop: '1px solid rgba(212, 175, 55, 0.15)', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#94A3B8' }}>
-                      <span>Submitted By: {enquiry.name}</span>
+                    <div className="font-mono-x" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#737373' }}>
+                      <span>BY: {enquiry.name}</span>
                       <span>{new Date(enquiry.createdAt || Date.now()).toLocaleDateString()}</span>
                     </div>
                   </div>
@@ -734,8 +820,8 @@ export default function UserDashboard() {
             style={{
               position: 'fixed',
               inset: 0,
-              background: 'rgba(0, 0, 0, 0.85)',
-              backdropFilter: 'blur(8px)',
+              background: 'rgba(0, 0, 0, 0.88)',
+              backdropFilter: 'blur(10px)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -744,19 +830,18 @@ export default function UserDashboard() {
             }}
           >
             <div
-              className="white-card"
               style={{
                 maxWidth: '440px',
                 width: '100%',
                 maxHeight: '90vh',
                 overflowY: 'auto',
-                borderRadius: '24px',
-                padding: '24px',
+                borderRadius: '0px',
+                padding: '32px',
                 textAlign: 'center',
                 position: 'relative',
-                background: '#141824',
-                border: '1px solid var(--gold-primary)',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8)'
+                background: '#121212',
+                border: '1px solid #FF4500',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.9)'
               }}
             >
               <button
@@ -765,86 +850,97 @@ export default function UserDashboard() {
                   position: 'absolute',
                   top: '16px',
                   right: '16px',
-                  border: '1px solid rgba(212, 175, 55, 0.3)',
-                  background: '#0B0E17',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  background: '#050505',
                   width: '36px',
                   height: '36px',
-                  borderRadius: '50%',
                   cursor: 'pointer',
                   fontSize: '1rem',
-                  color: 'var(--gold-accent)'
+                  color: '#FFFFFF'
                 }}
               >
                 ✕
               </button>
 
-              <div style={{ color: 'var(--gold-accent)', fontWeight: 800, fontSize: '1.4rem', letterSpacing: '2px', marginBottom: '2px' }}>
-                VANA ENTERTAINMENTS
+              <div
+                className="font-display"
+                style={{
+                  color: '#FFFFFF',
+                  fontWeight: 900,
+                  fontSize: '1.4rem',
+                  letterSpacing: '1px',
+                  marginBottom: '2px',
+                  textTransform: 'uppercase'
+                }}
+              >
+                Vana Entertainment
               </div>
-              <p style={{ fontSize: '0.75rem', letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-light)', marginBottom: '20px' }}>
-                Official Gate Verification QR Pass
+              <p className="font-mono-x" style={{ fontSize: '10px', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#737373', marginBottom: '20px' }}>
+                Gate Verification Pass
               </p>
 
               <div
+                className="font-mono-x"
                 style={{
                   display: 'inline-block',
-                  padding: '6px 16px',
-                  borderRadius: '20px',
+                  padding: '6px 14px',
+                  borderRadius: '0px',
                   fontWeight: 700,
-                  fontSize: '0.85rem',
+                  fontSize: '11px',
                   marginBottom: '20px',
-                  background: selectedPass.isCheckedIn ? 'rgba(34, 197, 94, 0.12)' : 'rgba(212, 175, 55, 0.12)',
-                  color: selectedPass.isCheckedIn ? '#4ADE80' : 'var(--gold-accent)',
-                  border: selectedPass.isCheckedIn ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(212, 175, 55, 0.25)'
+                  background: selectedPass.isCheckedIn ? 'rgba(16, 185, 129, 0.12)' : 'rgba(255, 69, 0, 0.12)',
+                  color: selectedPass.isCheckedIn ? '#10B981' : '#FF4500',
+                  border: selectedPass.isCheckedIn ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(255, 69, 0, 0.25)',
+                  textTransform: 'uppercase'
                 }}
               >
                 <i className={`fa-solid ${selectedPass.isCheckedIn ? 'fa-circle-check' : 'fa-clock'}`} style={{ marginRight: '6px' }}></i>
-                {selectedPass.isCheckedIn ? 'ENTRY DONE (VERIFIED)' : 'VALID ENTRY PASS - SCAN AT GATE'}
+                {selectedPass.isCheckedIn ? 'ENTRY VERIFIED' : 'VALID ENTRY PASS · PRESENT AT GATE'}
               </div>
 
-              <h3 style={{ fontSize: '1.4rem', marginBottom: '16px', color: '#F8FAFC' }}>{selectedPass.eventTitle}</h3>
+              <h3 className="heading" style={{ fontSize: '1.3rem', marginBottom: '16px', color: '#FFFFFF' }}>{selectedPass.eventTitle}</h3>
 
               {selectedPass.qrCodeUrl && (
-                <div style={{ background: '#FFF', padding: '16px', borderRadius: '18px', display: 'inline-block', border: '2px solid var(--gold-primary)', boxShadow: '0 4px 20px rgba(212, 175, 55, 0.2)', marginBottom: '20px' }}>
-                  <img src={selectedPass.qrCodeUrl} alt="QR Pass" style={{ width: '220px', height: '220px', borderRadius: '8px' }} />
+                <div style={{ background: '#FFF', padding: '16px', borderRadius: '0px', display: 'inline-block', border: '2px solid #FF4500', marginBottom: '20px' }}>
+                  <img src={selectedPass.qrCodeUrl} alt="QR Pass" style={{ width: '220px', height: '220px', display: 'block' }} />
                 </div>
               )}
 
-              <div style={{ background: '#0B0E17', padding: '16px', borderRadius: '14px', textAlign: 'left', fontSize: '0.88rem', color: '#CBD5E1', border: '1px solid rgba(212, 175, 55, 0.25)', marginBottom: '20px' }}>
-                <p style={{ margin: '4px 0' }}><strong style={{ color: '#F8FAFC' }}>Booking Ref:</strong> {selectedPass.bookingId}</p>
+              <div style={{ background: '#050505', padding: '16px', borderRadius: '0px', textAlign: 'left', fontSize: '13px', color: '#CBD5E1', border: '1px solid rgba(255, 255, 255, 0.08)', marginBottom: '20px' }}>
+                <p style={{ margin: '4px 0' }}><strong style={{ color: '#FFFFFF' }}>Booking Ref:</strong> {selectedPass.bookingId}</p>
                 <p style={{ margin: '4px 0' }}>
-                  <strong style={{ color: '#F8FAFC' }}>Showtime:</strong>{' '}
-                  <span style={{ color: '#60A5FA', fontWeight: 600 }}>
+                  <strong style={{ color: '#FFFFFF' }}>Showtime:</strong>{' '}
+                  <span style={{ color: '#FF4500', fontWeight: 600 }}>
                     {selectedPass.showtimeDate && selectedPass.showtimeDate !== 'Default'
                       ? (isNaN(new Date(selectedPass.showtimeDate)) ? selectedPass.showtimeDate : new Date(selectedPass.showtimeDate).toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }))
                       : 'Main Performance Show'}
                   </span>
                 </p>
-                <p style={{ margin: '4px 0' }}><strong style={{ color: '#F8FAFC' }}>Attendee Name:</strong> {selectedPass.userName} {selectedPass.userPhone ? `(${selectedPass.userPhone})` : ''}</p>
-                <p style={{ margin: '4px 0' }}><strong style={{ color: '#F8FAFC' }}>Quantity:</strong> {selectedPass.quantity} Reserved Pass(es)</p>
+                <p style={{ margin: '4px 0' }}><strong style={{ color: '#FFFFFF' }}>Attendee Name:</strong> {selectedPass.userName} {selectedPass.userPhone ? `(${selectedPass.userPhone})` : ''}</p>
+                <p style={{ margin: '4px 0' }}><strong style={{ color: '#FFFFFF' }}>Quantity:</strong> {selectedPass.quantity} Reserved Pass(es)</p>
 
                 {/* Reserved Seats List */}
                 {selectedPass.selectedSeats && selectedPass.selectedSeats.length > 0 && (
-                  <div style={{ margin: '10px 0', padding: '10px', background: '#141824', borderRadius: '10px', border: '1px solid rgba(212, 175, 55, 0.25)' }}>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--gold-accent)', textTransform: 'uppercase', marginBottom: '6px' }}>
+                  <div style={{ margin: '10px 0', padding: '10px', background: '#121212', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                    <div className="font-mono-x" style={{ fontSize: '10px', fontWeight: 700, color: '#FF4500', textTransform: 'uppercase', marginBottom: '6px' }}>
                       Allocated Seats:
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                       {selectedPass.selectedSeats.map((s) => (
                         <span
                           key={s.seatId || s.displayLabel}
+                          className="font-mono-x"
                           style={{
-                            background: '#0B0E17',
-                            border: '1px solid var(--gold-primary)',
-                            borderRadius: '6px',
+                            background: '#050505',
+                            border: '1px solid #FF4500',
                             padding: '3px 8px',
-                            fontSize: '0.78rem',
+                            fontSize: '11px',
                             fontWeight: 700,
-                            color: '#F8FAFC'
+                            color: '#FFFFFF'
                           }}
                         >
                           Seat {s.displayLabel || s.seatId}
-                          <span style={{ color: 'var(--gold-accent)', fontSize: '0.7rem', fontWeight: 500, marginLeft: '4px' }}>
+                          <span style={{ color: '#FF4500', fontSize: '10px', marginLeft: '4px' }}>
                             ({s.category || 'Pass'})
                           </span>
                         </span>
@@ -853,29 +949,29 @@ export default function UserDashboard() {
                   </div>
                 )}
 
-                <div style={{ borderTop: '1px dashed rgba(212, 175, 55, 0.25)', marginTop: '8px', paddingTop: '8px' }}>
-                  <p style={{ margin: '3px 0', display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: '#94A3B8' }}>
+                <div style={{ borderTop: '1px dashed rgba(255, 255, 255, 0.1)', marginTop: '10px', paddingTop: '8px' }}>
+                  <p style={{ margin: '3px 0', display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#737373' }}>
                     <span>Subtotal:</span>
                     <span>₹{selectedPass.subtotal || selectedPass.totalAmount}</span>
                   </p>
-                  <p style={{ margin: '3px 0', display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: '#94A3B8' }}>
+                  <p style={{ margin: '3px 0', display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#737373' }}>
                     <span>GST (18%):</span>
                     <span>₹{selectedPass.gst || 0}</span>
                   </p>
-                  <p style={{ margin: '4px 0', display: 'flex', justifyContent: 'space-between', fontWeight: 700, color: 'var(--gold-accent)', fontSize: '0.95rem' }}>
+                  <p style={{ margin: '4px 0', display: 'flex', justifyContent: 'space-between', fontWeight: 900, color: '#FF4500', fontSize: '15px' }}>
                     <span>Total Amount Paid:</span>
                     <span>₹{selectedPass.totalAmount}</span>
                   </p>
                 </div>
 
                 {selectedPass.cashfreeOrderId && (
-                  <p style={{ margin: '4px 0', fontSize: '0.78rem', color: '#94A3B8' }}>
+                  <p style={{ margin: '4px 0', fontSize: '11px', color: '#737373' }}>
                     <strong>Cashfree Order:</strong> <code style={{ fontFamily: 'monospace', color: '#CBD5E1' }}>{selectedPass.cashfreeOrderId}</code>
                   </p>
                 )}
 
                 {selectedPass.isCheckedIn && selectedPass.checkInTime && (
-                  <p style={{ margin: '6px 0 0 0', color: '#4ADE80', fontWeight: 600, background: 'rgba(34, 197, 94, 0.12)', padding: '6px 10px', borderRadius: '8px', border: '1px solid rgba(34, 197, 94, 0.3)' }}>
+                  <p style={{ margin: '6px 0 0 0', color: '#10B981', fontWeight: 600, background: 'rgba(16, 185, 129, 0.12)', padding: '6px 10px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
                     ✓ Entry Checked-In: {new Date(selectedPass.checkInTime).toLocaleString()} {selectedPass.checkInGate ? `(Gate: ${selectedPass.checkInGate})` : ''}
                   </p>
                 )}
@@ -883,10 +979,24 @@ export default function UserDashboard() {
 
               <button
                 onClick={() => handlePrintPass(selectedPass)}
-                className="primary-btn"
-                style={{ width: '100%', justifyContent: 'center' }}
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  background: '#FF4500',
+                  color: '#050505',
+                  fontWeight: 900,
+                  fontSize: '13px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.04em',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
+                }}
               >
-                <i className="fa-solid fa-print" style={{ marginRight: '8px' }}></i>
+                <i className="fa-solid fa-print"></i>
                 Print Official Pass PDF
               </button>
             </div>
