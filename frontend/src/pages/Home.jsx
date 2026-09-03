@@ -285,7 +285,14 @@ export default function Home() {
                     src={evt.bannerImage}
                     alt={evt.title}
                     loading="lazy"
-                    onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80'; }}
+                    onError={(e) => {
+                      if (evt.driveFileId && !e.target.dataset.triedThumbnail) {
+                        e.target.dataset.triedThumbnail = 'true';
+                        e.target.src = `https://drive.google.com/thumbnail?id=${evt.driveFileId}&sz=w1200`;
+                        return;
+                      }
+                      e.target.src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80';
+                    }}
                   />
                 </div>
                 <div className="card-body">

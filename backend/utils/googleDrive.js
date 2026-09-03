@@ -76,7 +76,111 @@ async function getOrCreateEventBannersFolder(drive) {
 }
 
 /**
- * Uploads an event banner image buffer to Google Drive
+ * Helper to extract Google Drive File ID from any Google Drive link format or raw ID
+ */
+exports.extractGoogleDriveFileId = function (input) {
+  if (!input || typeof input !== 'string') return null;
+  const trimmed = input.trim();
+
+  // Pattern 1: /file/d/FILE_ID
+  const fileDMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]{15,60})/);
+  if (fileDMatch) return fileDMatch[1];
+
+  // Pattern 2: ?id=FILE_ID or &id=FILE_ID
+  const idMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]{15,60})/);
+  if (idMatch) return idMatch[1];
+
+  // Pattern 3: /d/FILE_ID
+  const dMatch = trimmed.match(/\/d\/([a-zA-Z0-9_-]{15,60})/);
+  if (dMatch) return dMatch[1];
+
+  // Pattern 4: Raw File ID (15 to 60 characters without slashes or dots)
+  if (/^[a-zA-Z0-9_-]{15,60}$/.test(trimmed) && !trimmed.includes('/') && !trimmed.includes('.')) {
+    return trimmed;
+  }
+
+  return null;
+};
+
+/**
+ * Converts a Google Drive link or ID into a direct, browser-embeddable image URL
+ */
+exports.formatGoogleDriveImageUrl = function (urlOrId, preferredFormat = 'lh3') {
+  if (!urlOrId || typeof urlOrId !== 'string') return urlOrId;
+  const fileId = exports.extractGoogleDriveFileId(urlOrId);
+  if (!fileId) return urlOrId;
+
+  if (preferredFormat === 'thumbnail') {
+    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600`;
+  }
+  return `https://lh3.googleusercontent.com/d/${fileId}`;
+};
+
+/**
+ * Downloads a Google Drive image and caches it locally on the server for ultra-fast serving
+ */
+exports.downloadGoogleDriveImageLocally = async function (fileId) {
+  if (!fileId) return null;
+
+  const frontendDir = path.join(__dirname, '../../frontend/public/images/event-banners');
+  const backendDir = path.join(__dirname, '../../images/event-banners');
+
+  for (const dir of [frontendDir, backendDir]) {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+  }
+
+  const fileName = `banner_gdrive_${fileId}.jpg`;
+  const targetFileFrontend = path.join(frontendDir, fileName);
+  const targetFileBackend = path.join(backendDir, fileName);
+
+  if (fs.existsSync(targetFileFrontend)) {
+    return {
+      success: true,
+      bannerImage: `/images/event-banners/${fileName}`,
+      fileId: fileId
+    };
+  }
+
+  const downloadUrls = [
+    `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600`,
+    `https://lh3.googleusercontent.com/d/${fileId}`,
+    `https://drive.google.com/uc?export=download&id=${fileId}`
+  ];
+
+  for (const url of downloadUrls) {
+    try {
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        },
+        signal: AbortSignal.timeout(8000)
+      });
+
+      if (response.ok) {
+        const arrayBuffer = await response.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        if (buffer.length > 500) {
+          fs.writeFileSync(targetFileFrontend, buffer);
+          try { fs.writeFileSync(targetFileBackend, buffer); } catch (e) {}
+          return {
+            success: true,
+            bannerImage: `/images/event-banners/${fileName}`,
+            fileId: fileId
+          };
+        }
+      }
+    } catch (err) {
+      // Try next endpoint
+    }
+  }
+
+  return null;
+};
+
+/**
+ * Uploads an event banner image buffer to Google Drive (with local fallback)
  */
 exports.uploadBannerToDrive = async (fileBuffer, originalName, mimeType) => {
   const drive = getDriveClient();
@@ -114,7 +218,7 @@ exports.uploadBannerToDrive = async (fileBuffer, originalName, mimeType) => {
         }
       });
 
-      const bannerImage = `https://drive.google.com/uc?export=view&id=${fileId}`;
+      const bannerImage = `https://lh3.googleusercontent.com/d/${fileId}`;
 
       return {
         success: true,
@@ -129,15 +233,22 @@ exports.uploadBannerToDrive = async (fileBuffer, originalName, mimeType) => {
   }
 
   // Seamless local fallback mode if Google Drive credentials are not yet added in .env
-  const uploadsDir = path.join(__dirname, '../../images/event-banners');
-  if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
+  const frontendDir = path.join(__dirname, '../../frontend/public/images/event-banners');
+  const rootUploadsDir = path.join(__dirname, '../../images/event-banners');
+
+  for (const d of [frontendDir, rootUploadsDir]) {
+    if (!fs.existsSync(d)) {
+      fs.mkdirSync(d, { recursive: true });
+    }
   }
 
   const ext = path.extname(originalName) || '.jpg';
   const fileName = `banner_${Date.now()}${ext}`;
-  const filePath = path.join(uploadsDir, fileName);
-  fs.writeFileSync(filePath, fileBuffer);
+
+  fs.writeFileSync(path.join(frontendDir, fileName), fileBuffer);
+  try {
+    fs.writeFileSync(path.join(rootUploadsDir, fileName), fileBuffer);
+  } catch (e) {}
 
   const localFileId = `gdrive_file_${Date.now()}`;
   const directUrl = `/images/event-banners/${fileName}`;
@@ -156,7 +267,6 @@ exports.uploadBannerToDrive = async (fileBuffer, originalName, mimeType) => {
 exports.deleteFileFromDrive = async (fileId) => {
   if (!fileId) return;
 
-  // If local fallback file ID
   if (fileId.startsWith('gdrive_file_')) {
     return;
   }
@@ -171,3 +281,4 @@ exports.deleteFileFromDrive = async (fileId) => {
     }
   }
 };
+

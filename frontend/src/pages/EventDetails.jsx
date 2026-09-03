@@ -28,7 +28,14 @@ export default function EventDetails() {
             alt={event.title}
             loading="lazy"
             style={{ width: '100%', maxHeight: '420px', objectFit: 'cover' }}
-            onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80'; }}
+            onError={(e) => {
+              if (event.driveFileId && !e.target.dataset.triedThumbnail) {
+                e.target.dataset.triedThumbnail = 'true';
+                e.target.src = `https://drive.google.com/thumbnail?id=${event.driveFileId}&sz=w1600`;
+                return;
+              }
+              e.target.src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80';
+            }}
           />
 
           <div className="event-details-card-body">

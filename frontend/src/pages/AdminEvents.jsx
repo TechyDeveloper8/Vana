@@ -21,7 +21,11 @@ export default function AdminEvents() {
   const [editingEvent, setEditingEvent] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // File Upload State
+  // File & Banner Upload States
+  const [bannerSourceTab, setBannerSourceTab] = useState('gdrive'); // 'gdrive' | 'file' | 'url'
+  const [gdriveInput, setGdriveInput] = useState('');
+  const [processingGdrive, setProcessingGdrive] = useState(false);
+  const [gdrivePreviewError, setGdrivePreviewError] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -76,14 +80,18 @@ export default function AdminEvents() {
   const handleOpenCreateModal = () => {
     setEditingEvent(null);
     setFormData(initialFormState);
+    setGdriveInput('');
+    setBannerSourceTab('gdrive');
     setUploadProgress(0);
     setUploadSuccess(false);
+    setGdrivePreviewError(false);
     setShowModal(true);
   };
 
   // Open modal for Edit
   const handleOpenEditModal = (evt) => {
     setEditingEvent(evt);
+    const existingBanner = evt.bannerImage || '';
     setFormData({
       title: evt.title || '',
       category: evt.category || 'Corporate Events',
@@ -97,12 +105,104 @@ export default function AdminEvents() {
       address: evt.venue?.address || '',
       price: evt.price || evt.ticketTiers?.[0]?.price || 0,
       description: evt.description || '',
-      bannerImage: evt.bannerImage || '',
+      bannerImage: existingBanner,
       driveFileId: evt.driveFileId || ''
     });
+
+    if (evt.driveFileId) {
+      setGdriveInput(`https://drive.google.com/file/d/${evt.driveFileId}/view`);
+      setBannerSourceTab('gdrive');
+    } else if (existingBanner.includes('google') || existingBanner.includes('drive.')) {
+      setGdriveInput(existingBanner);
+      setBannerSourceTab('gdrive');
+    } else {
+      setGdriveInput('');
+      setBannerSourceTab(existingBanner ? 'url' : 'gdrive');
+    }
+
     setUploadProgress(0);
     setUploadSuccess(false);
+    setGdrivePreviewError(false);
     setShowModal(true);
+  };
+
+  // Extract Google Drive File ID from any link format
+  const extractGDriveId = (url) => {
+    if (!url || typeof url !== 'string') return null;
+    const trimmed = url.trim();
+    const fileDMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]{15,60})/);
+    if (fileDMatch) return fileDMatch[1];
+    const idMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]{15,60})/);
+    if (idMatch) return idMatch[1];
+    const dMatch = trimmed.match(/\/d\/([a-zA-Z0-9_-]{15,60})/);
+    if (dMatch) return dMatch[1];
+    if (/^[a-zA-Z0-9_-]{15,60}$/.test(trimmed) && !trimmed.includes('/') && !trimmed.includes('.')) {
+      return trimmed;
+    }
+    return null;
+  };
+
+  // Process Google Drive URL immediately on frontend and sync with backend
+  const handleApplyGDriveLink = async (overrideUrl = null, downloadLocally = false) => {
+    const rawLink = (overrideUrl !== null ? overrideUrl : gdriveInput).trim();
+    if (!rawLink) {
+      showNotification('Please enter or paste a Google Drive link', 'error');
+      return;
+    }
+
+    const fileId = extractGDriveId(rawLink);
+    if (!fileId) {
+      showNotification('Could not detect a valid Google Drive link or file ID. Example: https://drive.google.com/file/d/FILE_ID/view?usp=sharing', 'error');
+      return;
+    }
+
+    setProcessingGdrive(true);
+    setGdrivePreviewError(false);
+
+    // Instant direct high-speed embed URL
+    const directEmbedUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
+    setFormData((prev) => ({
+      ...prev,
+      bannerImage: directEmbedUrl,
+      driveFileId: fileId
+    }));
+    setUploadSuccess(true);
+
+    try {
+      const res = await fetchAPI('/events/process-gdrive-link', {
+        method: 'POST',
+        body: JSON.stringify({ driveUrl: rawLink, downloadLocally })
+      });
+
+      if (res.success) {
+        setFormData((prev) => ({
+          ...prev,
+          bannerImage: res.bannerImage || directEmbedUrl,
+          driveFileId: res.driveFileId || fileId
+        }));
+        showNotification(res.message || 'Google Drive banner connected successfully!', 'success');
+      }
+    } catch (err) {
+      // Direct stream URL still works even if backend proxy fails
+      showNotification('Google Drive link applied! Note: Make sure file access is set to "Anyone with the link can view".', 'success');
+    } finally {
+      setProcessingGdrive(false);
+    }
+  };
+
+  // Handle banner preview image loading error with multiple Google Drive fallback mirrors
+  const handleBannerImgError = (e) => {
+    if (formData.driveFileId && !e.target.dataset.triedThumbnail) {
+      e.target.dataset.triedThumbnail = 'true';
+      e.target.src = `https://drive.google.com/thumbnail?id=${formData.driveFileId}&sz=w1600`;
+      return;
+    }
+    if (formData.driveFileId && !e.target.dataset.triedExport) {
+      e.target.dataset.triedExport = 'true';
+      e.target.src = `https://drive.google.com/uc?export=view&id=${formData.driveFileId}`;
+      return;
+    }
+    setGdrivePreviewError(true);
   };
 
   // File Validation & Google Drive Automated Upload Handler
@@ -455,6 +555,11 @@ export default function AdminEvents() {
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 loading="lazy"
                                 onError={(e) => {
+                                  if (evt.driveFileId && !e.target.dataset.triedThumbnail) {
+                                    e.target.dataset.triedThumbnail = 'true';
+                                    e.target.src = `https://drive.google.com/thumbnail?id=${evt.driveFileId}&sz=w800`;
+                                    return;
+                                  }
                                   e.target.src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80';
                                 }}
                               />
@@ -746,100 +851,340 @@ export default function AdminEvents() {
                 </div>
               </div>
 
-              {/* AUTOMATED GOOGLE DRIVE IMAGE UPLOADER SECTION */}
+              {/* GOOGLE DRIVE & MULTI-SOURCE BANNER MANAGER */}
               <div
                 style={{
                   background: '#0B0E17',
-                  border: '2px dashed rgba(212, 175, 55, 0.35)',
-                  borderRadius: '12px',
+                  border: '1px solid rgba(212, 175, 55, 0.35)',
+                  borderRadius: '14px',
                   padding: '20px',
-                  textAlign: 'center',
                   position: 'relative'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '8px' }}>
-                  <i className="fa-brands fa-google-drive" style={{ color: 'var(--gold-accent)', fontSize: '1.4rem' }}></i>
-                  <span style={{ fontWeight: 700, color: 'var(--text-heading)', fontSize: '1rem' }}>
-                    Google Drive Automated Banner Uploader
-                  </span>
+                {/* Header Title */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <i className="fa-brands fa-google-drive" style={{ color: 'var(--gold-accent)', fontSize: '1.4rem' }}></i>
+                    <div>
+                      <span style={{ fontWeight: 800, color: 'var(--text-heading)', fontSize: '1rem', display: 'block' }}>
+                        Event Banner Image & Google Drive Sync
+                      </span>
+                      <span style={{ fontSize: '0.78rem', color: 'var(--text-light)' }}>
+                        Paste a Google Drive share link, upload from device, or enter a direct web image URL
+                      </span>
+                    </div>
+                  </div>
+
+                  {formData.driveFileId && (
+                    <span style={{ fontSize: '0.75rem', background: 'rgba(212, 175, 55, 0.15)', color: 'var(--gold-accent)', border: '1px solid rgba(212, 175, 55, 0.3)', padding: '3px 10px', borderRadius: '12px', fontWeight: 700 }}>
+                      <i className="fa-brands fa-google-drive" style={{ marginRight: '4px' }}></i> File ID: {formData.driveFileId.slice(0, 10)}...
+                    </span>
+                  )}
                 </div>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginBottom: '14px' }}>
-                  Supported Formats: <strong>JPG, PNG, WEBP</strong> | Max Upload Size: <strong>5 MB</strong>
-                </p>
 
-                {/* File Input */}
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-                  onChange={handleFileSelect}
-                  style={{ display: 'none' }}
-                  id="drive-image-input"
-                />
+                {/* Source Selection Tabs */}
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', borderBottom: '1px solid rgba(212, 175, 55, 0.2)', paddingBottom: '12px', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    onClick={() => setBannerSourceTab('gdrive')}
+                    style={{
+                      padding: '7px 14px',
+                      borderRadius: '8px',
+                      border: bannerSourceTab === 'gdrive' ? 'none' : '1px solid rgba(212, 175, 55, 0.25)',
+                      background: bannerSourceTab === 'gdrive' ? 'var(--gold-gradient)' : '#141824',
+                      color: bannerSourceTab === 'gdrive' ? '#0A0D14' : '#CBD5E1',
+                      fontWeight: 700,
+                      fontSize: '0.82rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    <i className="fa-brands fa-google-drive"></i> Google Drive Link
+                  </button>
 
-                <label
-                  htmlFor="drive-image-input"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '10px 20px',
-                    background: 'var(--gold-gradient)',
-                    color: '#0A0D14',
-                    borderRadius: '8px',
-                    fontWeight: 700,
-                    fontSize: '0.9rem',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  <i className="fa-solid fa-cloud-arrow-up"></i> Upload Banner Image to Google Drive
-                </label>
+                  <button
+                    type="button"
+                    onClick={() => setBannerSourceTab('file')}
+                    style={{
+                      padding: '7px 14px',
+                      borderRadius: '8px',
+                      border: bannerSourceTab === 'file' ? 'none' : '1px solid rgba(212, 175, 55, 0.25)',
+                      background: bannerSourceTab === 'file' ? 'var(--gold-gradient)' : '#141824',
+                      color: bannerSourceTab === 'file' ? '#0A0D14' : '#CBD5E1',
+                      fontWeight: 700,
+                      fontSize: '0.82rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    <i className="fa-solid fa-cloud-arrow-up"></i> Upload from Device
+                  </button>
 
-                {/* Progress Bar Indicator */}
-                {uploading && (
-                  <div style={{ marginTop: '16px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: 'var(--gold-accent)', marginBottom: '6px', fontWeight: 600 }}>
-                      <span>Uploading to Google Drive "Event Banners" folder...</span>
-                      <span>{uploadProgress}%</span>
-                    </div>
-                    <div style={{ height: '8px', background: '#141824', borderRadius: '4px', overflow: 'hidden' }}>
-                      <div
-                        style={{
-                          height: '100%',
-                          width: `${uploadProgress}%`,
-                          background: 'var(--gold-gradient)',
-                          transition: 'width 0.2s ease'
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                )}
+                  <button
+                    type="button"
+                    onClick={() => setBannerSourceTab('url')}
+                    style={{
+                      padding: '7px 14px',
+                      borderRadius: '8px',
+                      border: bannerSourceTab === 'url' ? 'none' : '1px solid rgba(212, 175, 55, 0.25)',
+                      background: bannerSourceTab === 'url' ? 'var(--gold-gradient)' : '#141824',
+                      color: bannerSourceTab === 'url' ? '#0A0D14' : '#CBD5E1',
+                      fontWeight: 700,
+                      fontSize: '0.82rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    <i className="fa-solid fa-link"></i> Web Image URL
+                  </button>
+                </div>
 
-                {/* Upload Success Badge */}
-                {uploadSuccess && (
-                  <div style={{ marginTop: '12px', color: '#4ADE80', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                    <i className="fa-solid fa-circle-check"></i> Image stored & synced with Google Drive!
-                  </div>
-                )}
-
-                {/* Image Preview & URL Display */}
-                {formData.bannerImage && (
-                  <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '16px', background: '#141824', padding: '12px', borderRadius: '8px', border: '1px solid rgba(212, 175, 55, 0.25)', textAlign: 'left' }}>
-                    <img
-                      src={formData.bannerImage}
-                      alt="Banner Preview"
-                      style={{ width: '90px', height: '60px', objectFit: 'cover', borderRadius: '6px', border: '1px solid rgba(212, 175, 55, 0.3)' }}
-                    />
-                    <div style={{ flex: 1, overflow: 'hidden' }}>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--gold-accent)', display: 'block' }}>STORED IMAGE URL:</span>
+                {/* TAB 1: GOOGLE DRIVE LINK PASTE & AUTO-CONVERSION */}
+                {bannerSourceTab === 'gdrive' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                       <input
                         type="text"
-                        value={formData.bannerImage}
-                        onChange={(e) => setFormData({ ...formData, bannerImage: e.target.value })}
-                        style={{ width: '100%', padding: '6px 10px', fontSize: '0.8rem', borderRadius: '4px', border: '1px solid rgba(212, 175, 55, 0.25)', background: '#0B0E17', color: '#F8FAFC' }}
+                        placeholder="Paste Google Drive share link (e.g. https://drive.google.com/file/d/1w8aXy.../view?usp=sharing)"
+                        value={gdriveInput}
+                        onChange={(e) => {
+                          setGdriveInput(e.target.value);
+                          const detected = extractGDriveId(e.target.value);
+                          if (detected) {
+                            handleApplyGDriveLink(e.target.value, false);
+                          }
+                        }}
+                        style={{
+                          flex: 1,
+                          minWidth: '260px',
+                          padding: '10px 14px',
+                          background: '#141824',
+                          border: '1px solid rgba(212, 175, 55, 0.3)',
+                          borderRadius: '8px',
+                          color: '#F8FAFC',
+                          fontSize: '0.88rem'
+                        }}
+                      />
+
+                      <button
+                        type="button"
+                        disabled={processingGdrive || !gdriveInput.trim()}
+                        onClick={() => handleApplyGDriveLink(null, false)}
+                        className="primary-btn"
+                        style={{ padding: '10px 18px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, whiteSpace: 'nowrap' }}
+                      >
+                        {processingGdrive ? (
+                          <>
+                            <i className="fa-solid fa-spinner fa-spin"></i> Converting...
+                          </>
+                        ) : (
+                          <>
+                            <i className="fa-solid fa-bolt"></i> Apply GDrive Link
+                          </>
+                        )}
+                      </button>
+
+                      <button
+                        type="button"
+                        disabled={processingGdrive || !gdriveInput.trim()}
+                        onClick={() => handleApplyGDriveLink(null, true)}
+                        style={{
+                          padding: '10px 16px',
+                          borderRadius: '8px',
+                          background: '#141824',
+                          border: '1px solid rgba(212, 175, 55, 0.4)',
+                          color: 'var(--gold-accent)',
+                          fontWeight: 700,
+                          fontSize: '0.85rem',
+                          cursor: 'pointer',
+                          whiteSpace: 'nowrap'
+                        }}
+                        title="Download image from Google Drive and store on server permanently"
+                      >
+                        <i className="fa-solid fa-cloud-arrow-down"></i> Cache to Server
+                      </button>
+                    </div>
+
+                    <div style={{ background: 'rgba(212, 175, 55, 0.08)', border: '1px solid rgba(212, 175, 55, 0.2)', padding: '10px 14px', borderRadius: '8px', fontSize: '0.78rem', color: 'var(--gold-accent)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <i className="fa-solid fa-circle-info" style={{ fontSize: '1rem' }}></i>
+                      <span>
+                        <strong>Google Drive Sharing Requirement:</strong> In Google Drive, ensure General Access is set to <strong>"Anyone with the link can view"</strong> so the image displays to all visitors.
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB 2: UPLOAD IMAGE FILE FROM DEVICE */}
+                {bannerSourceTab === 'file' && (
+                  <div style={{ textAlign: 'center', padding: '10px 0' }}>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginBottom: '12px' }}>
+                      Supported Formats: <strong>JPG, PNG, WEBP</strong> | Maximum Size: <strong>5 MB</strong>
+                    </p>
+
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                      onChange={handleFileSelect}
+                      style={{ display: 'none' }}
+                      id="drive-image-input"
+                    />
+
+                    <label
+                      htmlFor="drive-image-input"
+                      className="primary-btn"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '10px 22px',
+                        borderRadius: '8px',
+                        fontWeight: 700,
+                        fontSize: '0.9rem',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <i className="fa-solid fa-cloud-arrow-up"></i> Choose Image File from Device
+                    </label>
+
+                    {uploading && (
+                      <div style={{ marginTop: '16px', textAlign: 'left' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: 'var(--gold-accent)', marginBottom: '6px', fontWeight: 600 }}>
+                          <span>Uploading & processing event banner...</span>
+                          <span>{uploadProgress}%</span>
+                        </div>
+                        <div style={{ height: '8px', background: '#141824', borderRadius: '4px', overflow: 'hidden' }}>
+                          <div
+                            style={{
+                              height: '100%',
+                              width: `${uploadProgress}%`,
+                              background: 'var(--gold-gradient)',
+                              transition: 'width 0.2s ease'
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* TAB 3: DIRECT WEB IMAGE URL */}
+                {bannerSourceTab === 'url' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label style={{ fontSize: '0.8rem', color: '#CBD5E1', fontWeight: 600 }}>Direct Image URL (HTTPS)</label>
+                    <input
+                      type="url"
+                      placeholder="https://images.unsplash.com/photo-... or https://cdn..."
+                      value={formData.bannerImage}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        const detected = extractGDriveId(val);
+                        if (detected) {
+                          setGdriveInput(val);
+                          handleApplyGDriveLink(val, false);
+                        } else {
+                          setFormData({ ...formData, bannerImage: val });
+                        }
+                      }}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        background: '#141824',
+                        border: '1px solid rgba(212, 175, 55, 0.3)',
+                        borderRadius: '8px',
+                        color: '#F8FAFC',
+                        fontSize: '0.88rem'
+                      }}
+                    />
+                  </div>
+                )}
+
+                {/* LIVE BANNER PREVIEW CARD */}
+                {formData.bannerImage && (
+                  <div
+                    style={{
+                      marginTop: '18px',
+                      background: '#141824',
+                      padding: '14px',
+                      borderRadius: '10px',
+                      border: '1px solid rgba(212, 175, 55, 0.3)',
+                      display: 'flex',
+                      gap: '16px',
+                      alignItems: 'center',
+                      flexWrap: 'wrap'
+                    }}
+                  >
+                    <div style={{ position: 'relative', width: '130px', height: '80px', flexShrink: 0, borderRadius: '8px', overflow: 'hidden', border: '2px solid var(--gold-primary)', background: '#000' }}>
+                      <img
+                        src={formData.bannerImage}
+                        alt="Banner Preview"
+                        onError={handleBannerImgError}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
                     </div>
+
+                    <div style={{ flex: 1, minWidth: '220px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                        <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--gold-accent)' }}>
+                          {formData.driveFileId ? '✓ GOOGLE DRIVE BANNER CONNECTED' : '✓ ACTIVE BANNER PREVIEW'}
+                        </span>
+                        {formData.driveFileId && (
+                          <span style={{ fontSize: '0.68rem', background: '#10B981', color: '#0A0D14', padding: '1px 6px', borderRadius: '4px', fontWeight: 800 }}>
+                            DIRECT STREAM
+                          </span>
+                        )}
+                      </div>
+
+                      <input
+                        type="text"
+                        readOnly
+                        value={formData.bannerImage}
+                        style={{
+                          width: '100%',
+                          padding: '6px 10px',
+                          fontSize: '0.78rem',
+                          borderRadius: '6px',
+                          border: '1px solid rgba(212, 175, 55, 0.2)',
+                          background: '#0B0E17',
+                          color: '#CBD5E1',
+                          fontFamily: 'monospace'
+                        }}
+                      />
+
+                      {gdrivePreviewError && (
+                        <div style={{ marginTop: '6px', color: '#F87171', fontSize: '0.75rem', fontWeight: 600 }}>
+                          <i className="fa-solid fa-triangle-exclamation" style={{ marginRight: '4px' }}></i>
+                          Google Drive preview blocked. In Google Drive, ensure General Access is set to "Anyone with the link can view".
+                        </div>
+                      )}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData((prev) => ({ ...prev, bannerImage: '', driveFileId: '' }));
+                        setGdriveInput('');
+                        setGdrivePreviewError(false);
+                      }}
+                      style={{
+                        background: 'rgba(239, 68, 68, 0.12)',
+                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        color: '#F87171',
+                        padding: '6px 12px',
+                        borderRadius: '6px',
+                        fontSize: '0.78rem',
+                        fontWeight: 700,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <i className="fa-solid fa-trash-can" style={{ marginRight: '4px' }}></i> Remove
+                    </button>
                   </div>
                 )}
               </div>

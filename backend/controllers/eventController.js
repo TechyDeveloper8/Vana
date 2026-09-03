@@ -1,7 +1,13 @@
 const Event = require('../models/Event');
-const { uploadBannerToDrive, deleteFileFromDrive } = require('../utils/googleDrive');
+const {
+  uploadBannerToDrive,
+  deleteFileFromDrive,
+  extractGoogleDriveFileId,
+  formatGoogleDriveImageUrl,
+  downloadGoogleDriveImageLocally
+} = require('../utils/googleDrive');
 
-// 1. Upload Event Banner to Google Drive API
+// 1. Upload Event Banner to Google Drive API / Local Fallback
 exports.uploadBanner = async (req, res) => {
   try {
     if (!req.file) {
@@ -28,7 +34,7 @@ exports.uploadBanner = async (req, res) => {
       });
     }
 
-    // Upload to Google Drive
+    // Upload to Google Drive / Local Fallback
     const result = await uploadBannerToDrive(buffer, originalname, mimetype);
 
     // If an old Google Drive file ID was provided, delete it to keep storage organized
@@ -46,6 +52,57 @@ exports.uploadBanner = async (req, res) => {
   } catch (error) {
     console.error('Banner upload error:', error);
     res.status(500).json({ success: false, message: error.message || 'Image upload failed' });
+  }
+};
+
+// 1b. Process, Validate & Convert Google Drive Share Link
+exports.processGoogleDriveLink = async (req, res) => {
+  try {
+    const { driveUrl, downloadLocally } = req.body;
+    if (!driveUrl || typeof driveUrl !== 'string') {
+      return res.status(400).json({ success: false, message: 'Please provide a valid Google Drive link.' });
+    }
+
+    const fileId = extractGoogleDriveFileId(driveUrl);
+    if (!fileId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Could not recognize a valid Google Drive File ID. Please paste a link like https://drive.google.com/file/d/FILE_ID/view?usp=sharing'
+      });
+    }
+
+    const directEmbedUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
+    const fallbackThumbUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600`;
+
+    // Optionally download and store locally on server
+    if (downloadLocally) {
+      const localResult = await downloadGoogleDriveImageLocally(fileId);
+      if (localResult && localResult.success) {
+        return res.json({
+          success: true,
+          message: 'Google Drive banner downloaded & stored locally on server',
+          bannerImage: localResult.bannerImage,
+          driveFileId: fileId,
+          directEmbedUrl,
+          fallbackThumbUrl,
+          storedLocally: true
+        });
+      }
+    }
+
+    // Direct embed mode (Default, super fast, 0 server disk space)
+    return res.json({
+      success: true,
+      message: 'Google Drive link verified & converted to high-speed stream URL',
+      bannerImage: directEmbedUrl,
+      driveFileId: fileId,
+      directEmbedUrl,
+      fallbackThumbUrl,
+      storedLocally: false
+    });
+  } catch (error) {
+    console.error('Process Google Drive Link error:', error);
+    res.status(500).json({ success: false, message: error.message || 'Failed to process Google Drive link' });
   }
 };
 
@@ -142,6 +199,16 @@ exports.createEvent = async (req, res) => {
       bannerImage, driveFileId, ticketTiers
     } = req.body;
 
+    // Detect and sanitize Google Drive banner link to direct-embed format
+    let finalBannerImage = bannerImage || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80';
+    let finalDriveFileId = driveFileId || '';
+
+    const detectedFileId = extractGoogleDriveFileId(finalBannerImage);
+    if (detectedFileId) {
+      finalBannerImage = formatGoogleDriveImageUrl(finalBannerImage);
+      if (!finalDriveFileId) finalDriveFileId = detectedFileId;
+    }
+
     const eventPayload = {
       title,
       category: category || 'Corporate Events',
@@ -155,8 +222,8 @@ exports.createEvent = async (req, res) => {
       venue: typeof venue === 'object' ? venue : { name: venue || 'Auditorium Hall', city: 'Bhagalpur' },
       price: price ? Number(price) : 0,
       description: description || '',
-      bannerImage: bannerImage || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80',
-      driveFileId: driveFileId || '',
+      bannerImage: finalBannerImage,
+      driveFileId: finalDriveFileId,
       ticketTiers: ticketTiers && ticketTiers.length > 0 ? ticketTiers : [
         { tierName: 'Standard Pass', price: Number(price) || 999, totalSeats: 100, availableSeats: 100 }
       ]
@@ -178,6 +245,15 @@ exports.updateEvent = async (req, res) => {
 
     if (updateData.status) {
       updateData.isPublished = updateData.status !== 'Unpublished';
+    }
+
+    // Auto-detect and sanitize Google Drive links on update
+    if (updateData.bannerImage) {
+      const detectedFileId = extractGoogleDriveFileId(updateData.bannerImage);
+      if (detectedFileId) {
+        updateData.bannerImage = formatGoogleDriveImageUrl(updateData.bannerImage);
+        if (!updateData.driveFileId) updateData.driveFileId = detectedFileId;
+      }
     }
 
     if (updateData.price && (!updateData.ticketTiers || updateData.ticketTiers.length === 0)) {

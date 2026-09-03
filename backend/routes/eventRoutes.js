@@ -8,7 +8,8 @@ const {
   updateEvent,
   togglePublishStatus,
   deleteEvent,
-  uploadBanner
+  uploadBanner,
+  processGoogleDriveLink
 } = require('../controllers/eventController');
 const { protect, adminOnly } = require('../middleware/authMiddleware');
 
@@ -23,8 +24,9 @@ const upload = multer({
 router.get('/', getEvents);
 router.get('/:id', getEventById);
 
-// Admin Event Banner Upload Endpoint
+// Admin Event Banner Upload & Google Drive Link Processing Endpoints
 router.post('/upload-banner', protect, adminOnly, upload.single('banner'), uploadBanner);
+router.post('/process-gdrive-link', protect, adminOnly, processGoogleDriveLink);
 
 // Admin Event CRUD & Publish Status Routes
 router.post('/', protect, adminOnly, createEvent);
