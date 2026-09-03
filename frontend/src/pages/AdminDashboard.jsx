@@ -64,8 +64,8 @@ export default function AdminDashboard() {
       {
         label: 'Monthly Revenue (₹)',
         data: stats.monthlyChart?.data?.length ? stats.monthlyChart.data : [0, 0, 0, 0, 0, 0],
-        borderColor: '#ff3b00',
-        backgroundColor: 'rgba(255,59,0,0.1)',
+        borderColor: '#D4AF37',
+        backgroundColor: 'rgba(212, 175, 55, 0.15)',
         tension: 0.4,
         fill: true
       }
@@ -78,7 +78,7 @@ export default function AdminDashboard() {
       {
         label: 'Weekly Ticket Sales',
         data: stats.weeklyBookingsChart?.data?.length ? stats.weeklyBookingsChart.data : [0, 0, 0, 0, 0, 0, 0],
-        backgroundColor: '#0f172a'
+        backgroundColor: '#D4AF37'
       }
     ]
   };
@@ -90,8 +90,8 @@ export default function AdminDashboard() {
       <div className="admin-content">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '20px' }}>
           <div>
-            <h2 style={{ fontSize: '1.8rem', color: '#0f172a', margin: 0 }}>Welcome, {user?.name || 'Admin'}</h2>
-            <p style={{ color: '#64748b', margin: '4px 0 0' }}>Vana Entertainments Management Portal</p>
+            <h2 style={{ fontSize: '1.8rem', color: 'var(--text-heading)', margin: 0 }}>Welcome, {user?.name || 'Admin'}</h2>
+            <p style={{ color: 'var(--text-body)', margin: '4px 0 0' }}>Vana Entertainments Management Portal</p>
           </div>
           <Link to="/admin/events" className="primary-btn">
             + Create New Event
@@ -101,24 +101,24 @@ export default function AdminDashboard() {
         {/* Quick System Control: Hide / Show Public Login Option */}
         <div
           style={{
-            background: isLoginHidden ? '#fff1f2' : '#f0fdf4',
-            border: `1px solid ${isLoginHidden ? '#fecdd3' : '#bbf7d0'}`,
+            background: isLoginHidden ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)',
+            border: `1px solid ${isLoginHidden ? 'rgba(239, 68, 68, 0.3)' : 'rgba(34, 197, 94, 0.3)'}`,
             padding: '16px 20px',
             borderRadius: '12px',
             marginBottom: '24px',
             display: 'flex',
             alignItems: 'center',
-            justify: 'space-between',
+            justifyContent: 'space-between',
             flexWrap: 'wrap',
             gap: '12px'
           }}
         >
           <div>
-            <h4 style={{ margin: 0, fontSize: '0.95rem', color: isLoginHidden ? '#9f1239' : '#166534', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h4 style={{ margin: 0, fontSize: '0.95rem', color: isLoginHidden ? '#F87171' : '#4ADE80', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <i className={`fa-solid ${isLoginHidden ? 'fa-eye-slash' : 'fa-eye'}`}></i>
               Public Header Login Link: {isLoginHidden ? 'HIDDEN' : 'VISIBLE'}
             </h4>
-            <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#475569' }}>
+            <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: 'var(--text-light)' }}>
               {isLoginHidden
                 ? 'The Login link in the website header is currently hidden from public visitors.'
                 : 'The Login & Book Ticket links are active and visible in the header.'}
@@ -148,7 +148,7 @@ export default function AdminDashboard() {
         <div className="stats-grid">
           <div className="stat-card">
             <h4>TOTAL REVENUE</h4>
-            <div className="number" style={{ color: '#ff3b00' }}>₹{(stats.totalRevenue || 0).toLocaleString()}</div>
+            <div className="number" style={{ color: 'var(--gold-accent)' }}>₹{(stats.totalRevenue || 0).toLocaleString()}</div>
           </div>
           <div className="stat-card">
             <h4>TOTAL BOOKINGS</h4>
@@ -166,28 +166,28 @@ export default function AdminDashboard() {
 
         {/* Analytics Charts */}
         <div className="admin-charts-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginBottom: '40px' }}>
-          <div style={{ background: '#fff', padding: '25px', borderRadius: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
-            <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', color: '#0f172a' }}>Revenue Overview</h3>
+          <div style={{ background: '#141824', padding: '25px', borderRadius: '16px', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-hover)' }}>
+            <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', color: 'var(--text-heading)' }}>Revenue Overview</h3>
             <Line data={revenueData} />
           </div>
-          <div style={{ background: '#fff', padding: '25px', borderRadius: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
-            <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', color: '#0f172a' }}>Ticket Bookings Trend</h3>
+          <div style={{ background: '#141824', padding: '25px', borderRadius: '16px', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-hover)' }}>
+            <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', color: 'var(--text-heading)' }}>Ticket Bookings Trend</h3>
             <Bar data={bookingData} />
           </div>
         </div>
 
         {/* Recent Bookings & Gate Attendance Table */}
-        <div style={{ background: '#fff', padding: '25px', borderRadius: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
+        <div style={{ background: '#141824', padding: '25px', borderRadius: '16px', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-hover)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '20px' }}>
-            <h3 style={{ fontSize: '1.2rem', margin: 0, color: '#0f172a' }}>Recent Ticket Bookings & Gate Attendance</h3>
-            <Link to="/admin/bookings" style={{ color: '#2563eb', fontWeight: 600, fontSize: '0.9rem', textDecoration: 'none' }}>
+            <h3 style={{ fontSize: '1.2rem', margin: 0, color: 'var(--text-heading)' }}>Recent Ticket Bookings & Gate Attendance</h3>
+            <Link to="/admin/bookings" style={{ color: 'var(--gold-accent)', fontWeight: 600, fontSize: '0.9rem', textDecoration: 'none' }}>
               View Full Attendance Audit →
             </Link>
           </div>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead>
-                <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b', fontSize: '0.85rem' }}>
+                <tr style={{ borderBottom: '1px solid rgba(212, 175, 55, 0.25)', color: 'var(--gold-accent)', fontSize: '0.85rem' }}>
                   <th style={{ padding: '12px' }}>BOOKING ID</th>
                   <th style={{ padding: '12px' }}>CUSTOMER</th>
                   <th style={{ padding: '12px' }}>EVENT</th>
@@ -205,17 +205,18 @@ export default function AdminDashboard() {
                   </tr>
                 ) : (
                   bookings.slice(0, 10).map((b) => (
-                    <tr key={b._id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                      <td style={{ padding: '12px', fontWeight: 600 }}>{b.bookingId}</td>
-                      <td style={{ padding: '12px' }}>{b.userName}<br/><span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{b.userEmail}</span></td>
-                      <td style={{ padding: '12px' }}>{b.eventTitle}</td>
-                      <td style={{ padding: '12px' }}>{b.quantity}</td>
-                      <td style={{ padding: '12px', fontWeight: 600, color: '#ff3b00' }}>₹{b.totalAmount}</td>
+                    <tr key={b._id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                      <td style={{ padding: '12px', fontWeight: 600, color: '#F8FAFC' }}>{b.bookingId}</td>
+                      <td style={{ padding: '12px', color: '#F8FAFC' }}>{b.userName}<br/><span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{b.userEmail}</span></td>
+                      <td style={{ padding: '12px', color: '#CBD5E1' }}>{b.eventTitle}</td>
+                      <td style={{ padding: '12px', color: '#CBD5E1' }}>{b.quantity}</td>
+                      <td style={{ padding: '12px', fontWeight: 600, color: 'var(--gold-accent)' }}>₹{b.totalAmount}</td>
                       <td style={{ padding: '12px' }}>
                         <span
                           style={{
-                            background: b.isCheckedIn ? '#dcfce7' : '#fee2e2',
-                            color: b.isCheckedIn ? '#15803d' : '#b91c1c',
+                            background: b.isCheckedIn ? 'rgba(34, 197, 94, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+                            color: b.isCheckedIn ? '#4ADE80' : '#F87171',
+                            border: `1px solid ${b.isCheckedIn ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
                             padding: '4px 10px',
                             borderRadius: '12px',
                             fontSize: '0.8rem',

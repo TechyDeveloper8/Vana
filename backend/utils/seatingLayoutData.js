@@ -241,9 +241,9 @@ function generateVenueLayout() {
   });
 
   // =========================================================================
-  // 3. FIRST FLOOR — RIGHT WING (EXPLICIT ROW-BY-ROW VECTOR & GROUP CONFIGURATION)
-  // Rows 1G down to 1A, with exact higher range seat vectors and internal group gaps.
-  // Angled positive (+8° to +20°) fan-shaped right wing layout.
+  // 3. FIRST FLOOR — RIGHT WING (ALIGNED HORIZONTAL ROW CONFIGURATION)
+  // Rows 1G down to 1A cleanly aligned with First Floor Center rows across the aisle.
+  // Generous 30px vertical separation with 0 collisions and comfortable 22px seat spacing.
   // =========================================================================
   const firstFloorRightRowConfigs = [
     {
@@ -252,9 +252,9 @@ function generateVenueLayout() {
         [36, 37, 38, 39, 40],
         [41, 42, 43, 44, 45]
       ],
-      originX: 1250,
+      originX: 1260,
       originY: 140,
-      rotation: 20,
+      rotation: 0,
       seatSpacing: 22,
       internalGroupGap: 16
     },
@@ -264,9 +264,9 @@ function generateVenueLayout() {
         [39],
         [40, 41, 42, 43, 44, 45, 46, 47, 48, 49]
       ],
-      originX: 1265,
+      originX: 1260,
       originY: 170,
-      rotation: 18,
+      rotation: 0,
       seatSpacing: 22,
       internalGroupGap: 16
     },
@@ -275,9 +275,9 @@ function generateVenueLayout() {
       groups: [
         [37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
       ],
-      originX: 1280,
+      originX: 1260,
       originY: 200,
-      rotation: 16,
+      rotation: 0,
       seatSpacing: 22,
       internalGroupGap: 0
     },
@@ -286,9 +286,9 @@ function generateVenueLayout() {
       groups: [
         [37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
       ],
-      originX: 1295,
+      originX: 1260,
       originY: 230,
-      rotation: 14,
+      rotation: 0,
       seatSpacing: 22,
       internalGroupGap: 0
     },
@@ -297,9 +297,9 @@ function generateVenueLayout() {
       groups: [
         [35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46]
       ],
-      originX: 1310,
+      originX: 1260,
       originY: 260,
-      rotation: 12,
+      rotation: 0,
       seatSpacing: 22,
       internalGroupGap: 0
     },
@@ -308,9 +308,9 @@ function generateVenueLayout() {
       groups: [
         [33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44]
       ],
-      originX: 1325,
+      originX: 1260,
       originY: 290,
-      rotation: 10,
+      rotation: 0,
       seatSpacing: 22,
       internalGroupGap: 0
     },
@@ -319,9 +319,9 @@ function generateVenueLayout() {
       groups: [
         [29, 30, 31, 32, 33, 34, 35, 36, 37, 38]
       ],
-      originX: 1340,
+      originX: 1260,
       originY: 320,
-      rotation: 8,
+      rotation: 0,
       seatSpacing: 22,
       internalGroupGap: 0
     }

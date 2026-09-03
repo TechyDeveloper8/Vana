@@ -142,7 +142,7 @@ export default function Login() {
         {mode === 'forgot_reset' && 'Verify OTP & Set New Password'}
       </h2>
       
-      <p style={{ textAlign: 'center', color: '#5F5F5F', fontSize: '0.9rem', marginBottom: '24px' }}>
+      <p style={{ textAlign: 'center', color: 'var(--text-body)', fontSize: '0.9rem', marginBottom: '24px' }}>
         {mode === 'login' && 'Single portal for Customer Bookings, Event Staff Verification & Admin Access'}
         {mode === 'forgot_email' && 'Enter your registered email address to receive a 6-digit recovery OTP'}
         {mode === 'forgot_reset' && `We sent a 6-digit verification OTP code to ${email}`}
@@ -151,15 +151,15 @@ export default function Login() {
       {isLoginHidden && mode === 'login' && (
         <div
           style={{
-            background: '#fffbe5',
-            border: '1px solid #ffe58f',
-            color: '#8c6b00',
+            background: 'rgba(212, 175, 55, 0.12)',
+            border: '1px solid rgba(212, 175, 55, 0.35)',
+            color: 'var(--gold-accent)',
             padding: '12px 16px',
             borderRadius: '10px',
             marginBottom: '20px',
             fontSize: '0.88rem',
             textAlign: 'center',
-            fontWeight: 500
+            fontWeight: 600
           }}
         >
           <i className="fa-solid fa-eye-slash" style={{ marginRight: '8px' }}></i>
@@ -170,9 +170,9 @@ export default function Login() {
       {error && (
         <div
           style={{
-            color: '#b91c1c',
-            background: '#fee2e2',
-            border: '1px solid #fca5a5',
+            color: '#F87171',
+            background: 'rgba(239, 68, 68, 0.12)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
             padding: '10px 14px',
             borderRadius: '8px',
             marginBottom: '16px',
@@ -188,9 +188,9 @@ export default function Login() {
       {successMsg && (
         <div
           style={{
-            color: '#15803d',
-            background: '#dcfce7',
-            border: '1px solid #86efac',
+            color: '#4ADE80',
+            background: 'rgba(34, 197, 94, 0.12)',
+            border: '1px solid rgba(34, 197, 94, 0.3)',
             padding: '10px 14px',
             borderRadius: '8px',
             marginBottom: '16px',
@@ -222,7 +222,7 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => { setError(''); setSuccessMsg(''); setMode('forgot_email'); }}
-                style={{ background: 'none', border: 'none', color: '#B8860B', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', color: 'var(--gold-accent)', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}
               >
                 Forgot Password?
               </button>
@@ -272,7 +272,7 @@ export default function Login() {
           <button
             type="button"
             onClick={() => { setError(''); setSuccessMsg(''); setMode('login'); }}
-            style={{ width: '100%', background: '#F6EFE5', border: '1px solid #E7DDD1', color: '#1F1F1F', padding: '12px', borderRadius: '10px', fontWeight: 600, cursor: 'pointer' }}
+            style={{ width: '100%', background: '#0B0E17', border: '1px solid var(--border-light)', color: '#CBD5E1', padding: '12px', borderRadius: '10px', fontWeight: 600, cursor: 'pointer' }}
           >
             ← Back to Sign In
           </button>
@@ -290,7 +290,7 @@ export default function Login() {
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
               placeholder="e.g. 849201"
-              style={{ textAlign: 'center', fontSize: '1.4rem', letterSpacing: '6px', fontWeight: 'bold', color: '#B8860B' }}
+              style={{ textAlign: 'center', fontSize: '1.4rem', letterSpacing: '6px', fontWeight: 'bold', color: 'var(--gold-accent)' }}
             />
           </div>
 
@@ -310,7 +310,7 @@ export default function Login() {
             <button
               type="button"
               onClick={() => setMode('forgot_email')}
-              style={{ background: 'none', border: 'none', color: '#5F5F5F', cursor: 'pointer', textDecoration: 'underline' }}
+              style={{ background: 'none', border: 'none', color: 'var(--text-body)', cursor: 'pointer', textDecoration: 'underline' }}
             >
               ← Edit Email Address
             </button>
@@ -319,7 +319,7 @@ export default function Login() {
               type="button"
               onClick={handleResendForgotOTP}
               disabled={resendCooldown > 0 || loading}
-              style={{ background: 'none', border: 'none', color: resendCooldown > 0 ? '#9ca3af' : '#B8860B', fontWeight: 600, cursor: resendCooldown > 0 ? 'not-allowed' : 'pointer' }}
+              style={{ background: 'none', border: 'none', color: resendCooldown > 0 ? '#64748B' : 'var(--gold-accent)', fontWeight: 600, cursor: resendCooldown > 0 ? 'not-allowed' : 'pointer' }}
             >
               {resendCooldown > 0 ? `Resend code in ${resendCooldown}s` : 'Resend OTP'}
             </button>
@@ -337,9 +337,9 @@ export default function Login() {
       )}
 
       {mode === 'login' && (
-        <p style={{ textAlign: 'center', marginTop: '24px', fontSize: '0.9rem', color: '#5F5F5F' }}>
+        <p style={{ textAlign: 'center', marginTop: '24px', fontSize: '0.9rem', color: 'var(--text-body)' }}>
           Don't have an account?{' '}
-          <Link to={`/register${location.search}`} style={{ color: '#B8860B', fontWeight: 600 }}>
+          <Link to={`/register${location.search}`} style={{ color: 'var(--gold-accent)', fontWeight: 600 }}>
             Create Customer Account
           </Link>
         </p>

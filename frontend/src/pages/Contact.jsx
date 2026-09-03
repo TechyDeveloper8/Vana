@@ -23,17 +23,17 @@ export default function Contact() {
   };
 
   return (
-    <div className="page-padding" style={{ padding: '60px 0', background: '#F8EFE8', minHeight: '85vh' }}>
+    <div className="page-padding" style={{ padding: '60px 0', background: 'var(--bg-primary)', minHeight: '85vh' }}>
       <div className="container">
         <div className="section-header">
           <span className="sub-badge">Get In Touch</span>
           <h2>Let’s Architect Something Extraordinary</h2>
-          <p>Contact our event strategists to discuss your upcoming project or request a proposal.</p>
+          <p style={{ color: 'var(--text-body)' }}>Contact our event strategists to discuss your upcoming project or request a proposal.</p>
         </div>
 
         <div className="grid-2col" style={{ marginTop: '36px' }}>
           <div className="white-card" style={{ padding: '30px 24px', borderRadius: '20px' }}>
-            <h3 style={{ marginBottom: '24px', fontSize: '1.4rem' }}>Send Us An Inquiry</h3>
+            <h3 style={{ marginBottom: '24px', fontSize: '1.4rem', color: 'var(--text-heading)' }}>Send Us An Inquiry</h3>
             {submitted ? (
               <div style={{ background: '#dcfce7', color: '#166534', padding: '24px', borderRadius: '16px', border: '1px solid #bbf7d0' }}>
                 <i className="fa-solid fa-circle-check" style={{ fontSize: '1.2rem', marginRight: '8px' }}></i>
@@ -75,24 +75,24 @@ export default function Contact() {
           </div>
 
           <div>
-            <div style={{ background: '#111827', color: '#FFFFFF', padding: '30px 24px', borderRadius: '20px', marginBottom: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }}>
-              <h3 style={{ color: '#D4AF37', marginBottom: '20px', fontSize: '1.4rem', fontFamily: 'Playfair Display, serif' }}>Corporate Headquarters</h3>
-              <p style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.95rem', color: '#E5E7EB' }}>
-                <i className="fa-solid fa-location-dot" style={{ color: '#D4AF37', fontSize: '1.1rem' }}></i> Karmanchak, Bhagalpur, Bihar - 812001
+            <div style={{ background: '#0B0E17', color: '#FFFFFF', padding: '30px 24px', borderRadius: '20px', marginBottom: '24px', boxShadow: '0 20px 45px rgba(0,0,0,0.6)', border: '1px solid rgba(212, 175, 55, 0.25)' }}>
+              <h3 style={{ color: 'var(--gold-accent)', marginBottom: '20px', fontSize: '1.4rem', fontFamily: 'Playfair Display, serif' }}>Corporate Headquarters</h3>
+              <p style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.95rem', color: 'var(--text-body)' }}>
+                <i className="fa-solid fa-location-dot" style={{ color: 'var(--gold-accent)', fontSize: '1.1rem' }}></i> Karmanchak, Bhagalpur, Bihar - 812001
               </p>
-              <p style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.95rem', color: '#E5E7EB' }}>
-                <i className="fa-solid fa-envelope" style={{ color: '#D4AF37', fontSize: '1.1rem' }}></i> enquiry@vanaentertainments.com
+              <p style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.95rem', color: 'var(--text-body)' }}>
+                <i className="fa-solid fa-envelope" style={{ color: 'var(--gold-accent)', fontSize: '1.1rem' }}></i> enquiry@vanaentertainments.com
               </p>
-              <p style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.95rem', color: '#E5E7EB' }}>
-                <i className="fa-solid fa-phone" style={{ color: '#D4AF37', fontSize: '1.1rem' }}></i> +91-9798988829
+              <p style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.95rem', color: 'var(--text-body)' }}>
+                <i className="fa-solid fa-phone" style={{ color: 'var(--gold-accent)', fontSize: '1.1rem' }}></i> +91-9798988829
               </p>
-              <p style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.95rem', color: '#E5E7EB' }}>
-                <i className="fa-solid fa-globe" style={{ color: '#D4AF37', fontSize: '1.1rem' }}></i> www.vanaentertainments.com
+              <p style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.95rem', color: 'var(--text-body)' }}>
+                <i className="fa-solid fa-globe" style={{ color: 'var(--gold-accent)', fontSize: '1.1rem' }}></i> www.vanaentertainments.com
               </p>
             </div>
 
             {/* Embedded Location Map Preview */}
-            <div style={{ borderRadius: '20px', overflow: 'hidden', height: '220px', border: '1px solid #E7DDD1', boxShadow: '0 10px 30px rgba(31,31,31,0.06)' }}>
+            <div style={{ borderRadius: '20px', overflow: 'hidden', height: '220px', border: '1px solid var(--border-light)', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
               <iframe
                 title="Vana Headquarters Location Map"
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3608.824214227361!2d86.974443!3d25.244321!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjXCsDE0JzM5LjYiTiA4NsKwNTgnMjguMCJF!5e0!3m2!1sen!2sin!4v1650000000000!5m2!1sen!2sin"

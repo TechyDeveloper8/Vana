@@ -25,12 +25,12 @@ export default function Events() {
     : events.filter(e => e.category === category);
 
   return (
-    <div className="page-padding" style={{ padding: '60px 0', background: '#F8EFE8', minHeight: '85vh' }}>
+    <div className="page-padding" style={{ padding: '60px 0', background: 'var(--bg-primary)', minHeight: '85vh' }}>
       <div className="container">
         <div className="section-header">
           <span className="sub-badge">Live Directory</span>
           <h2>Upcoming Events & Ticket Passes</h2>
-          <p>Book official tickets and VIP passes for live concerts, summits, and exhibitions.</p>
+          <p style={{ color: 'var(--text-body)' }}>Book official tickets and VIP passes for live concerts, summits, and exhibitions.</p>
         </div>
 
         {/* Category Filter Pills */}
@@ -42,13 +42,13 @@ export default function Events() {
               style={{
                 padding: '8px 20px',
                 borderRadius: '50px',
-                border: category === cat ? 'none' : '1px solid #E7DDD1',
+                border: category === cat ? '1px solid var(--gold-primary)' : '1px solid rgba(212, 175, 55, 0.25)',
                 cursor: 'pointer',
-                fontWeight: 600,
+                fontWeight: 700,
                 fontSize: '0.85rem',
-                background: category === cat ? 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)' : '#FFFFFF',
-                color: category === cat ? '#FFFFFF' : '#1F1F1F',
-                boxShadow: category === cat ? '0 8px 20px rgba(184, 134, 11, 0.25)' : 'none',
+                background: category === cat ? 'var(--gold-gradient)' : '#141824',
+                color: category === cat ? '#0A0D14' : '#CBD5E1',
+                boxShadow: category === cat ? '0 8px 25px rgba(212, 175, 55, 0.35)' : 'none',
                 transition: 'all 0.3s ease'
               }}
             >
@@ -58,7 +58,7 @@ export default function Events() {
         </div>
 
         {loading ? (
-          <p style={{ textAlign: 'center', color: '#5F5F5F', padding: '40px 0' }}>Loading live events directory...</p>
+          <p style={{ textAlign: 'center', color: 'var(--text-body)', padding: '40px 0' }}>Loading live events directory...</p>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
             {filteredEvents.map((evt) => (
@@ -73,18 +73,18 @@ export default function Events() {
                   />
                 </div>
                 <div className="card-body">
-                  <h3>{evt.title}</h3>
+                  <h3 style={{ color: 'var(--text-heading)' }}>{evt.title}</h3>
                   <div className="meta-info">
                     <span><i className="fa-solid fa-location-dot"></i> {evt.venue?.city || 'Bhagalpur'}</span>
                     <span><i className="fa-solid fa-calendar"></i> {evt.eventDate}</span>
                   </div>
-                  <p style={{ fontSize: '0.88rem', color: '#5F5F5F', marginBottom: '18px' }}>
+                  <p style={{ fontSize: '0.88rem', color: 'var(--text-body)', marginBottom: '18px' }}>
                     {evt.description ? evt.description.slice(0, 90) + '...' : 'Join us for an unforgettable event experience.'}
                   </p>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <span style={{ fontSize: '0.75rem', color: '#8E8E8E', display: 'block' }}>Pass Starts At</span>
-                      <span style={{ fontSize: '1.2rem', fontWeight: 700, color: '#B8860B' }}>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-light)', display: 'block' }}>Pass Starts At</span>
+                      <span style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--gold-accent)' }}>
                         ₹{evt.ticketTiers?.[0]?.price || 999}
                       </span>
                     </div>

@@ -102,20 +102,20 @@ export default function Register() {
   return (
     <div className="auth-container">
       <h2>{step === 1 ? 'Create Vana Account' : 'Verify Email OTP'}</h2>
-      <p style={{ textAlign: 'center', color: '#5F5F5F', fontSize: '0.9rem', marginBottom: '24px' }}>
+      <p style={{ textAlign: 'center', color: 'var(--text-body)', fontSize: '0.9rem', marginBottom: '24px' }}>
         {step === 1
           ? 'Register to manage bookings & receive VIP event invitations'
           : `We sent a 6-digit verification code to ${email}`}
       </p>
 
       {error && (
-        <div style={{ color: '#b91c1c', background: '#fee2e2', border: '1px solid #fca5a5', padding: '10px 14px', borderRadius: '8px', marginBottom: '16px', fontSize: '0.88rem', textAlign: 'center', fontWeight: 600 }}>
+        <div style={{ color: '#F87171', background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '10px 14px', borderRadius: '8px', marginBottom: '16px', fontSize: '0.88rem', textAlign: 'center', fontWeight: 600 }}>
           {error}
         </div>
       )}
 
       {successMsg && (
-        <div style={{ color: '#15803d', background: '#dcfce7', border: '1px solid #86efac', padding: '10px 14px', borderRadius: '8px', marginBottom: '16px', fontSize: '0.88rem', textAlign: 'center', fontWeight: 600 }}>
+        <div style={{ color: '#4ADE80', background: 'rgba(34, 197, 94, 0.12)', border: '1px solid rgba(34, 197, 94, 0.3)', padding: '10px 14px', borderRadius: '8px', marginBottom: '16px', fontSize: '0.88rem', textAlign: 'center', fontWeight: 600 }}>
           {successMsg}
         </div>
       )}
@@ -153,7 +153,7 @@ export default function Register() {
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
               placeholder="e.g. 583920"
-              style={{ textAlign: 'center', fontSize: '1.4rem', letterSpacing: '6px', fontWeight: 'bold', color: '#B8860B' }}
+              style={{ textAlign: 'center', fontSize: '1.4rem', letterSpacing: '6px', fontWeight: 'bold', color: 'var(--gold-accent)' }}
             />
           </div>
 
@@ -161,7 +161,7 @@ export default function Register() {
             <button
               type="button"
               onClick={() => setStep(1)}
-              style={{ background: 'none', border: 'none', color: '#5F5F5F', cursor: 'pointer', textDecoration: 'underline' }}
+              style={{ background: 'none', border: 'none', color: 'var(--text-body)', cursor: 'pointer', textDecoration: 'underline' }}
             >
               ← Edit Account Details
             </button>
@@ -170,7 +170,7 @@ export default function Register() {
               type="button"
               onClick={handleResendOTP}
               disabled={resendCooldown > 0 || loading}
-              style={{ background: 'none', border: 'none', color: resendCooldown > 0 ? '#9ca3af' : '#B8860B', fontWeight: 600, cursor: resendCooldown > 0 ? 'not-allowed' : 'pointer' }}
+              style={{ background: 'none', border: 'none', color: resendCooldown > 0 ? '#64748B' : 'var(--gold-accent)', fontWeight: 600, cursor: resendCooldown > 0 ? 'not-allowed' : 'pointer' }}
             >
               {resendCooldown > 0 ? `Resend code in ${resendCooldown}s` : 'Resend OTP'}
             </button>
@@ -182,9 +182,9 @@ export default function Register() {
         </form>
       )}
 
-      <p style={{ textAlign: 'center', marginTop: '24px', fontSize: '0.9rem', color: '#5F5F5F' }}>
+      <p style={{ textAlign: 'center', marginTop: '24px', fontSize: '0.9rem', color: 'var(--text-body)' }}>
         Already registered?{' '}
-        <Link to={`/login${location.search}`} style={{ color: '#B8860B', fontWeight: 600 }}>
+        <Link to={`/login${location.search}`} style={{ color: 'var(--gold-accent)', fontWeight: 600 }}>
           Sign In Here
         </Link>
       </p>

@@ -41,11 +41,12 @@ exports.getLayout = async (req, res) => {
     const forceReseed = req.query.forceReseed === 'true';
     let layout = await SeatLayout.findOne({ venueId });
 
-    if (!layout || forceReseed) {
-      console.log('Seeding / updating initial seating layout...');
-      if (forceReseed) {
-        await SeatLayout.deleteMany({ venueId });
-      }
+    // Auto-update if layout is missing, forceReseed requested, or has old colliding FFR seats
+    const hasOldLayout = layout && layout.seats && layout.seats.some(s => s.seatId && s.seatId.startsWith('FFR-') && s.rotation !== 0);
+
+    if (!layout || forceReseed || hasOldLayout) {
+      console.log('Seeding / updating corrected seating layout...');
+      await SeatLayout.deleteMany({ venueId });
       const seedData = generateVenueLayout();
       layout = await SeatLayout.create(seedData);
     }

@@ -149,11 +149,11 @@ export default function Home() {
               <img
                 src="https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80"
                 alt="Vana Luxury Production"
-                style={{ width: '100%', borderRadius: '24px', boxShadow: '0 20px 40px rgba(31,31,31,0.08)', border: '1px solid #E7DDD1' }}
+                style={{ width: '100%', borderRadius: '24px', boxShadow: '0 20px 45px rgba(0,0,0,0.6)', border: '1px solid var(--border-light)' }}
               />
-              <div style={{ position: 'absolute', bottom: '10px', right: '10px', background: '#111827', color: '#FFF', padding: '16px 20px', borderRadius: '16px', maxWidth: '240px', boxShadow: '0 15px 30px rgba(0,0,0,0.2)' }}>
-                <i className="fa-solid fa-quote-left" style={{ color: '#D4AF37', fontSize: '1.2rem', marginBottom: '4px', display: 'block' }}></i>
-                <p style={{ fontSize: '0.82rem', color: '#E5E7EB', margin: 0, fontStyle: 'italic' }}>
+              <div style={{ position: 'absolute', bottom: '10px', right: '10px', background: '#0B0E17', color: '#FFF', padding: '16px 20px', borderRadius: '16px', maxWidth: '240px', boxShadow: '0 15px 30px rgba(0,0,0,0.5)', border: '1px solid rgba(212, 175, 55, 0.3)' }}>
+                <i className="fa-solid fa-quote-left" style={{ color: 'var(--gold-accent)', fontSize: '1.2rem', marginBottom: '4px', display: 'block' }}></i>
+                <p style={{ fontSize: '0.82rem', color: '#CBD5E1', margin: 0, fontStyle: 'italic' }}>
                   "We don't just plan events; we architect extraordinary memories."
                 </p>
               </div>
@@ -163,10 +163,10 @@ export default function Home() {
                 <span className="sub-badge">Excellence & Precision</span>
                 <h2>Redefining Event Management Across India</h2>
               </div>
-              <p style={{ color: '#5F5F5F', lineHeight: 1.8, marginBottom: '16px', fontSize: '0.95rem' }}>
+              <p style={{ color: 'var(--text-body)', lineHeight: 1.8, marginBottom: '16px', fontSize: '0.95rem' }}>
                 Vana Entertainments is a turnkey event production agency recognized for delivering immaculate corporate conferences, celebrity music festivals, trade exhibitions, and award galas.
               </p>
-              <p style={{ color: '#5F5F5F', lineHeight: 1.8, marginBottom: '24px', fontSize: '0.95rem' }}>
+              <p style={{ color: 'var(--text-body)', lineHeight: 1.8, marginBottom: '24px', fontSize: '0.95rem' }}>
                 With state-of-the-art stage lighting, line-array acoustics, seamless guest coordination, and integrated digital ticketing, we execute events with precision.
               </p>
               <Link to="/about" className="secondary-btn">
@@ -178,12 +178,12 @@ export default function Home() {
       </section>
 
       {/* SPECIALIZED SERVICES */}
-      <section className="page-padding" style={{ padding: '60px 0', background: 'rgba(231, 221, 209, 0.3)' }}>
+      <section className="page-padding" style={{ padding: '60px 0', background: 'rgba(20, 24, 36, 0.45)' }}>
         <div className="container">
           <div className="section-header">
             <span className="sub-badge">What We Offer</span>
             <h2>Our Specialized Event Services</h2>
-            <p>Tailored luxury production solutions engineered for high impact.</p>
+            <p style={{ color: 'var(--text-body)' }}>Tailored luxury production solutions engineered for high impact.</p>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px' }}>
@@ -191,8 +191,8 @@ export default function Home() {
               <div className="icon-box">
                 <i className="fa-solid fa-building-columns"></i>
               </div>
-              <h3>Corporate Summits</h3>
-              <p>Executive conferences, leadership retreats, product debuts, and annual galas.</p>
+              <h3 style={{ color: 'var(--text-heading)' }}>Corporate Summits</h3>
+              <p style={{ color: 'var(--text-body)' }}>Executive conferences, leadership retreats, product debuts, and annual galas.</p>
               <Link to="/services" className="link-btn">Explore Details →</Link>
             </div>
 
@@ -200,8 +200,8 @@ export default function Home() {
               <div className="icon-box">
                 <i className="fa-solid fa-music"></i>
               </div>
-              <h3>Music Concerts</h3>
-              <p>Large-scale live stadium shows, artist booking, sound & light stage management.</p>
+              <h3 style={{ color: 'var(--text-heading)' }}>Music Concerts</h3>
+              <p style={{ color: 'var(--text-body)' }}>Large-scale live stadium shows, artist booking, sound & light stage management.</p>
               <Link to="/services" className="link-btn">Explore Details →</Link>
             </div>
 
@@ -209,8 +209,8 @@ export default function Home() {
               <div className="icon-box">
                 <i className="fa-solid fa-store"></i>
               </div>
-              <h3>Exhibitions & Expos</h3>
-              <p>Custom trade fair pavilion design, stall fabrication, and visitor registrations.</p>
+              <h3 style={{ color: 'var(--text-heading)' }}>Exhibitions & Expos</h3>
+              <p style={{ color: 'var(--text-body)' }}>Custom trade fair pavilion design, stall fabrication, and visitor registrations.</p>
               <Link to="/services" className="link-btn">Explore Details →</Link>
             </div>
 
@@ -218,8 +218,8 @@ export default function Home() {
               <div className="icon-box">
                 <i className="fa-solid fa-trophy"></i>
               </div>
-              <h3>Award Ceremonies</h3>
-              <p>Red carpet hosting, stage scenography, VIP management, and live broadcasting.</p>
+              <h3 style={{ color: 'var(--text-heading)' }}>Award Ceremonies</h3>
+              <p style={{ color: 'var(--text-body)' }}>Red carpet hosting, stage scenography, VIP management, and live broadcasting.</p>
               <Link to="/services" className="link-btn">Explore Details →</Link>
             </div>
           </div>
@@ -232,48 +232,48 @@ export default function Home() {
           <div className="section-header">
             <span className="sub-badge">Flawless Journey</span>
             <h2>Our 4-Step Event Process</h2>
-            <p>From initial concept spark to final curtain call execution.</p>
+            <p style={{ color: 'var(--text-body)' }}>From initial concept spark to final curtain call execution.</p>
           </div>
 
           <div className="timeline-grid">
             <div className="timeline-step">
               <span className="step-number">01</span>
               <div className="step-icon"><i className="fa-solid fa-comments"></i></div>
-              <h3>Consultation</h3>
-              <p>Deep-dive strategic discussion to map objectives, budget, target audience, and theme.</p>
+              <h3 style={{ color: 'var(--text-heading)' }}>Consultation</h3>
+              <p style={{ color: 'var(--text-body)' }}>Deep-dive strategic discussion to map objectives, budget, target audience, and theme.</p>
             </div>
 
             <div className="timeline-step">
               <span className="step-number">02</span>
               <div className="step-icon"><i className="fa-solid fa-pen-ruler"></i></div>
-              <h3>Concept & Design</h3>
-              <p>3D stage renders, venue floorplans, acoustic modeling, and schedule layout.</p>
+              <h3 style={{ color: 'var(--text-heading)' }}>Concept & Design</h3>
+              <p style={{ color: 'var(--text-body)' }}>3D stage renders, venue floorplans, acoustic modeling, and schedule layout.</p>
             </div>
 
             <div className="timeline-step">
               <span className="step-number">03</span>
               <div className="step-icon"><i className="fa-solid fa-gears"></i></div>
-              <h3>Production</h3>
-              <p>Vendor coordination, sound/lighting setup, digital ticketing configuration, and security logistics.</p>
+              <h3 style={{ color: 'var(--text-heading)' }}>Production</h3>
+              <p style={{ color: 'var(--text-body)' }}>Vendor coordination, sound/lighting setup, digital ticketing configuration, and security logistics.</p>
             </div>
 
             <div className="timeline-step">
               <span className="step-number">04</span>
               <div className="step-icon"><i className="fa-solid fa-star"></i></div>
-              <h3>Execution</h3>
-              <p>On-site control tower management ensuring seamless timeline flow and guest satisfaction.</p>
+              <h3 style={{ color: 'var(--text-heading)' }}>Execution</h3>
+              <p style={{ color: 'var(--text-body)' }}>On-site control tower management ensuring seamless timeline flow and guest satisfaction.</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* FEATURED UPCOMING EVENTS */}
-      <section className="page-padding" style={{ padding: '60px 0', background: 'rgba(231, 221, 209, 0.3)' }}>
+      <section className="page-padding" style={{ padding: '60px 0', background: 'rgba(20, 24, 36, 0.45)' }}>
         <div className="container">
           <div className="section-header">
             <span className="sub-badge">Book Tickets Now</span>
             <h2>Featured Events & Shows</h2>
-            <p>Reserve your pass for upcoming concerts, expos, and summits.</p>
+            <p style={{ color: 'var(--text-body)' }}>Reserve your pass for upcoming concerts, expos, and summits.</p>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
@@ -289,18 +289,18 @@ export default function Home() {
                   />
                 </div>
                 <div className="card-body">
-                  <h3>{evt.title}</h3>
+                  <h3 style={{ color: 'var(--text-heading)' }}>{evt.title}</h3>
                   <div className="meta-info">
                     <span><i className="fa-solid fa-location-dot"></i> {evt.venue?.city || 'Bhagalpur'}</span>
                     <span><i className="fa-solid fa-calendar"></i> {evt.eventDate}</span>
                   </div>
-                  <p style={{ fontSize: '0.88rem', color: '#5F5F5F', marginBottom: '18px' }}>
+                  <p style={{ fontSize: '0.88rem', color: 'var(--text-body)', marginBottom: '18px' }}>
                     {evt.description ? evt.description.slice(0, 85) + '...' : 'Join us for an unforgettable event experience.'}
                   </p>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <span style={{ fontSize: '0.75rem', color: '#8E8E8E', display: 'block' }}>Pass Starts At</span>
-                      <span style={{ fontSize: '1.2rem', fontWeight: 700, color: '#B8860B' }}>₹{evt.ticketTiers?.[0]?.price || 999}</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-light)', display: 'block' }}>Pass Starts At</span>
+                      <span style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--gold-accent)' }}>₹{evt.ticketTiers?.[0]?.price || 999}</span>
                     </div>
                     <Link to={`/events/${evt._id}`} className="primary-btn" style={{ padding: '8px 18px', fontSize: '0.85rem' }}>
                       Book Ticket
@@ -318,12 +318,12 @@ export default function Home() {
       </section>
 
       {/* EVENT LOCATION ENQUIRY FORM */}
-      <section className="page-padding" style={{ padding: '80px 0', background: '#F8EFE8' }}>
+      <section className="page-padding" style={{ padding: '80px 0', background: 'var(--bg-primary)' }}>
         <div className="container">
           <div className="section-header">
             <span className="sub-badge">Location Inquiry</span>
             <h2>Enquire For Your Event Location</h2>
-            <p>Tell us your preferred venue location, city, and event requirements for a custom proposal.</p>
+            <p style={{ color: 'var(--text-body)' }}>Tell us your preferred venue location, city, and event requirements for a custom proposal.</p>
           </div>
 
           <div
@@ -333,8 +333,8 @@ export default function Home() {
               margin: '0 auto',
               padding: '30px 24px',
               borderRadius: '24px',
-              boxShadow: '0 15px 35px rgba(0, 0, 0, 0.06)',
-              border: '1px solid #E7DDD1'
+              boxShadow: '0 20px 45px rgba(0, 0, 0, 0.6)',
+              border: '1px solid var(--border-light)'
             }}
           >
             {enquirySuccess && (
@@ -428,10 +428,11 @@ export default function Home() {
                     onChange={(e) => setEnquiryEventType(e.target.value)}
                     style={{
                       width: '100%',
-                      padding: '12px 16px',
+                      padding: '14px 16px',
                       borderRadius: '12px',
-                      border: '1px solid #D6C7B7',
-                      background: '#FFF',
+                      border: '1px solid rgba(212, 175, 55, 0.25)',
+                      background: '#0B0E17',
+                      color: '#F8FAFC',
                       fontSize: '0.95rem'
                     }}
                   >
@@ -456,8 +457,9 @@ export default function Home() {
                     width: '100%',
                     padding: '14px 16px',
                     borderRadius: '12px',
-                    border: '1px solid #D6C7B7',
-                    background: '#FFF',
+                    border: '1px solid rgba(212, 175, 55, 0.25)',
+                    background: '#0B0E17',
+                    color: '#F8FAFC',
                     fontSize: '0.95rem',
                     resize: 'vertical'
                   }}
@@ -488,7 +490,7 @@ export default function Home() {
       </section>
 
       {/* TESTIMONIALS */}
-      <section className="page-padding" style={{ padding: '60px 0', background: 'rgba(231, 221, 209, 0.3)' }}>
+      <section className="page-padding" style={{ padding: '60px 0', background: 'rgba(20, 24, 36, 0.45)' }}>
         <div className="container">
           <div className="section-header">
             <span className="sub-badge">Client Testimonials</span>

@@ -157,30 +157,30 @@ export default function AdminSeating() {
   const reservedCount = allSeats.filter((s) => s.status === 'Reserved').length;
 
   return (
-    <div className="admin-layout" style={{ display: 'flex', minHeight: '100vh', background: '#0F172A', color: '#FFF' }}>
+    <div className="admin-layout" style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-primary)', color: '#FFF' }}>
       <AdminSidebar />
 
       <main className="admin-content" style={{ flex: 1, padding: '32px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <div>
-            <h1 style={{ fontSize: '1.8rem', color: '#FFF', margin: 0 }}>
-              <i className="fa-solid fa-building-columns" style={{ color: '#D4AF37', marginRight: '10px' }}></i>
+            <h1 style={{ fontSize: '1.8rem', color: 'var(--text-heading)', margin: 0, fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+              <i className="fa-solid fa-building-columns" style={{ color: 'var(--gold-primary)', marginRight: '10px' }}></i>
               Venue & Showtime Inventory Management
             </h1>
-            <p style={{ color: '#94A3B8', fontSize: '0.9rem', margin: '4px 0 0 0' }}>
+            <p style={{ color: 'var(--text-body)', fontSize: '0.9rem', margin: '4px 0 0 0' }}>
               Select venue, manage event showtime inventory, seat availability, category pricing, and manual seat blocking.
             </p>
           </div>
 
-          <button onClick={fetchAvailability} className="btn-outline" style={{ padding: '8px 16px', color: '#FFF', borderColor: '#334155' }}>
-            <i className="fa-solid fa-rotate" style={{ marginRight: '6px' }}></i> Refresh Live Inventory
+          <button onClick={fetchAvailability} style={{ padding: '10px 18px', background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', borderRadius: '8px', color: 'var(--gold-accent)', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <i className="fa-solid fa-rotate" style={{ color: 'var(--gold-primary)' }}></i> Refresh Live Inventory
           </button>
         </div>
 
         {/* Filter & Venue Selection Controls Bar */}
         <div
           style={{
-            background: '#1E293B',
+            background: '#141824',
             padding: '20px',
             borderRadius: '16px',
             marginBottom: '24px',
@@ -188,13 +188,14 @@ export default function AdminSeating() {
             gridTemplateColumns: '1.2fr 1fr 1fr 1.5fr',
             gap: '20px',
             alignItems: 'end',
-            border: '1px solid rgba(255,255,255,0.08)'
+            border: '1px solid var(--border-light)',
+            boxShadow: 'var(--shadow-hover)'
           }}
         >
           {/* Venue Selector */}
           <div>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: '#94A3B8', marginBottom: '6px' }}>
-              <i className="fa-solid fa-location-dot" style={{ color: '#F59E0B', marginRight: '4px' }}></i> Select Venue
+            <label style={{ display: 'block', fontSize: '0.8rem', color: '#CBD5E1', marginBottom: '6px' }}>
+              <i className="fa-solid fa-location-dot" style={{ color: 'var(--gold-primary)', marginRight: '4px' }}></i> Select Venue
             </label>
             <select
               value="Town Hall Bhagalpur"
@@ -203,10 +204,10 @@ export default function AdminSeating() {
                 width: '100%',
                 padding: '10px',
                 borderRadius: '10px',
-                background: '#0F172A',
-                color: '#F59E0B',
+                background: '#0B0E17',
+                color: 'var(--gold-accent)',
                 fontWeight: 700,
-                border: '1px solid #F59E0B',
+                border: '1px solid var(--gold-primary)',
                 cursor: 'pointer'
               }}
             >
@@ -215,11 +216,11 @@ export default function AdminSeating() {
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: '#94A3B8', marginBottom: '6px' }}>Select Target Event</label>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: '#CBD5E1', marginBottom: '6px' }}>Select Target Event</label>
             <select
               value={selectedEventId}
               onChange={(e) => setSelectedEventId(e.target.value)}
-              style={{ width: '100%', padding: '10px', borderRadius: '10px', background: '#0F172A', color: '#FFF', border: '1px solid #334155' }}
+              style={{ width: '100%', padding: '10px', borderRadius: '10px', background: '#0B0E17', color: '#F8FAFC', border: '1px solid rgba(212, 175, 55, 0.25)' }}
             >
               {events.map((ev) => (
                 <option key={ev._id} value={ev._id}>
@@ -230,11 +231,11 @@ export default function AdminSeating() {
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: '#94A3B8', marginBottom: '6px' }}>Select Showtime Date</label>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: '#CBD5E1', marginBottom: '6px' }}>Select Showtime Date</label>
             <select
               value={showtimeDate}
               onChange={(e) => setShowtimeDate(e.target.value)}
-              style={{ width: '100%', padding: '10px', borderRadius: '10px', background: '#0F172A', color: '#FFF', border: '1px solid #334155' }}
+              style={{ width: '100%', padding: '10px', borderRadius: '10px', background: '#0B0E17', color: '#F8FAFC', border: '1px solid rgba(212, 175, 55, 0.25)' }}
             >
               <option value="2026-09-15T18:00">Sep 15, 2026 - 06:00 PM</option>
               <option value="2026-09-16T18:00">Sep 16, 2026 - 06:00 PM</option>
@@ -244,20 +245,20 @@ export default function AdminSeating() {
 
           {/* Quick Stats */}
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <div style={{ background: '#0F172A', padding: '8px 14px', borderRadius: '10px', border: '1px solid #334155', flex: 1, textAlign: 'center' }}>
-              <span style={{ display: 'block', fontSize: '0.72rem', color: '#94A3B8' }}>Available</span>
+            <div style={{ background: '#0B0E17', padding: '8px 14px', borderRadius: '10px', border: '1px solid rgba(212, 175, 55, 0.2)', flex: 1, textAlign: 'center' }}>
+              <span style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-light)' }}>Available</span>
               <strong style={{ color: '#10B981', fontSize: '1.1rem' }}>{availableCount}</strong>
             </div>
-            <div style={{ background: '#0F172A', padding: '8px 14px', borderRadius: '10px', border: '1px solid #334155', flex: 1, textAlign: 'center' }}>
-              <span style={{ display: 'block', fontSize: '0.72rem', color: '#94A3B8' }}>Booked</span>
+            <div style={{ background: '#0B0E17', padding: '8px 14px', borderRadius: '10px', border: '1px solid rgba(212, 175, 55, 0.2)', flex: 1, textAlign: 'center' }}>
+              <span style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-light)' }}>Booked</span>
               <strong style={{ color: '#38BDF8', fontSize: '1.1rem' }}>{bookedCount}</strong>
             </div>
-            <div style={{ background: '#0F172A', padding: '8px 14px', borderRadius: '10px', border: '1px solid #334155', flex: 1, textAlign: 'center' }}>
-              <span style={{ display: 'block', fontSize: '0.72rem', color: '#94A3B8' }}>Blocked</span>
+            <div style={{ background: '#0B0E17', padding: '8px 14px', borderRadius: '10px', border: '1px solid rgba(212, 175, 55, 0.2)', flex: 1, textAlign: 'center' }}>
+              <span style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-light)' }}>Blocked</span>
               <strong style={{ color: '#F87171', fontSize: '1.1rem' }}>{blockedCount}</strong>
             </div>
-            <div style={{ background: '#0F172A', padding: '8px 14px', borderRadius: '10px', border: '1px solid #334155', flex: 1, textAlign: 'center' }}>
-              <span style={{ display: 'block', fontSize: '0.72rem', color: '#94A3B8' }}>Reserved</span>
+            <div style={{ background: '#0B0E17', padding: '8px 14px', borderRadius: '10px', border: '1px solid rgba(212, 175, 55, 0.2)', flex: 1, textAlign: 'center' }}>
+              <span style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-light)' }}>Reserved</span>
               <strong style={{ color: '#C084FC', fontSize: '1.1rem' }}>{reservedCount}</strong>
             </div>
           </div>
@@ -268,13 +269,13 @@ export default function AdminSeating() {
           {/* Main Vector Seat Map in Admin Mode */}
           <div>
             <div style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.85rem', color: '#94A3B8' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--gold-accent)' }}>
                 Click seats to select for Admin action ({adminSelectedSeatIds.length} selected)
               </span>
               {adminSelectedSeatIds.length > 0 && (
                 <button
                   onClick={() => setAdminSelectedSeatIds([])}
-                  style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', fontSize: '0.8rem' }}
+                  style={{ background: 'none', border: 'none', color: '#F87171', cursor: 'pointer', fontSize: '0.8rem' }}
                 >
                   Clear Selection
                 </button>
@@ -293,11 +294,11 @@ export default function AdminSeating() {
           {/* Admin Side Controls Panel */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {/* Admin Seat Actions */}
-            <div style={{ background: '#1E293B', padding: '20px', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <h3 style={{ fontSize: '1.1rem', margin: '0 0 14px 0', borderBottom: '1px solid #334155', paddingBottom: '10px' }}>
+            <div style={{ background: '#141824', padding: '20px', borderRadius: '18px', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-hover)' }}>
+              <h3 style={{ fontSize: '1.1rem', margin: '0 0 14px 0', borderBottom: '1px solid rgba(212, 175, 55, 0.2)', paddingBottom: '10px', color: 'var(--text-heading)' }}>
                 Admin Seat Override Actions
               </h3>
-              <p style={{ fontSize: '0.8rem', color: '#94A3B8', marginBottom: '14px' }}>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-body)', marginBottom: '14px' }}>
                 Select seats on the map above and choose an action to update status immediately:
               </p>
 
@@ -308,18 +309,18 @@ export default function AdminSeating() {
                   style={{
                     padding: '10px',
                     borderRadius: '10px',
-                    border: 'none',
-                    background: '#DC2626',
-                    color: '#FFF',
+                    border: '1px solid rgba(220, 38, 38, 0.4)',
+                    background: 'rgba(220, 38, 38, 0.2)',
+                    color: '#FCA5A5',
                     fontWeight: 600,
                     cursor: adminSelectedSeatIds.length === 0 ? 'not-allowed' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    justify: 'center',
+                    justifyContent: 'center',
                     gap: '8px'
                   }}
                 >
-                  <i className="fa-solid fa-[#EF4444] fa-ban"></i> Block Selected Seats
+                  <i className="fa-solid fa-ban"></i> Block Selected Seats
                 </button>
 
                 <button
@@ -328,18 +329,18 @@ export default function AdminSeating() {
                   style={{
                     padding: '10px',
                     borderRadius: '10px',
-                    border: 'none',
-                    background: '#7C3AED',
-                    color: '#FFF',
+                    border: '1px solid rgba(147, 51, 234, 0.4)',
+                    background: 'rgba(147, 51, 234, 0.2)',
+                    color: '#D8B4FE',
                     fontWeight: 600,
                     cursor: adminSelectedSeatIds.length === 0 ? 'not-allowed' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    justify: 'center',
+                    justifyContent: 'center',
                     gap: '8px'
                   }}
                 >
-                  <i className="fa-solid fa-crown"></i> Reserve Seats for VIP
+                  <i className="fa-solid fa-crown" style={{ color: 'var(--gold-accent)' }}></i> Reserve Seats for VIP
                 </button>
 
                 <button
@@ -348,14 +349,14 @@ export default function AdminSeating() {
                   style={{
                     padding: '10px',
                     borderRadius: '10px',
-                    border: 'none',
-                    background: '#059669',
-                    color: '#FFF',
+                    border: '1px solid rgba(5, 150, 105, 0.4)',
+                    background: 'rgba(5, 150, 105, 0.2)',
+                    color: '#6EE7B7',
                     fontWeight: 600,
                     cursor: adminSelectedSeatIds.length === 0 ? 'not-allowed' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    justify: 'center',
+                    justifyContent: 'center',
                     gap: '8px'
                   }}
                 >
@@ -365,67 +366,69 @@ export default function AdminSeating() {
             </div>
 
             {/* Tier Price Configuration Form */}
-            <div style={{ background: '#1E293B', padding: '20px', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <h3 style={{ fontSize: '1.1rem', margin: '0 0 14px 0', borderBottom: '1px solid #334155', paddingBottom: '10px' }}>
+            <div style={{ background: '#141824', padding: '20px', borderRadius: '18px', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-hover)' }}>
+              <h3 style={{ fontSize: '1.1rem', margin: '0 0 14px 0', borderBottom: '1px solid rgba(212, 175, 55, 0.2)', paddingBottom: '10px', color: 'var(--text-heading)' }}>
                 Category Tier Pricing (₹)
               </h3>
               <form onSubmit={handleSavePrices}>
                 <div style={{ marginBottom: '12px' }}>
-                  <label style={{ display: 'block', fontSize: '0.78rem', color: '#94A3B8', marginBottom: '4px' }}>Silver Category (First Floor Rows 1A–1H)</label>
+                  <label style={{ display: 'block', fontSize: '0.78rem', color: '#CBD5E1', marginBottom: '4px' }}>Silver Category (First Floor Rows 1A–1H)</label>
                   <input
                     type="number"
                     min="0"
                     value={prices.Silver}
                     onChange={(e) => setPrices({ ...prices, Silver: Number(e.target.value) })}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', background: '#0F172A', border: '1px solid #334155', color: '#FFF' }}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', color: '#F8FAFC' }}
                   />
                 </div>
 
                 <div style={{ marginBottom: '12px' }}>
-                  <label style={{ display: 'block', fontSize: '0.78rem', color: '#94A3B8', marginBottom: '4px' }}>Platinum Category (Rows A–E)</label>
+                  <label style={{ display: 'block', fontSize: '0.78rem', color: '#CBD5E1', marginBottom: '4px' }}>Platinum Category (Rows A–E)</label>
                   <input
                     type="number"
                     min="0"
                     value={prices.Platinum}
                     onChange={(e) => setPrices({ ...prices, Platinum: Number(e.target.value) })}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', background: '#0F172A', border: '1px solid #334155', color: '#FFF' }}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', color: '#F8FAFC' }}
                   />
                 </div>
 
                 <div style={{ marginBottom: '12px' }}>
-                  <label style={{ display: 'block', fontSize: '0.78rem', color: '#94A3B8', marginBottom: '4px' }}>Gold Category (Rows F–Q)</label>
+                  <label style={{ display: 'block', fontSize: '0.78rem', color: '#CBD5E1', marginBottom: '4px' }}>Gold Category (Rows F–Q)</label>
                   <input
                     type="number"
                     min="0"
                     value={prices.Gold}
                     onChange={(e) => setPrices({ ...prices, Gold: Number(e.target.value) })}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', background: '#0F172A', border: '1px solid #334155', color: '#FFF' }}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', color: '#F8FAFC' }}
                   />
                 </div>
 
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', fontSize: '0.78rem', color: '#94A3B8', marginBottom: '4px' }}>VIP Lounge Category (Row V)</label>
+                  <label style={{ display: 'block', fontSize: '0.78rem', color: '#CBD5E1', marginBottom: '4px' }}>VIP Lounge Category (Row V)</label>
                   <input
                     type="number"
                     min="0"
                     value={prices['VIP Lounge']}
                     onChange={(e) => setPrices({ ...prices, 'VIP Lounge': Number(e.target.value) })}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', background: '#0F172A', border: '1px solid #334155', color: '#FFF' }}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', color: '#F8FAFC' }}
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={savingPrices}
+                  className="primary-btn"
                   style={{
                     width: '100%',
-                    padding: '10px',
+                    padding: '12px',
                     borderRadius: '10px',
-                    border: 'none',
-                    background: '#F59E0B',
-                    color: '#000',
                     fontWeight: 700,
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    justifyContent: 'center',
+                    background: 'var(--gold-primary)',
+                    color: '#000',
+                    border: 'none'
                   }}
                 >
                   {savingPrices ? 'Saving Prices...' : 'Update Category Prices'}

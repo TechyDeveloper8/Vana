@@ -39,7 +39,7 @@ exports.createStaff = async (req, res) => {
       phone: phone || '',
       password,
       role: 'staff',
-      staffRole: staffRole || 'Gate Entry',
+      staffRole: staffRole || 'Gate Passer',
       assignedEvents: Array.isArray(assignedEvents) ? assignedEvents : ['ALL'],
       isActive: true
     });

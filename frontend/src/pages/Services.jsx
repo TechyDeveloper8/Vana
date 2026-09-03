@@ -36,12 +36,12 @@ export default function Services() {
   ];
 
   return (
-    <div className="page-padding" style={{ padding: '60px 0', background: '#F8EFE8', minHeight: '85vh' }}>
+    <div className="page-padding" style={{ padding: '60px 0', background: 'var(--bg-primary)', minHeight: '85vh' }}>
       <div className="container">
         <div className="section-header">
           <span className="sub-badge">Excellence Delivered</span>
           <h2>Our Specialized Event Services</h2>
-          <p>Comprehensive luxury production solutions engineered for high impact and flawless execution.</p>
+          <p style={{ color: 'var(--text-body)' }}>Comprehensive luxury production solutions engineered for high impact and flawless execution.</p>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginTop: '36px' }}>
@@ -50,12 +50,12 @@ export default function Services() {
               <div className="icon-box">
                 <i className={`fa-solid ${srv.icon}`}></i>
               </div>
-              <h3>{srv.title}</h3>
-              <p style={{ marginBottom: '18px', fontSize: '0.92rem' }}>{srv.desc}</p>
+              <h3 style={{ color: 'var(--text-heading)' }}>{srv.title}</h3>
+              <p style={{ marginBottom: '18px', fontSize: '0.92rem', color: 'var(--text-body)' }}>{srv.desc}</p>
               <ul style={{ marginBottom: '20px' }}>
                 {srv.features.map((feat, fIdx) => (
-                  <li key={fIdx} style={{ fontSize: '0.85rem', color: '#5F5F5F', padding: '5px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <i className="fa-solid fa-circle-check" style={{ color: '#B8860B', fontSize: '0.82rem' }}></i> {feat}
+                  <li key={fIdx} style={{ fontSize: '0.85rem', color: 'var(--text-body)', padding: '5px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <i className="fa-solid fa-circle-check" style={{ color: 'var(--gold-accent)', fontSize: '0.82rem' }}></i> {feat}
                   </li>
                 ))}
               </ul>
@@ -67,8 +67,8 @@ export default function Services() {
         </div>
 
         <div className="white-card" style={{ textAlign: 'center', marginTop: '48px', padding: '40px 24px', borderRadius: '24px' }}>
-          <h3 style={{ fontSize: '1.75rem', marginBottom: '12px' }}>Need a Tailored Custom Event Solution?</h3>
-          <p style={{ color: '#5F5F5F', maxWidth: '600px', margin: '0 auto 20px', fontSize: '0.95rem' }}>
+          <h3 style={{ fontSize: '1.75rem', marginBottom: '12px', color: 'var(--text-heading)' }}>Need a Tailored Custom Event Solution?</h3>
+          <p style={{ color: 'var(--text-body)', maxWidth: '600px', margin: '0 auto 20px', fontSize: '0.95rem' }}>
             Our lead event strategists and technical directors are ready to engineer a bespoke package for your upcoming event.
           </p>
           <Link to="/contact" className="primary-btn">

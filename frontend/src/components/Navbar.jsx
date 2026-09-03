@@ -35,7 +35,7 @@ export default function Navbar() {
 
             {user?.role === 'admin' && (
               <li>
-                <Link to="/admin/dashboard" style={{ color: '#B8860B', fontWeight: 700 }} onClick={() => setMobileOpen(false)}>
+                <Link to="/admin/dashboard" style={{ color: 'var(--gold-accent)', fontWeight: 700 }} onClick={() => setMobileOpen(false)}>
                   <i className="fa-solid fa-crown"></i> Admin Dashboard
                 </Link>
               </li>
@@ -44,7 +44,7 @@ export default function Navbar() {
             {user ? (
               <>
                 <li>
-                  <Link to="/dashboard" className={isActive('/dashboard')} onClick={() => setMobileOpen(false)} style={{ color: '#B8860B', fontWeight: 600 }}>
+                  <Link to="/dashboard" className={isActive('/dashboard')} onClick={() => setMobileOpen(false)} style={{ color: 'var(--gold-accent)', fontWeight: 600 }}>
                     <i className="fa-solid fa-gauge-high" style={{ marginRight: '6px' }}></i> My Dashboard
                   </Link>
                 </li>

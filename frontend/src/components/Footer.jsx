@@ -3,13 +3,13 @@ import { Link } from 'react-router-dom';
 
 export default function Footer() {
   return (
-    <footer style={{ background: '#111827', color: '#E5E7EB', paddingTop: '60px', paddingBottom: '30px', borderTop: '2px solid #B8860B' }}>
+    <footer style={{ background: '#0B0E17', color: '#E5E7EB', paddingTop: '60px', paddingBottom: '30px', borderTop: '1px solid var(--border-light)' }}>
       <div className="container footer-container">
         {/* Brand Column */}
         <div>
           <Link to="/" className="logo-brand" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' }}>
             <div>
-              <span className="brand-name" style={{ color: '#D4AF37', fontSize: '1.4rem', letterSpacing: '0.05em', fontFamily: "'Playfair Display', Georgia, serif" }}>VANA</span>
+              <span className="brand-name" style={{ color: 'var(--gold-accent)', fontSize: '1.4rem', letterSpacing: '0.05em', fontFamily: "'Playfair Display', Georgia, serif" }}>VANA</span>
               <span className="brand-tag" style={{ fontSize: '0.62rem', letterSpacing: '0.2em', color: '#E7DDD1' }}>ENTERTAINMENTS</span>
             </div>
           </Link>
@@ -17,16 +17,16 @@ export default function Footer() {
             India’s premier luxury event management firm creating unforgettable corporate summits, live concerts, brand activations, and cultural festivals.
           </p>
           <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-            <a href="#" style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#D4AF37' }}>
+            <a href="#" style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#141824', border: '1px solid rgba(212, 175, 55, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--gold-accent)' }}>
               <i className="fa-brands fa-instagram"></i>
             </a>
-            <a href="#" style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#D4AF37' }}>
+            <a href="#" style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#141824', border: '1px solid rgba(212, 175, 55, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--gold-accent)' }}>
               <i className="fa-brands fa-facebook-f"></i>
             </a>
-            <a href="#" style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#D4AF37' }}>
+            <a href="#" style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#141824', border: '1px solid rgba(212, 175, 55, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--gold-accent)' }}>
               <i className="fa-brands fa-linkedin-in"></i>
             </a>
-            <a href="#" style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#D4AF37' }}>
+            <a href="#" style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#141824', border: '1px solid rgba(212, 175, 55, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--gold-accent)' }}>
               <i className="fa-brands fa-youtube"></i>
             </a>
           </div>

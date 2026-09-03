@@ -33,12 +33,12 @@ export default function Gallery() {
   };
 
   return (
-    <div className="page-padding" style={{ padding: '60px 0', background: '#F8EFE8', minHeight: '85vh' }}>
+    <div className="page-padding" style={{ padding: '60px 0', background: 'var(--bg-primary)', minHeight: '85vh' }}>
       <div className="container">
         <div className="section-header">
           <span className="sub-badge">Visual Portfolio</span>
           <h2>Vana Event Gallery Albums</h2>
-          <p>Explore high-resolution multi-picture albums captured from our corporate summits, live concerts, and grand exhibitions.</p>
+          <p style={{ color: 'var(--text-body)' }}>Explore high-resolution multi-picture albums captured from our corporate summits, live concerts, and grand exhibitions.</p>
         </div>
 
         {/* Category Filter Pills */}
@@ -50,13 +50,13 @@ export default function Gallery() {
               style={{
                 padding: '8px 20px',
                 borderRadius: '50px',
-                border: category === cat ? 'none' : '1px solid #E7DDD1',
+                border: category === cat ? '1px solid var(--gold-primary)' : '1px solid rgba(212, 175, 55, 0.25)',
                 cursor: 'pointer',
-                fontWeight: 600,
+                fontWeight: 700,
                 fontSize: '0.85rem',
-                background: category === cat ? 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)' : '#FFFFFF',
-                color: category === cat ? '#FFFFFF' : '#1F1F1F',
-                boxShadow: category === cat ? '0 8px 20px rgba(184, 134, 11, 0.25)' : 'none',
+                background: category === cat ? 'var(--gold-gradient)' : '#141824',
+                color: category === cat ? '#0A0D14' : '#CBD5E1',
+                boxShadow: category === cat ? '0 8px 25px rgba(212, 175, 55, 0.35)' : 'none',
                 transition: 'all 0.3s ease'
               }}
             >
@@ -66,9 +66,9 @@ export default function Gallery() {
         </div>
 
         {loading ? (
-          <p style={{ textAlign: 'center', color: '#5F5F5F', padding: '40px 0' }}>Loading visual gallery albums...</p>
+          <p style={{ textAlign: 'center', color: 'var(--text-body)', padding: '40px 0' }}>Loading visual gallery albums...</p>
         ) : filteredItems.length === 0 ? (
-          <p style={{ textAlign: 'center', color: '#5F5F5F', padding: '40px 0' }}>No event albums found in this category.</p>
+          <p style={{ textAlign: 'center', color: 'var(--text-body)', padding: '40px 0' }}>No event albums found in this category.</p>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
             {filteredItems.map((album, idx) => {
@@ -84,10 +84,10 @@ export default function Gallery() {
                     borderRadius: '20px',
                     overflow: 'hidden',
                     height: '280px',
-                    boxShadow: '0 12px 35px rgba(31,31,31,0.08)',
-                    border: '1px solid #E7DDD1',
+                    boxShadow: '0 12px 35px rgba(0,0,0,0.6)',
+                    border: '1px solid var(--border-light)',
                     cursor: 'pointer',
-                    background: '#1F1F1F'
+                    background: '#141824'
                   }}
                 >
                   <img
@@ -112,14 +112,15 @@ export default function Gallery() {
                       position: 'absolute',
                       top: '14px',
                       right: '14px',
-                      background: 'rgba(15, 23, 42, 0.85)',
+                      background: 'rgba(10, 13, 20, 0.88)',
                       backdropFilter: 'blur(8px)',
-                      color: '#D4AF37',
+                      color: 'var(--gold-accent)',
+                      border: '1px solid rgba(212, 175, 55, 0.3)',
                       padding: '5px 12px',
                       borderRadius: '30px',
                       fontSize: '0.78rem',
                       fontWeight: 700,
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '6px'
@@ -136,18 +137,18 @@ export default function Gallery() {
                       left: 0,
                       width: '100%',
                       padding: '20px 16px',
-                      background: 'linear-gradient(to top, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.6) 60%, transparent 100%)',
+                      background: 'linear-gradient(to top, rgba(10,13,20,0.95) 0%, rgba(10,13,20,0.6) 60%, transparent 100%)',
                       color: '#FFFFFF'
                     }}
                   >
                     <span
                       style={{
                         fontSize: '0.7rem',
-                        background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)',
-                        color: '#FFFFFF',
+                        background: 'var(--gold-gradient)',
+                        color: '#0A0D14',
                         padding: '3px 10px',
                         borderRadius: '50px',
-                        fontWeight: 700,
+                        fontWeight: 800,
                         textTransform: 'uppercase',
                         letterSpacing: '0.05em'
                       }}

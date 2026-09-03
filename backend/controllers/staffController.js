@@ -50,7 +50,7 @@ exports.staffLogin = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        staffRole: user.staffRole || 'Gate Entry',
+        staffRole: user.staffRole || 'Gate Passer',
         assignedEvents: user.assignedEvents || []
       },
       JWT_SECRET,
@@ -65,7 +65,7 @@ exports.staffLogin = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        staffRole: user.staffRole || 'Gate Entry',
+        staffRole: user.staffRole || 'Gate Passer',
         assignedEvents: user.assignedEvents || []
       }
     });
@@ -265,6 +265,15 @@ exports.verifyTicket = async (req, res) => {
       });
     }
 
+    // Extract formatted seat details for Gate Passer validation
+    let seatNumbersList = [];
+    let seatSection = '';
+    if (booking.selectedSeats && booking.selectedSeats.length > 0) {
+      seatNumbersList = booking.selectedSeats.map(s => s.displayLabel || s.seatId || `Seat ${s.seatNumber}`);
+      seatSection = booking.selectedSeats[0].section || '';
+    }
+    const seatNumbersText = seatNumbersList.length > 0 ? seatNumbersList.join(', ') : (booking.ticketCategory || 'General Admission');
+
     // CASE C: Already Checked In (Duplicate Ticket Warning)
     if (booking.isCheckedIn) {
       await CheckInLog.create({
@@ -275,9 +284,11 @@ exports.verifyTicket = async (req, res) => {
         userEmail: booking.userEmail,
         ticketCategory: booking.ticketCategory,
         quantity: booking.quantity,
+        seatNumbers: seatNumbersText,
+        selectedSeats: booking.selectedSeats || [],
         staffId: String(staffId),
         staffName,
-        staffRole,
+        staffRole: staffRole || 'Gate Passer',
         status: 'DUPLICATE',
         message: `Already scanned by ${booking.checkedInBy || 'Gate Staff'}`,
         deviceInfo: deviceInfo || ''
@@ -290,12 +301,17 @@ exports.verifyTicket = async (req, res) => {
         message: 'WARNING: This ticket was previously scanned and marked checked-in!',
         attendeeName: booking.userName,
         userEmail: booking.userEmail,
+        userPhone: booking.userPhone,
         bookingId: booking.bookingId,
         ticketCategory: booking.ticketCategory,
         quantity: booking.quantity,
+        seatNumbers: seatNumbersText,
+        selectedSeats: booking.selectedSeats || [],
+        section: seatSection,
+        showtimeDate: booking.showtimeDate,
         checkInTime: booking.checkInTime,
-        checkedInBy: booking.checkedInBy || 'Gate Entry',
-        checkInGate: booking.checkInGate || 'Gate Entry'
+        checkedInBy: booking.checkedInBy || 'Gate Passer',
+        checkInGate: booking.checkInGate || 'Gate Passer'
       });
     }
 
@@ -304,7 +320,7 @@ exports.verifyTicket = async (req, res) => {
     booking.isCheckedIn = true;
     booking.checkInTime = scanTimestamp;
     booking.checkedInBy = staffName;
-    booking.checkInGate = staffRole;
+    booking.checkInGate = staffRole || 'Gate Passer';
     booking.checkInDevice = deviceInfo || 'Mobile Device';
 
     await booking.save();
@@ -318,9 +334,11 @@ exports.verifyTicket = async (req, res) => {
       userEmail: booking.userEmail,
       ticketCategory: booking.ticketCategory,
       quantity: booking.quantity,
+      seatNumbers: seatNumbersText,
+      selectedSeats: booking.selectedSeats || [],
       staffId: String(staffId),
       staffName,
-      staffRole,
+      staffRole: staffRole || 'Gate Passer',
       status: 'SUCCESS',
       message: 'Verified & Checked In successfully',
       deviceInfo: deviceInfo || '',
@@ -338,10 +356,14 @@ exports.verifyTicket = async (req, res) => {
       bookingId: booking.bookingId,
       ticketCategory: booking.ticketCategory || 'Standard Pass',
       quantity: booking.quantity || 1,
+      seatNumbers: seatNumbersText,
+      selectedSeats: booking.selectedSeats || [],
+      section: seatSection,
+      showtimeDate: booking.showtimeDate,
       eventTitle: booking.eventTitle,
       checkInTime: scanTimestamp,
       checkedInBy: staffName,
-      checkInGate: staffRole
+      checkInGate: staffRole || 'Gate Passer'
     });
   } catch (error) {
     console.error('Ticket verification error:', error);

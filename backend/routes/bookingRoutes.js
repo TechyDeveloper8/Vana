@@ -6,9 +6,17 @@ const {
   getAllBookings,
   getBookingById,
   updateBookingStatus,
-  deleteBooking
+  deleteBooking,
+  createCashfreePaymentOrder,
+  verifyCashfreePayment,
+  cancelCashfreeOrder
 } = require('../controllers/bookingController');
 const { protect, optionalAuth, adminOnly } = require('../middleware/authMiddleware');
+
+// Cashfree Payment Gateway Endpoints
+router.post('/cashfree/create-order', optionalAuth, createCashfreePaymentOrder);
+router.post('/cashfree/verify', optionalAuth, verifyCashfreePayment);
+router.post('/cashfree/cancel', optionalAuth, cancelCashfreeOrder);
 
 router.post('/create', optionalAuth, createBooking);
 router.get('/my-bookings', protect, getMyBookings);

@@ -289,12 +289,17 @@ export default function StaffScanner() {
         message: res.message || 'Ticket verified & checked-in successfully!',
         attendeeName: res.attendeeName,
         userEmail: res.userEmail,
+        userPhone: res.userPhone,
         bookingId: res.bookingId,
         ticketCategory: res.ticketCategory,
         quantity: res.quantity,
+        seatNumbers: res.seatNumbers,
+        selectedSeats: res.selectedSeats || [],
+        section: res.section,
+        showtimeDate: res.showtimeDate,
         checkInTime: res.checkInTime,
         checkedInBy: res.checkedInBy,
-        checkInGate: res.checkInGate,
+        checkInGate: res.checkInGate || 'Gate Passer',
         eventTitle: res.eventTitle
       });
 
@@ -317,10 +322,19 @@ export default function StaffScanner() {
         title = 'ACCESS DENIED';
       }
 
+      const errData = err.data || {};
       updateScanResult({
         status: status,
         title: title,
-        message: err.message || 'Ticket verification failed'
+        message: err.message || 'Ticket verification failed',
+        attendeeName: errData.attendeeName,
+        bookingId: errData.bookingId,
+        seatNumbers: errData.seatNumbers,
+        section: errData.section,
+        ticketCategory: errData.ticketCategory,
+        quantity: errData.quantity,
+        checkInTime: errData.checkInTime,
+        checkedInBy: errData.checkedInBy
       });
     } finally {
       setVerifying(false);
@@ -352,8 +366,8 @@ export default function StaffScanner() {
     <div
       style={{
         minHeight: '100vh',
-        background: '#0b1329',
-        color: '#f8fafc',
+        background: 'var(--bg-primary)',
+        color: '#F8FAFC',
         maxWidth: '650px',
         margin: '0 auto',
         padding: '16px',
@@ -369,31 +383,32 @@ export default function StaffScanner() {
           justifyContent: 'space-between',
           alignItems: 'center',
           marginBottom: '16px',
-          background: '#1e293b',
+          background: '#141824',
           padding: '12px 16px',
           borderRadius: '14px',
-          border: '1px solid #334155'
+          border: '1px solid var(--border-light)',
+          boxShadow: 'var(--shadow-soft)'
         }}
       >
-        <Link to="/staff/portal" style={{ color: '#38bdf8', textDecoration: 'none', fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <Link to="/staff/portal" style={{ color: 'var(--gold-accent)', textDecoration: 'none', fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
           <i className="fa-solid fa-arrow-left"></i> Gate Portal
         </Link>
 
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#FFFFFF' }}>{user?.name || 'Gate Staff'}</div>
-          <span style={{ fontSize: '0.7rem', color: '#10b981', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: '10px', fontWeight: 700 }}>
-            {user?.staffRole || 'Gate Entry'}
+          <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#F8FAFC' }}>{user?.name || 'Gate Staff'}</div>
+          <span style={{ fontSize: '0.7rem', color: 'var(--gold-accent)', background: 'rgba(212, 175, 55, 0.15)', border: '1px solid rgba(212, 175, 55, 0.3)', padding: '2px 8px', borderRadius: '10px', fontWeight: 800 }}>
+            <i className="fa-solid fa-qrcode" style={{ marginRight: '4px' }}></i> Gate Passer (QR & Seat Validator)
           </span>
         </div>
       </div>
 
       {/* Active Event Banner Card */}
-      <div style={{ background: '#1e293b', padding: '14px 16px', borderRadius: '14px', marginBottom: '16px', border: '1px solid #334155', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: '#141824', padding: '14px 16px', borderRadius: '14px', marginBottom: '16px', border: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <span style={{ fontSize: '0.7rem', color: '#38bdf8', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          <span style={{ fontSize: '0.7rem', color: 'var(--gold-accent)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
             ● ACTIVE VERIFICATION GATE
           </span>
-          <h3 style={{ fontSize: '1.1rem', margin: '4px 0 2px', fontWeight: 800, color: '#FFFFFF' }}>
+          <h3 style={{ fontSize: '1.1rem', margin: '4px 0 2px', fontWeight: 800, color: '#F8FAFC' }}>
             {eventDetails?.title || 'High-Speed Ticket Pass Scanner'}
           </h3>
           <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
@@ -402,7 +417,7 @@ export default function StaffScanner() {
         </div>
 
         {pendingOfflineScans.length > 0 && (
-          <div style={{ background: '#f59e0b', color: '#000', padding: '6px 12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 800, textAlign: 'center' }}>
+          <div style={{ background: 'var(--gold-primary)', color: '#000', padding: '6px 12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 800, textAlign: 'center' }}>
             {pendingOfflineScans.length} Offline Queued
           </div>
         )}
@@ -415,14 +430,14 @@ export default function StaffScanner() {
           borderRadius: '18px',
           overflow: 'hidden',
           position: 'relative',
-          border: '2px solid #334155',
+          border: '2px solid rgba(212, 175, 55, 0.3)',
           marginBottom: '16px',
           minHeight: '290px',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '0 15px 35px rgba(0,0,0,0.5)'
+          boxShadow: '0 15px 35px rgba(0,0,0,0.6)'
         }}
       >
         <div id="qr-reader" style={{ width: '100%' }}></div>
@@ -438,11 +453,11 @@ export default function StaffScanner() {
               display: 'flex',
               gap: '12px',
               zIndex: 5,
-              background: 'rgba(15, 23, 42, 0.75)',
+              background: 'rgba(10, 13, 20, 0.85)',
               backdropFilter: 'blur(8px)',
               padding: '6px 14px',
               borderRadius: '30px',
-              border: '1px solid rgba(255, 255, 255, 0.2)'
+              border: '1px solid rgba(212, 175, 55, 0.3)'
             }}
           >
             <button
@@ -455,7 +470,7 @@ export default function StaffScanner() {
 
             <button
               onClick={toggleTorch}
-              style={{ background: 'none', border: 'none', color: torchOn ? '#f59e0b' : '#FFFFFF', fontSize: '1rem', cursor: 'pointer', padding: '6px 10px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}
+              style={{ background: 'none', border: 'none', color: torchOn ? 'var(--gold-accent)' : '#FFFFFF', fontSize: '1rem', cursor: 'pointer', padding: '6px 10px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}
               title="Toggle Flashlight"
             >
               <i className={`fa-solid ${torchOn ? 'fa-bolt-lightning' : 'fa-bolt'}`}></i> Flash
@@ -475,7 +490,7 @@ export default function StaffScanner() {
             style={{
               position: 'absolute',
               inset: 0,
-              background: 'rgba(15, 23, 42, 0.9)',
+              background: 'rgba(10, 13, 20, 0.92)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -484,8 +499,8 @@ export default function StaffScanner() {
               zIndex: 10
             }}
           >
-            <i className="fa-solid fa-circle-notch fa-spin fa-3x" style={{ color: '#38bdf8', marginBottom: '12px' }}></i>
-            <span style={{ fontWeight: 800, fontSize: '1.05rem', letterSpacing: '0.05em' }}>VERIFYING PASS IN DATABASE...</span>
+            <i className="fa-solid fa-circle-notch fa-spin fa-3x" style={{ color: 'var(--gold-primary)', marginBottom: '12px' }}></i>
+            <span style={{ fontWeight: 800, fontSize: '1.05rem', letterSpacing: '0.05em', color: 'var(--gold-accent)' }}>VERIFYING PASS IN DATABASE...</span>
           </div>
         )}
       </div>
@@ -504,8 +519,8 @@ export default function StaffScanner() {
             style={{
               flex: 1,
               padding: '12px 14px',
-              background: '#1e293b',
-              border: '1px solid #334155',
+              background: '#0B0E17',
+              border: '1px solid rgba(212, 175, 55, 0.25)',
               borderRadius: '10px',
               color: '#FFFFFF',
               fontSize: '0.95rem',
@@ -516,11 +531,9 @@ export default function StaffScanner() {
           <button
             type="submit"
             disabled={!manualCode.trim() || verifying}
+            className="primary-btn"
             style={{
               padding: '12px 20px',
-              background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
-              color: '#FFFFFF',
-              border: 'none',
               borderRadius: '10px',
               fontWeight: 800,
               cursor: 'pointer',
@@ -533,9 +546,9 @@ export default function StaffScanner() {
       </form>
 
       {/* Shift Scan History Drawer */}
-      <div style={{ marginTop: 'auto', background: '#1e293b', padding: '16px', borderRadius: '16px', border: '1px solid #334155' }}>
+      <div style={{ marginTop: 'auto', background: '#141824', padding: '16px', borderRadius: '16px', border: '1px solid var(--border-light)' }}>
         <h4 style={{ fontSize: '0.92rem', margin: '0 0 12px', fontWeight: 800, color: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span><i className="fa-solid fa-clock-rotate-left" style={{ color: '#38bdf8', marginRight: '6px' }}></i> Gate Shift Scan Audit</span>
+          <span><i className="fa-solid fa-clock-rotate-left" style={{ color: 'var(--gold-accent)', marginRight: '6px' }}></i> Gate Shift Scan Audit</span>
           <span style={{ color: '#10b981', fontSize: '0.8rem', fontWeight: 700 }}>{scanHistory.length} Validated</span>
         </h4>
 
@@ -550,12 +563,13 @@ export default function StaffScanner() {
                 key={idx}
                 style={{
                   display: 'flex',
-                  justify: 'space-between',
+                  justifyContent: 'space-between',
                   alignItems: 'center',
-                  background: '#0f172a',
+                  background: '#0B0E17',
                   padding: '10px 12px',
                   borderRadius: '10px',
                   fontSize: '0.82rem',
+                  border: '1px solid rgba(212, 175, 55, 0.15)',
                   borderLeft: log.status === 'SUCCESS' ? '4px solid #10b981' : '4px solid #ef4444'
                 }}
               >
@@ -564,7 +578,12 @@ export default function StaffScanner() {
                     {log.userName || log.bookingId}
                   </div>
                   <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
-                    {log.bookingId} • {log.ticketCategory || 'Standard Pass'} ({log.quantity || 1} Ticket)
+                    {log.bookingId} • {log.ticketCategory || 'Standard Pass'} ({log.quantity || 1} Tkt)
+                    {log.seatNumbers && (
+                      <span style={{ color: 'var(--gold-accent)', fontWeight: 700, marginLeft: '6px' }}>
+                        • <i className="fa-solid fa-chair" style={{ marginRight: '3px' }}></i>{log.seatNumbers}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -645,43 +664,79 @@ export default function StaffScanner() {
           {scanResult.attendeeName && (
             <div
               style={{
-                background: 'rgba(0, 0, 0, 0.3)',
-                backdropFilter: 'blur(10px)',
+                background: 'rgba(0, 0, 0, 0.35)',
+                backdropFilter: 'blur(12px)',
                 borderRadius: '20px',
-                padding: '20px 24px',
+                padding: '22px 24px',
                 width: '100%',
-                maxWidth: '440px',
+                maxWidth: '460px',
                 textAlign: 'left',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                marginBottom: '28px'
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                marginBottom: '24px',
+                boxShadow: '0 20px 40px rgba(0,0,0,0.3)'
               }}
             >
+              {/* PROMINENT SEAT NUMBER(S) VALIDATION CARD */}
+              <div
+                style={{
+                  background: scanResult.status === 'SUCCESS' ? 'rgba(255, 255, 255, 0.22)' : 'rgba(0, 0, 0, 0.4)',
+                  border: '2px solid rgba(255, 255, 255, 0.55)',
+                  borderRadius: '16px',
+                  padding: '14px 18px',
+                  marginBottom: '16px',
+                  boxShadow: '0 8px 25px rgba(0,0,0,0.25)'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.95 }}>
+                    <i className="fa-solid fa-chair" style={{ marginRight: '6px' }}></i>
+                    ASSIGNED SEAT NUMBER(S)
+                  </span>
+                  {scanResult.section && (
+                    <span style={{ fontSize: '0.75rem', background: 'rgba(0,0,0,0.35)', padding: '3px 10px', borderRadius: '12px', fontWeight: 800 }}>
+                      {scanResult.section}
+                    </span>
+                  )}
+                </div>
+
+                <div style={{ fontSize: '1.9rem', fontWeight: 900, letterSpacing: '0.5px', textShadow: '0 2px 10px rgba(0,0,0,0.4)', color: '#FFFFFF' }}>
+                  {scanResult.seatNumbers || scanResult.ticketCategory || 'General Admission'}
+                </div>
+
+                {scanResult.showtimeDate && (
+                  <div style={{ fontSize: '0.8rem', opacity: 0.9, marginTop: '6px' }}>
+                    <i className="fa-regular fa-clock" style={{ marginRight: '5px' }}></i>
+                    Showtime: {scanResult.showtimeDate}
+                  </div>
+                )}
+              </div>
+
               <div style={{ fontSize: '0.75rem', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 800 }}>
                 ATTENDEE FULL NAME
               </div>
-              <div style={{ fontSize: '1.7rem', fontWeight: 900, marginBottom: '14px', textTransform: 'capitalize' }}>
+              <div style={{ fontSize: '1.6rem', fontWeight: 900, marginBottom: '14px', textTransform: 'capitalize' }}>
                 {scanResult.attendeeName}
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', fontSize: '0.9rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.88rem' }}>
                 <div>
-                  <span style={{ opacity: 0.8, fontSize: '0.75rem', display: 'block', fontWeight: 700 }}>BOOKING REF</span>
-                  <strong style={{ fontSize: '1.1rem', fontFamily: 'monospace' }}>{scanResult.bookingId}</strong>
+                  <span style={{ opacity: 0.8, fontSize: '0.72rem', display: 'block', fontWeight: 700 }}>BOOKING REF</span>
+                  <strong style={{ fontSize: '1.05rem', fontFamily: 'monospace' }}>{scanResult.bookingId}</strong>
                 </div>
 
                 <div>
-                  <span style={{ opacity: 0.8, fontSize: '0.75rem', display: 'block', fontWeight: 700 }}>PASS QUANTITY</span>
-                  <strong style={{ fontSize: '1.1rem' }}>{scanResult.quantity || 1} Ticket(s)</strong>
+                  <span style={{ opacity: 0.8, fontSize: '0.72rem', display: 'block', fontWeight: 700 }}>PASS QUANTITY</span>
+                  <strong style={{ fontSize: '1.05rem' }}>{scanResult.quantity || 1} Ticket(s)</strong>
                 </div>
 
                 <div>
-                  <span style={{ opacity: 0.8, fontSize: '0.75rem', display: 'block', fontWeight: 700 }}>TICKET TIER</span>
+                  <span style={{ opacity: 0.8, fontSize: '0.72rem', display: 'block', fontWeight: 700 }}>TICKET TIER</span>
                   <strong>{scanResult.ticketCategory || 'Standard Pass'}</strong>
                 </div>
 
                 <div>
-                  <span style={{ opacity: 0.8, fontSize: '0.75rem', display: 'block', fontWeight: 700 }}>ENTRY GATE STAFF</span>
-                  <strong>{scanResult.checkedInBy || user?.name}</strong>
+                  <span style={{ opacity: 0.8, fontSize: '0.72rem', display: 'block', fontWeight: 700 }}>VERIFIED BY GATE PASSER</span>
+                  <strong>{scanResult.checkedInBy || user?.name || 'Gate Passer'}</strong>
                 </div>
               </div>
             </div>

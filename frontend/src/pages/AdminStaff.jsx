@@ -32,7 +32,7 @@ export default function AdminStaff() {
     email: '',
     phone: '',
     password: '',
-    staffRole: 'Gate Entry',
+    staffRole: 'Gate Passer',
     assignedEvents: ['ALL']
   });
 
@@ -75,7 +75,7 @@ export default function AdminStaff() {
       email: '',
       phone: '',
       password: '',
-      staffRole: 'Gate Entry',
+      staffRole: 'Gate Passer',
       assignedEvents: ['ALL']
     });
     setShowModal(true);
@@ -88,7 +88,7 @@ export default function AdminStaff() {
       email: staff.email || '',
       phone: staff.phone || '',
       password: '',
-      staffRole: staff.staffRole || 'Gate Entry',
+      staffRole: 'Gate Passer',
       assignedEvents: staff.assignedEvents || ['ALL']
     });
     setShowModal(true);
@@ -177,16 +177,7 @@ export default function AdminStaff() {
   });
 
   const getRoleBadgeStyle = (role) => {
-    switch (role) {
-      case 'VIP Entry':
-        return { background: '#f3e8ff', color: '#7e22ce', border: '1px solid #e9d5ff' };
-      case 'Security':
-        return { background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca' };
-      case 'Registration Desk':
-        return { background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0' };
-      default:
-        return { background: '#e0f2fe', color: '#0369a1', border: '1px solid #bae6fd' };
-    }
+    return { background: '#ecfdf5', color: '#065f46', border: '1px solid #a7f3d0' };
   };
 
   return (
@@ -197,60 +188,55 @@ export default function AdminStaff() {
       {/* Main Content Area */}
       <div className="admin-content">
         {/* Floating Toast Notification */}
-        {
-          toast && (
-            <div
-              style={{
-                position: 'fixed',
-                top: '24px',
-                right: '24px',
-                background: toast.type === 'error' ? '#ef4444' : '#10b981',
-                color: '#FFFFFF',
-                padding: '14px 24px',
-                borderRadius: '8px',
-                boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
-                zIndex: 9999,
-                fontWeight: 600,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px'
-              }}
-            >
-              <i className={toast.type === 'error' ? 'fa-solid fa-circle-exclamation' : 'fa-solid fa-circle-check'}></i>
-              {toast.msg}
-            </div>
-          )
-        }
+        {toast && (
+          <div
+            style={{
+              position: 'fixed',
+              top: '24px',
+              right: '24px',
+              zIndex: 999999,
+              background: toast.type === 'error' ? '#ef4444' : '#10b981',
+              color: '#FFFFFF',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+              fontWeight: 600,
+              fontSize: '0.9rem'
+            }}
+          >
+            {toast.msg}
+          </div>
+        )}
 
-        {/* Header Bar */}
-       /* <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px', marginBottom: '30px' }}>
+        {/* Top Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
           <div>
-            <h2 style={{ fontSize: '1.8rem', color: '#0f172a', margin: 0, fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-              Staff Management & Gate Verification
-            </h2>
-            <p style={{ color: '#64748b', margin: '4px 0 0' }}>
-              Create gate staff credentials, assign event permissions, and monitor real-time check-ins
+            <h1 style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 6px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+              Gate Passer Staff Management
+            </h1>
+            <p style={{ color: 'var(--text-body)', margin: 0, fontSize: '0.95rem' }}>
+              Create and manage Gate Passer accounts for entrance ticket QR scanning and seat number validation.
             </p>
           </div>
 
           <button
             onClick={handleOpenAddModal}
             className="primary-btn"
-            style={{ padding: '12px 24px', display: 'flex', alignItems: 'center', gap: '8px' }}
+            style={{ padding: '12px 22px', display: 'flex', alignItems: 'center', gap: '8px' }}
           >
-            <i className="fa-solid fa-user-plus"></i> Create Staff Account
+            <i className="fa-solid fa-user-plus"></i> Add Gate Passer Staff
           </button>
         </div>
 
-        {/* Stats Counter Grid */}
-       /* <div className="stats-grid" style={{ marginBottom: '30px' }}>
+        {/* Stats Grid */}
+        <div className="stats-grid" style={{ marginBottom: '30px' }}>
           <div className="stat-card">
-            <h4>TOTAL STAFF ACCOUNTS</h4>
+            <h4>REGISTERED GATE PASSERS</h4>
             <div className="number">{staffList.length}</div>
           </div>
 
           <div className="stat-card" style={{ borderLeft: '4px solid #10b981' }}>
-            <h4>ACTIVE GATE STAFF</h4>
+            <h4>ACTIVE GATE PASSERS</h4>
             <div className="number" style={{ color: '#10b981' }}>
               {staffList.filter((s) => s.isActive !== false).length}
             </div>
@@ -258,12 +244,12 @@ export default function AdminStaff() {
 
           <div className="stat-card" style={{ borderLeft: '4px solid #2563eb' }}>
             <h4>TOTAL CHECKED-IN ATTENDEES</h4>
-            <div className="number" style={{ color: '#2563eb' }}>{totalCheckedIn}</div>
+            <div className="number" style={{ color: '#60A5FA' }}>{totalCheckedIn}</div>
           </div>
 
-          <div className="stat-card" style={{ borderLeft: '4px solid #B8860B' }}>
+          <div className="stat-card" style={{ borderLeft: '4px solid var(--gold-primary)' }}>
             <h4>LIVE SYNC STATUS</h4>
-            <div className="number" style={{ fontSize: '1.4rem', color: '#B8860B', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div className="number" style={{ fontSize: '1.4rem', color: 'var(--gold-accent)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ width: '12px', height: '12px', background: '#10b981', borderRadius: '50%', display: 'inline-block' }}></span>
               Active 15s
             </div>
@@ -271,46 +257,43 @@ export default function AdminStaff() {
         </div>
 
         {/* STAFF MANAGEMENT SECTION */}
-        /*<div style={{ background: '#FFFFFF', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', marginBottom: '40px' }}>
+        <div style={{ background: '#141824', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '24px', boxShadow: 'var(--shadow-hover)', marginBottom: '40px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '20px' }}>
             <div>
-              <h3 style={{ fontSize: '1.25rem', margin: '0 0 4px', color: '#0f172a', fontWeight: 700 }}>
-                Gate Staff Credentials & Access Control
+              <h3 style={{ fontSize: '1.25rem', margin: '0 0 4px', color: 'var(--text-heading)', fontWeight: 700 }}>
+                Gate Passer Accounts & Access Control
               </h3>
-              <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0 }}>
-                Manage staff authorization, gate roles, and assigned event permissions.
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-body)', margin: 0 }}>
+                Authorized Gate Passers who validate entrance QR passes and check attendee seat numbers.
               </p>
             </div>
 
             {/* Filter Toolbar */}
-          /*  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
               <div style={{ position: 'relative', minWidth: '220px' }}>
-                <i className="fa-solid fa-magnifying-glass" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '0.85rem' }}></i>
+                <i className="fa-solid fa-magnifying-glass" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--gold-accent)', fontSize: '0.85rem' }}></i>
                 <input
                   type="text"
                   placeholder="Search staff name, email..."
                   value={staffSearch}
                   onChange={(e) => setStaffSearch(e.target.value)}
-                  style={{ width: '100%', padding: '8px 12px 8px 36px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem', outline: 'none' }}
+                  style={{ width: '100%', padding: '8px 12px 8px 36px', borderRadius: '8px', border: '1px solid rgba(212, 175, 55, 0.25)', background: '#0B0E17', color: '#F8FAFC', fontSize: '0.85rem', outline: 'none' }}
                 />
               </div>
 
               <select
                 value={roleFilter}
                 onChange={(e) => setRoleFilter(e.target.value)}
-                style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem', background: '#FFFFFF' }}
+                style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(212, 175, 55, 0.25)', fontSize: '0.85rem', background: '#0B0E17', color: '#F8FAFC' }}
               >
-                <option value="ALL">All Gate Roles</option>
-                <option value="Gate Entry">Gate Entry</option>
-                <option value="VIP Entry">VIP Red Carpet Entry</option>
-                <option value="Registration Desk">Registration Desk</option>
-                <option value="Security">Security & Access Control</option>
+                <option value="ALL">All Staff (Gate Passers)</option>
+                <option value="Gate Passer">Gate Passer (QR & Seat Validator)</option>
               </select>
 
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem', background: '#FFFFFF' }}
+                style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(212, 175, 55, 0.25)', fontSize: '0.85rem', background: '#0B0E17', color: '#F8FAFC' }}
               >
                 <option value="ALL">All Status</option>
                 <option value="ACTIVE">Active Only</option>
@@ -333,7 +316,7 @@ export default function AdminStaff() {
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
-                  <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b', fontSize: '0.8rem', letterSpacing: '0.05em' }}>
+                  <tr style={{ borderBottom: '1px solid rgba(212, 175, 55, 0.25)', color: 'var(--gold-accent)', fontSize: '0.8rem', letterSpacing: '0.05em' }}>
                     <th style={{ padding: '12px' }}>STAFF MEMBER</th>
                     <th style={{ padding: '12px' }}>GATE ROLE</th>
                     <th style={{ padding: '12px' }}>CONTACT INFORMATION</th>
@@ -346,15 +329,15 @@ export default function AdminStaff() {
                   {filteredStaff.map((s) => {
                     const badge = getRoleBadgeStyle(s.staffRole);
                     return (
-                      <tr key={s._id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                      <tr key={s._id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}>
                         <td style={{ padding: '14px 12px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             <div
                               style={{
                                 width: '40px',
                                 height: '40px',
-                                background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-                                color: '#D4AF37',
+                                background: '#0B0E17',
+                                color: 'var(--gold-accent)',
                                 borderRadius: '10px',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -367,34 +350,35 @@ export default function AdminStaff() {
                               {s.name ? s.name.charAt(0).toUpperCase() : 'S'}
                             </div>
                             <div>
-                              <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.95rem' }}>{s.name}</div>
-                              <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>ID: {s._id.slice(-6).toUpperCase()}</div>
+                              <div style={{ fontWeight: 700, color: '#F8FAFC', fontSize: '0.95rem' }}>{s.name}</div>
+                              <div style={{ fontSize: '0.78rem', color: 'var(--text-light)' }}>ID: {s._id.slice(-6).toUpperCase()}</div>
                             </div>
                           </div>
                         </td>
 
                         <td style={{ padding: '14px 12px' }}>
-                          <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '0.78rem', fontWeight: 700, ...badge }}>
-                            {s.staffRole || 'Gate Entry'}
+                          <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '0.78rem', fontWeight: 800, ...badge, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                            <i className="fa-solid fa-qrcode"></i> Gate Passer
                           </span>
+                          <div style={{ fontSize: '0.72rem', color: 'var(--text-light)', marginTop: '3px' }}>QR & Seat Validator</div>
                         </td>
 
-                        <td style={{ padding: '14px 12px', fontSize: '0.88rem', color: '#334155' }}>
-                          <div><i className="fa-solid fa-envelope" style={{ color: '#94a3b8', marginRight: '6px' }}></i>{s.email}</div>
+                        <td style={{ padding: '14px 12px', fontSize: '0.88rem', color: '#CBD5E1' }}>
+                          <div><i className="fa-solid fa-envelope" style={{ color: 'var(--gold-accent)', marginRight: '6px' }}></i>{s.email}</div>
                           {s.phone && (
-                            <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '2px' }}>
-                              <i className="fa-solid fa-phone" style={{ color: '#94a3b8', marginRight: '6px' }}></i>{s.phone}
+                            <div style={{ fontSize: '0.78rem', color: '#94A3B8', marginTop: '2px' }}>
+                              <i className="fa-solid fa-phone" style={{ color: 'var(--gold-accent)', marginRight: '6px' }}></i>{s.phone}
                             </div>
                           )}
                         </td>
 
                         <td style={{ padding: '14px 12px' }}>
                           {s.assignedEvents?.includes('ALL') ? (
-                            <span style={{ background: '#f3e8ff', color: '#7e22ce', padding: '4px 10px', borderRadius: '6px', fontSize: '0.78rem', fontWeight: 700 }}>
+                            <span style={{ background: 'rgba(212, 175, 55, 0.15)', color: 'var(--gold-accent)', border: '1px solid rgba(212, 175, 55, 0.3)', padding: '4px 10px', borderRadius: '6px', fontSize: '0.78rem', fontWeight: 700 }}>
                               <i className="fa-solid fa-globe" style={{ marginRight: '4px' }}></i> All Events Access
                             </span>
                           ) : (
-                            <span style={{ background: '#fef3c7', color: '#b45309', padding: '4px 10px', borderRadius: '6px', fontSize: '0.78rem', fontWeight: 700 }}>
+                            <span style={{ background: '#0B0E17', color: '#CBD5E1', border: '1px solid rgba(212, 175, 55, 0.25)', padding: '4px 10px', borderRadius: '6px', fontSize: '0.78rem', fontWeight: 700 }}>
                               <i className="fa-solid fa-ticket" style={{ marginRight: '4px' }}></i> {s.assignedEvents?.length || 0} Specific Gate(s)
                             </span>
                           )}
@@ -404,9 +388,9 @@ export default function AdminStaff() {
                           <button
                             onClick={() => handleToggleStatus(s._id)}
                             style={{
-                              background: s.isActive !== false ? '#dcfce7' : '#fee2e2',
-                              color: s.isActive !== false ? '#15803d' : '#b91c1c',
-                              border: s.isActive !== false ? '1px solid #bbf7d0' : '1px solid #fecaca',
+                              background: s.isActive !== false ? 'rgba(34, 197, 94, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+                              color: s.isActive !== false ? '#4ADE80' : '#F87171',
+                              border: s.isActive !== false ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
                               padding: '4px 12px',
                               borderRadius: '20px',
                               fontWeight: 700,
@@ -417,7 +401,7 @@ export default function AdminStaff() {
                               gap: '6px'
                             }}
                           >
-                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: s.isActive !== false ? '#15803d' : '#b91c1c' }}></span>
+                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: s.isActive !== false ? '#4ADE80' : '#F87171' }}></span>
                             {s.isActive !== false ? 'Active' : 'Deactivated'}
                           </button>
                         </td>
@@ -426,15 +410,15 @@ export default function AdminStaff() {
                           <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                             <button
                               onClick={() => handleOpenEditModal(s)}
-                              style={{ background: '#f1f5f9', color: '#1e293b', border: '1px solid #cbd5e1', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '0.82rem' }}
+                              style={{ background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', borderRadius: '6px', padding: '6px 12px', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', color: 'var(--gold-accent)' }}
                             >
                               <i className="fa-solid fa-pen-to-square"></i> Edit
                             </button>
                             <button
                               onClick={() => handleDeleteStaff(s._id)}
-                              style={{ background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '0.82rem' }}
+                              style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '6px', padding: '6px 12px', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', color: '#F87171' }}
                             >
-                              <i className="fa-solid fa-trash-can"></i> Delete
+                              <i className="fa-solid fa-trash"></i> Delete
                             </button>
                           </div>
                         </td>
@@ -447,60 +431,53 @@ export default function AdminStaff() {
           )}
         </div>
 
-        {/* REAL-TIME ATTENDANCE CHECK-IN LOGS STREAM */}
-       /* <div style={{ background: '#FFFFFF', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+        {/* RECENT CHECK-IN AUDIT LOGS */}
+        <div style={{ background: '#141824', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '24px', boxShadow: 'var(--shadow-hover)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '20px' }}>
             <div>
-              <h3 style={{ fontSize: '1.25rem', margin: '0 0 4px', color: '#0f172a', fontWeight: 700 }}>
-                Live Gate Check-In Audit Logs
+              <h3 style={{ fontSize: '1.25rem', margin: '0 0 4px', color: 'var(--text-heading)', fontWeight: 700 }}>
+                Live Entrance Scan & Seat Verification Logs
               </h3>
-              <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0 }}>
-                Real-time synchronized record of all ticket verification attempts across event gates.
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-body)', margin: 0 }}>
+                Real-time stream of QR scans and seat allocations verified by Gate Passers.
               </p>
             </div>
 
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-              <div style={{ position: 'relative', minWidth: '200px' }}>
-                <i className="fa-solid fa-magnifying-glass" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '0.85rem' }}></i>
+              <div style={{ position: 'relative', minWidth: '220px' }}>
+                <i className="fa-solid fa-magnifying-glass" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--gold-accent)', fontSize: '0.85rem' }}></i>
                 <input
                   type="text"
-                  placeholder="Search logs..."
+                  placeholder="Search attendee, ticket ID, seats..."
                   value={logSearch}
                   onChange={(e) => setLogSearch(e.target.value)}
-                  style={{ width: '100%', padding: '8px 12px 8px 36px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem', outline: 'none' }}
+                  style={{ width: '100%', padding: '8px 12px 8px 36px', borderRadius: '8px', border: '1px solid rgba(212, 175, 55, 0.25)', background: '#0B0E17', color: '#F8FAFC', fontSize: '0.85rem', outline: 'none' }}
                 />
               </div>
 
               <select
                 value={logStatusFilter}
                 onChange={(e) => setLogStatusFilter(e.target.value)}
-                style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem', background: '#FFFFFF' }}
+                style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(212, 175, 55, 0.25)', fontSize: '0.85rem', background: '#0B0E17', color: '#F8FAFC' }}
               >
-                <option value="ALL">All Scan Results</option>
-                <option value="SUCCESS">Checked In (Success)</option>
-                <option value="DUPLICATE">Duplicate Warning</option>
-                <option value="INVALID">Invalid QR / Code</option>
+                <option value="ALL">All Scan Outcomes</option>
+                <option value="SUCCESS">Entry Granted (Valid)</option>
+                <option value="DUPLICATE">Warning: Already Scanned</option>
+                <option value="INVALID">Invalid Code Rejected</option>
               </select>
-
-              <button
-                onClick={loadData}
-                style={{ padding: '8px 16px', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem', color: '#475569', display: 'flex', alignItems: 'center', gap: '6px' }}
-              >
-                <i className="fa-solid fa-rotate"></i> Refresh
-              </button>
             </div>
           </div>
 
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.88rem' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead>
-                <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b', fontSize: '0.8rem', letterSpacing: '0.05em' }}>
+                <tr style={{ borderBottom: '1px solid rgba(212, 175, 55, 0.25)', color: 'var(--gold-accent)', fontSize: '0.8rem', letterSpacing: '0.05em' }}>
                   <th style={{ padding: '12px' }}>TIMESTAMP</th>
                   <th style={{ padding: '12px' }}>BOOKING ID</th>
-                  <th style={{ padding: '12px' }}>ATTENDEE NAME</th>
-                  <th style={{ padding: '12px' }}>EVENT GATE</th>
-                  <th style={{ padding: '12px' }}>VERIFIED BY STAFF</th>
-                  <th style={{ padding: '12px' }}>SCAN RESULT</th>
+                  <th style={{ padding: '12px' }}>ATTENDEE & SEATS</th>
+                  <th style={{ padding: '12px' }}>EVENT</th>
+                  <th style={{ padding: '12px' }}>GATE PASSER</th>
+                  <th style={{ padding: '12px' }}>RESULT</th>
                 </tr>
               </thead>
               <tbody>
@@ -512,16 +489,27 @@ export default function AdminStaff() {
                   </tr>
                 ) : (
                   filteredLogs.map((log) => (
-                    <tr key={log._id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                      <td style={{ padding: '12px', color: '#475569', fontWeight: 500 }}>
+                    <tr key={log._id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                      <td style={{ padding: '12px', color: '#CBD5E1', fontWeight: 500 }}>
                         {new Date(log.scanTimestamp || log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                       </td>
-                      <td style={{ padding: '12px', fontWeight: 700, color: '#0f172a' }}>{log.bookingId}</td>
-                      <td style={{ padding: '12px', fontWeight: 600 }}>{log.userName || 'N/A'}</td>
-                      <td style={{ padding: '12px', color: '#64748b' }}>{log.eventTitle || 'General Gate'}</td>
+                      <td style={{ padding: '12px', fontWeight: 700, color: 'var(--gold-accent)' }}>{log.bookingId}</td>
                       <td style={{ padding: '12px' }}>
-                        <div style={{ fontWeight: 600, color: '#0f172a' }}>{log.staffName}</div>
-                        <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{log.staffRole}</div>
+                        <div style={{ fontWeight: 700, color: '#F8FAFC' }}>{log.userName || 'N/A'}</div>
+                        {log.seatNumbers ? (
+                          <div style={{ fontSize: '0.75rem', color: 'var(--gold-accent)', fontWeight: 700, marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <i className="fa-solid fa-chair"></i> Seats: {log.seatNumbers}
+                          </div>
+                        ) : (
+                          <div style={{ fontSize: '0.72rem', color: '#94A3B8' }}>{log.ticketCategory || 'Pass'}</div>
+                        )}
+                      </td>
+                      <td style={{ padding: '12px', color: '#CBD5E1' }}>{log.eventTitle || 'Vana Venue Gate'}</td>
+                      <td style={{ padding: '12px' }}>
+                        <div style={{ fontWeight: 600, color: '#F8FAFC' }}>{log.staffName}</div>
+                        <div style={{ fontSize: '0.72rem', color: '#4ADE80', fontWeight: 700 }}>
+                          <i className="fa-solid fa-qrcode"></i> Gate Passer
+                        </div>
                       </td>
                       <td style={{ padding: '12px' }}>
                         <span
@@ -535,16 +523,22 @@ export default function AdminStaff() {
                             gap: '4px',
                             background:
                               log.status === 'SUCCESS'
-                                ? '#dcfce7'
+                                ? 'rgba(34, 197, 94, 0.12)'
                                 : log.status === 'DUPLICATE'
-                                  ? '#fef3c7'
-                                  : '#fee2e2',
+                                  ? 'rgba(212, 175, 55, 0.15)'
+                                  : 'rgba(239, 68, 68, 0.12)',
                             color:
                               log.status === 'SUCCESS'
-                                ? '#15803d'
+                                ? '#4ADE80'
                                 : log.status === 'DUPLICATE'
-                                  ? '#b45309'
-                                  : '#b91c1c'
+                                  ? 'var(--gold-accent)'
+                                  : '#F87171',
+                            border:
+                              log.status === 'SUCCESS'
+                                ? '1px solid rgba(34, 197, 94, 0.3)'
+                                : log.status === 'DUPLICATE'
+                                  ? '1px solid rgba(212, 175, 55, 0.3)'
+                                  : '1px solid rgba(239, 68, 68, 0.3)'
                           }}
                         >
                           {log.status === 'SUCCESS' ? '✓ CHECKED IN' : log.status === 'DUPLICATE' ? '⚠ ALREADY USED' : '✖ INVALID'}
@@ -558,151 +552,184 @@ export default function AdminStaff() {
           </div>
         </div>
 
-        {/* CREATE / EDIT STAFF MODAL */}
-/* {showModal && (
-   <div
-     style={{
-       position: 'fixed',
-       top: 0,
-       left: 0,
-       right: 0,
-       bottom: 0,
-       width: '100%',
-       height: '100%',
-       background: 'rgba(15, 23, 42, 0.7)',
-       backdropFilter: 'blur(8px)',
-       WebkitBackdropFilter: 'blur(8px)',
-       display: 'flex',
-       alignItems: 'center',
-       justifyContent: 'center',
-       zIndex: 99999,
-       padding: '20px'
-     }}
-   >
-     <div
-       style={{
-         background: '#FFFFFF',
-         borderRadius: '20px',
-         width: '100%',
-         maxWidth: '560px',
-         maxHeight: '90vh',
-         overflowY: 'auto',
-         padding: '32px',
-         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
-         border: '1px solid #e2e8f0',
-         margin: 'auto'
-       }}
-     >
-       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', paddingBottom: '12px', borderBottom: '1px solid #f1f5f9' }}>
-         <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 800, color: '#0f172a', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-           {editingStaff ? 'Edit Staff Account' : 'Create Staff Credentials'}
-         </h3>
-         <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', fontSize: '1.3rem', color: '#94a3b8', cursor: 'pointer' }}>×</button>
-       </div>
+        {/* CREATE / EDIT GATE PASSER MODAL */}
+        {showModal && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: '100%',
+              height: '100%',
+              background: 'rgba(10, 13, 20, 0.85)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 99999,
+              padding: '20px'
+            }}
+          >
+            <div
+              style={{
+                background: '#141824',
+                borderRadius: '16px',
+                width: '100%',
+                maxWidth: '520px',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+                padding: '32px',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8)',
+                border: '1px solid var(--border-light)',
+                margin: 'auto'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', paddingBottom: '12px', borderBottom: '1px solid rgba(212, 175, 55, 0.2)' }}>
+                <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-heading)', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                  {editingStaff ? 'Edit Gate Passer Account' : 'Create Gate Passer Credentials'}
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  style={{ background: 'none', border: 'none', fontSize: '1.3rem', color: '#CBD5E1', cursor: 'pointer' }}
+                >
+                  ✕
+                </button>
+              </div>
 
-       <form onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-         <div className="form-group" style={{ margin: 0 }}>
-           <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#1e293b' }}>Staff Member Full Name *</label>
-           <input
-             type="text"
-             required
-             placeholder="e.g. Ramesh Kumar"
-             value={formData.name}
-             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-           />
-         </div>
+              <form onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#CBD5E1' }}>Staff Member Full Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Ramesh Kumar"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    style={{ background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', color: '#F8FAFC' }}
+                  />
+                </div>
 
-         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-           <div className="form-group" style={{ margin: 0 }}>
-             <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#1e293b' }}>Email / Login Username *</label>
-             <input
-               type="email"
-               required
-               placeholder="staff@vana.com"
-               value={formData.email}
-               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-             />
-           </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                  <div className="form-group" style={{ margin: 0 }}>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#CBD5E1' }}>Email / Login Username *</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="gatepasser@vana.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      style={{ background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', color: '#F8FAFC' }}
+                    />
+                  </div>
 
-           <div className="form-group" style={{ margin: 0 }}>
-             <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#1e293b' }}>Phone Number</label>
-             <input
-               type="text"
-               placeholder="+91 9876543210"
-               value={formData.phone}
-               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-             />
-           </div>
-         </div>
+                  <div className="form-group" style={{ margin: 0 }}>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#CBD5E1' }}>Phone Number</label>
+                    <input
+                      type="text"
+                      placeholder="+91 9876543210"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      style={{ background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', color: '#F8FAFC' }}
+                    />
+                  </div>
+                </div>
 
-         <div className="form-group" style={{ margin: 0 }}>
-           <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#1e293b' }}>
-             {editingStaff ? 'Password (leave blank to keep unchanged)' : 'Account Password *'}
-           </label>
-           <input
-             type="password"
-             required={!editingStaff}
-             placeholder="••••••••"
-             value={formData.password}
-             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-           />
-         </div>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#CBD5E1' }}>
+                    {editingStaff ? 'Password (leave blank to keep unchanged)' : 'Account Password *'}
+                  </label>
+                  <input
+                    type="password"
+                    required={!editingStaff}
+                    placeholder="••••••••"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    style={{ background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', color: '#F8FAFC' }}
+                  />
+                </div>
 
-         <div className="form-group" style={{ margin: 0 }}>
-           <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#1e293b' }}>Staff Gate Permission Role *</label>
-           <select
-             value={formData.staffRole}
-             onChange={(e) => setFormData({ ...formData, staffRole: e.target.value })}
-           >
-             <option value="Gate Entry">Gate Entry #1</option>
-             <option value="VIP Entry">VIP Red Carpet Entry</option>
-             <option value="Registration Desk">Registration Desk</option>
-             <option value="Security">Security & Access Control</option>
-           </select>
-         </div>
+                {/* GATE PASSER ROLE FIXED DEFINITION */}
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#CBD5E1' }}>Staff Role & Purpose</label>
+                  <div
+                    style={{
+                      background: '#0B0E17',
+                      border: '1px solid rgba(212, 175, 55, 0.25)',
+                      borderRadius: '8px',
+                      padding: '12px 14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px'
+                    }}
+                  >
+                    <span
+                      style={{
+                        background: 'rgba(34, 197, 94, 0.12)',
+                        color: '#4ADE80',
+                        border: '1px solid rgba(34, 197, 94, 0.3)',
+                        padding: '4px 12px',
+                        borderRadius: '20px',
+                        fontWeight: 800,
+                        fontSize: '0.82rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      <i className="fa-solid fa-qrcode"></i> Gate Passer
+                    </span>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>
+                      Validates ticket QR passes and verifies attendee seat numbers at the venue entrance.
+                    </span>
+                  </div>
+                </div>
 
-         <div className="form-group" style={{ margin: 0 }}>
-           <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#1e293b' }}>Assigned Events *</label>
-           <select
-             multiple
-             value={formData.assignedEvents}
-             onChange={(e) => {
-               const selected = Array.from(e.target.selectedOptions, (opt) => opt.value);
-               setFormData({ ...formData, assignedEvents: selected });
-             }}
-             style={{ height: '95px' }}
-           >
-             <option value="ALL">All Current & Future Events</option>
-             {eventsList.map((evt) => (
-               <option key={evt._id} value={evt._id}>
-                 {evt.title} ({evt.eventDate})
-               </option>
-             ))}
-           </select>
-           <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '4px', display: 'block' }}>Hold Ctrl (or Cmd) to select multiple specific events.</span>
-         </div>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#CBD5E1' }}>Assigned Events *</label>
+                  <select
+                    multiple
+                    value={formData.assignedEvents}
+                    onChange={(e) => {
+                      const selected = Array.from(e.target.selectedOptions, (opt) => opt.value);
+                      setFormData({ ...formData, assignedEvents: selected });
+                    }}
+                    style={{ height: '95px', background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', color: '#F8FAFC' }}
+                  >
+                    <option value="ALL">All Current & Future Events</option>
+                    {eventsList.map((evt) => (
+                      <option key={evt._id} value={evt._id}>
+                        {evt.title} ({evt.eventDate})
+                      </option>
+                    ))}
+                  </select>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--gold-accent)', marginTop: '4px', display: 'block' }}>Hold Ctrl (or Cmd) to select multiple specific events.</span>
+                </div>
 
-         <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
-           <button
-             type="button"
-             onClick={() => setShowModal(false)}
-             style={{ flex: 1, padding: '12px', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', color: '#475569' }}
-           >
-             Cancel
-           </button>
-           <button
-             type="submit"
-             className="primary-btn"
-             style={{ flex: 1, padding: '12px', borderRadius: '8px', fontWeight: 700 }}
-           >
-             {editingStaff ? 'Save Changes' : 'Create Credentials'}
-           </button>
-         </div>
-       </form>
-     </div>
-   </div>
- )}
-</div>
-</div>
-);
+                <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    style={{ flex: 1, padding: '12px', background: '#0B0E17', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', color: '#CBD5E1' }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="primary-btn"
+                    style={{ flex: 1, padding: '12px', borderRadius: '8px', fontWeight: 700 }}
+                  >
+                    {editingStaff ? 'Save Changes' : 'Create Gate Passer'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }

@@ -360,13 +360,13 @@ export default function VenueLayout({
 
         {/* FIRST FLOOR RIGHT WING OUTER ROW LABELS */}
         {[
-          { label: '1G', x: 1475, y: 215 },
-          { label: '1F', x: 1515, y: 240 },
-          { label: '1E', x: 1545, y: 260 },
-          { label: '1D', x: 1560, y: 285 },
-          { label: '1C', x: 1575, y: 310 },
-          { label: '1B', x: 1590, y: 335 },
-          { label: '1A', x: 1560, y: 350 }
+          { label: '1G', x: 1505, y: 134 },
+          { label: '1F', x: 1528, y: 164 },
+          { label: '1E', x: 1535, y: 194 },
+          { label: '1D', x: 1535, y: 224 },
+          { label: '1C', x: 1535, y: 254 },
+          { label: '1B', x: 1535, y: 284 },
+          { label: '1A', x: 1490, y: 314 }
         ].map((r) => (
           <div
             key={`ffr-rowlabel-${r.label}`}

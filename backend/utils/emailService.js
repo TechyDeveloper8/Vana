@@ -44,6 +44,40 @@ exports.sendTicketEmail = async (booking) => {
       qrImageSrc = booking.qrCodeUrl;
     }
 
+    const formattedShowtime = booking.showtimeDate && booking.showtimeDate !== 'Default'
+      ? (isNaN(new Date(booking.showtimeDate)) ? booking.showtimeDate : new Date(booking.showtimeDate).toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }))
+      : 'Main Show Event';
+
+    const seatsHtml = (booking.selectedSeats && booking.selectedSeats.length > 0)
+      ? `
+        <div style="margin: 15px 0 10px 0; background: #FFFFFF; padding: 14px; border-radius: 12px; border: 1px solid #E7DDD1;">
+          <div style="font-size: 12px; font-weight: bold; color: #5F5F5F; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">
+            ❖ Assigned Seats (${booking.selectedSeats.length} Reserved):
+          </div>
+          <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+            <thead>
+              <tr style="background: #FAF7F2; text-align: left; color: #5F5F5F; font-size: 11px; text-transform: uppercase;">
+                <th style="padding: 6px 8px; border-bottom: 1px solid #E7DDD1;">Seat</th>
+                <th style="padding: 6px 8px; border-bottom: 1px solid #E7DDD1;">Row</th>
+                <th style="padding: 6px 8px; border-bottom: 1px solid #E7DDD1;">Tier / Section</th>
+                <th style="padding: 6px 8px; border-bottom: 1px solid #E7DDD1; text-align: right;">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${booking.selectedSeats.map(s => `
+                <tr style="border-bottom: 1px dashed #E7DDD1;">
+                  <td style="padding: 6px 8px; font-weight: bold; color: #1F1F1F;">${s.displayLabel || s.seatId}</td>
+                  <td style="padding: 6px 8px; color: #4B5563;">${s.row || s.displayLabel?.split('-')[0] || 'N/A'}</td>
+                  <td style="padding: 6px 8px; color: #4B5563;">${s.category || 'General'}${s.section ? ` • ${s.section}` : ''}</td>
+                  <td style="padding: 6px 8px; text-align: right; color: #B8860B; font-weight: bold;">₹${s.price || 0}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `
+      : '';
+
     const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -61,7 +95,7 @@ exports.sendTicketEmail = async (booking) => {
         .intro { color: #5F5F5F; font-size: 14px; line-height: 1.6; margin-bottom: 24px; }
         .ticket-card { background: #F6EFE5; border: 1px dashed #B8860B; border-radius: 16px; padding: 20px; margin-bottom: 24px; }
         .ticket-header { font-size: 13px; font-weight: bold; text-transform: uppercase; color: #B8860B; letter-spacing: 1px; margin-bottom: 15px; text-align: center; }
-        .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; border-bottom: 1px solid rgba(231, 221, 209, 0.6); padding-bottom: 6px; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13.5px; border-bottom: 1px solid rgba(231, 221, 209, 0.6); padding-bottom: 6px; }
         .info-label { color: #5F5F5F; font-weight: 500; }
         .info-value { color: #1F1F1F; font-weight: bold; }
         .qr-section { text-align: center; margin: 25px 0 10px 0; background: #FFFFFF; padding: 20px; border-radius: 14px; border: 1px solid #E7DDD1; }
@@ -80,14 +114,14 @@ exports.sendTicketEmail = async (booking) => {
         <div class="body-content">
           <div class="greeting">Hello ${booking.userName || 'Valued Guest'},</div>
           <div class="intro">
-            Your event ticket reservation has been successfully completed! Below is your official digital entrance pass. Present the QR code on your mobile device at the venue gate for swift check-in.
+            Your event ticket reservation has been successfully completed! Below are your official seat allocation, entrance pass, and receipt details. Present the QR code at the venue gate for instant admission.
           </div>
           
           <div class="ticket-card">
             <div class="ticket-header">❖ ENTRY PASS TICKET CONFIRMATION ❖</div>
             
             <div class="info-row">
-              <span class="info-label">Booking ID:</span>
+              <span class="info-label">Booking Reference:</span>
               <span class="info-value">${booking.bookingId}</span>
             </div>
             <div class="info-row">
@@ -95,26 +129,59 @@ exports.sendTicketEmail = async (booking) => {
               <span class="info-value">${booking.eventTitle}</span>
             </div>
             <div class="info-row">
-              <span class="info-label">Pass Category:</span>
-              <span class="info-value">${booking.ticketCategory || 'Standard Pass'}</span>
+              <span class="info-label">Performance Showtime:</span>
+              <span class="info-value" style="color: #2563EB;">${formattedShowtime}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Attendee Name:</span>
+              <span class="info-value">${booking.userName}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Mobile / Phone:</span>
+              <span class="info-value">${booking.userPhone || 'N/A'}</span>
             </div>
             <div class="info-row">
               <span class="info-label">Quantity:</span>
-              <span class="info-value">${booking.quantity} Pass(es)</span>
+              <span class="info-value">${booking.quantity} Reserved Seat(s)</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Pass Category:</span>
+              <span class="info-value">${booking.ticketCategory || 'Standard Pass'}</span>
+            </div>
+
+            ${seatsHtml}
+
+            <div class="info-row">
+              <span class="info-label">Subtotal:</span>
+              <span class="info-value">₹${booking.subtotal || booking.totalAmount}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">GST Tax (18%):</span>
+              <span class="info-value">₹${booking.gst || 0}</span>
             </div>
             <div class="info-row">
               <span class="info-label">Total Amount Paid:</span>
-              <span class="info-value" style="color: #B8860B;">₹${booking.totalAmount}</span>
+              <span class="info-value" style="color: #B8860B; font-size: 15px;">₹${booking.totalAmount}</span>
             </div>
+            <div class="info-row">
+              <span class="info-label">Payment Gateway:</span>
+              <span class="info-value">${booking.paymentGateway || 'Cashfree Payments'} (${booking.paymentMethod || 'Paid'})</span>
+            </div>
+            ${booking.cashfreeOrderId ? `
+            <div class="info-row">
+              <span class="info-label">Cashfree Order ID:</span>
+              <span class="info-value" style="font-family: monospace;">${booking.cashfreeOrderId}</span>
+            </div>
+            ` : ''}
             <div class="info-row" style="border-bottom: none;">
               <span class="info-label">Payment Status:</span>
-              <span class="badge">${booking.paymentStatus || 'Paid'}</span>
+              <span class="badge">✓ ${booking.paymentStatus || 'Paid (Verified)'}</span>
             </div>
 
             ${qrImageSrc ? `
             <div class="qr-section">
               <img src="${qrImageSrc}" alt="Entry QR Code" />
-              <div class="qr-hint">Scan at Venue Gate Scanner for Admission</div>
+              <div class="qr-hint">Present QR code at Venue Gate Scanner for Admission</div>
             </div>
             ` : ''}
           </div>

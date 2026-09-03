@@ -75,7 +75,7 @@ export default function AdminSidebar() {
             <i className="fa-solid fa-images"></i> Manage Gallery
           </Link>
           <Link to="/admin/staff" className={isActive('/admin/staff')} onClick={closeSidebar}>
-            <i className="fa-solid fa-users-gear"></i> Gate Staff
+            <i className="fa-solid fa-qrcode"></i> Gate Passers
           </Link>
           <Link to="/" target="_blank" onClick={closeSidebar}>
             <i className="fa-solid fa-globe"></i> View Website

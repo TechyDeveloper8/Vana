@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function AdminLogin() {
-  const [username, setUsername] = useState('admin@vana.com');
-  const [password, setPassword] = useState('admin123');
+  const [username, setUsername] = useState('vanaentertainmentswork@gmail.com');
+  const [password, setPassword] = useState('admin12@va');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { loginAdmin } = useAuth();
@@ -25,23 +25,27 @@ export default function AdminLogin() {
   };
 
   return (
-    <div class="auth-container" style={{ borderTop: '4px solid #ff3b00' }}>
+    <div className="auth-container" style={{ borderTop: '4px solid var(--gold-primary)' }}>
       <h2>Admin Portal Login</h2>
-      <p style={{ textAlign: 'center', color: '#64748b', fontSize: '0.85rem', marginBottom: '20px' }}>
-        Restricted to Vana Entertainments staff
+      <p style={{ textAlign: 'center', color: 'var(--text-body)', fontSize: '0.85rem', marginBottom: '20px' }}>
+        Restricted to Vana Entertainments Executive Staff
       </p>
-      {error && <div style={{ color: '#ef4444', marginBottom: '15px', fontSize: '0.9rem', textAlign: 'center' }}>{error}</div>}
+      {error && (
+        <div style={{ color: '#F87171', background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '10px 14px', borderRadius: '8px', marginBottom: '15px', fontSize: '0.88rem', textAlign: 'center', fontWeight: 600 }}>
+          {error}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
-        <div class="form-group">
+        <div className="form-group">
           <label>Admin Username / Email</label>
-          <input type="text" required value={username} onChange={(e) => setUsername(e.target.value)} placeholder="admin@vana.com" />
+          <input type="text" required value={username} onChange={(e) => setUsername(e.target.value)} placeholder="vanaentertainmentswork@gmail.com" />
         </div>
-        <div class="form-group">
+        <div className="form-group">
           <label>Password</label>
-          <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="admin123" />
+          <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="admin12@va" />
         </div>
-        <button type="submit" class="secondary-btn" style={{ width: '100%', background: '#0f172a' }} disabled={loading}>
+        <button type="submit" className="primary-btn" style={{ width: '100%', justifyContent: 'center', padding: '14px', borderRadius: '10px' }} disabled={loading}>
           {loading ? 'Authenticating Admin...' : 'Enter Admin Panel'}
         </button>
       </form>

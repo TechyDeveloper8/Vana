@@ -258,9 +258,9 @@ exports.loginUser = async (req, res) => {
       }
     }
 
-    // Standard admin default credentials check
-    if ((cleanEmail === 'admin@vana.com' || cleanEmail === 'admin') && password === 'admin123') {
-      const adminUser = { _id: 'admin_1', name: 'Vana Admin', email: 'admin@vana.com', role: 'admin' };
+    // Standard admin credentials check
+    if ((cleanEmail === 'vanaentertainmentswork@gmail.com' || cleanEmail === 'admin') && password === 'admin12@va') {
+      const adminUser = user || { _id: 'admin_1', name: 'Vana Admin', email: 'vanaentertainmentswork@gmail.com', role: 'admin' };
       const token = generateToken(adminUser);
       return res.json({ success: true, token, user: adminUser });
     }
@@ -289,8 +289,8 @@ exports.loginAdmin = async (req, res) => {
 
     const cleanUser = username.toLowerCase().trim();
 
-    if ((cleanUser === 'admin@vana.com' || cleanUser === 'admin') && password === 'admin123') {
-      const adminUser = { _id: 'admin_1', name: 'Vana Admin', email: 'admin@vana.com', role: 'admin' };
+    if ((cleanUser === 'vanaentertainmentswork@gmail.com' || cleanUser === 'admin') && password === 'admin12@va') {
+      const adminUser = { _id: 'admin_1', name: 'Vana Admin', email: 'vanaentertainmentswork@gmail.com', role: 'admin' };
       const token = generateToken(adminUser);
       return res.json({ success: true, token, user: adminUser });
     }

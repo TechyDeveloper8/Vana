@@ -32,8 +32,8 @@ const userSchema = new mongoose.Schema(
     },
     staffRole: {
       type: String,
-      enum: ['Gate Entry', 'VIP Entry', 'Registration Desk', 'Security', 'General Staff'],
-      default: 'Gate Entry'
+      enum: ['Gate Passer', 'Gate Entry', 'VIP Entry', 'Registration Desk', 'Security', 'General Staff'],
+      default: 'Gate Passer'
     },
     assignedEvents: [
       {

@@ -344,44 +344,44 @@ export default function AdminEvents() {
         {/* Header Title & Actions */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px', marginBottom: '30px' }}>
           <div>
-            <h2 style={{ fontSize: '1.8rem', color: '#0f172a', margin: 0, fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+            <h2 style={{ fontSize: '1.8rem', color: 'var(--text-heading)', margin: 0, fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
               Event Management & Drive Media
             </h2>
-            <p style={{ color: '#64748b', margin: '4px 0 0' }}>
+            <p style={{ color: 'var(--text-body)', margin: '4px 0 0' }}>
               Create, edit, publish, unpublish, and manage Google Drive hosted event banners
             </p>
           </div>
-          <button onClick={handleOpenCreateModal} class="primary-btn" style={{ padding: '12px 24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <i class="fa-solid fa-plus"></i> Add New Event
+          <button onClick={handleOpenCreateModal} className="primary-btn" style={{ padding: '12px 24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <i className="fa-solid fa-plus"></i> Add New Event
           </button>
         </div>
 
         {/* Statistics Cards */}
-        <div class="stats-grid" style={{ marginBottom: '24px' }}>
-          <div class="stat-card">
+        <div className="stats-grid" style={{ marginBottom: '24px' }}>
+          <div className="stat-card">
             <h4>TOTAL EVENTS</h4>
-            <div class="number">{totalCount}</div>
+            <div className="number">{totalCount}</div>
           </div>
-          <div class="stat-card" style={{ borderLeft: '4px solid #10b981' }}>
+          <div className="stat-card" style={{ borderLeft: '4px solid #10b981' }}>
             <h4>PUBLISHED</h4>
-            <div class="number" style={{ color: '#10b981' }}>{publishedCount}</div>
+            <div className="number" style={{ color: '#10b981' }}>{publishedCount}</div>
           </div>
-          <div class="stat-card" style={{ borderLeft: '4px solid #f59e0b' }}>
+          <div className="stat-card" style={{ borderLeft: '4px solid var(--gold-primary)' }}>
             <h4>UNPUBLISHED / DRAFT</h4>
-            <div class="number" style={{ color: '#f59e0b' }}>{unpublishedCount}</div>
+            <div className="number" style={{ color: 'var(--gold-accent)' }}>{unpublishedCount}</div>
           </div>
         </div>
 
         {/* Search & Filter Toolbar */}
-        <div style={{ background: '#FFFFFF', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', border: '1px solid #e2e8f0', marginBottom: '24px', display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ background: '#141824', padding: '20px', borderRadius: '16px', boxShadow: 'var(--shadow-hover)', border: '1px solid var(--border-light)', marginBottom: '24px', display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ position: 'relative', flex: '1 1 280px', maxWidth: '400px' }}>
-            <i class="fa-solid fa-magnifying-glass" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }}></i>
+            <i className="fa-solid fa-magnifying-glass" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--gold-accent)' }}></i>
             <input
               type="text"
               placeholder="Search by title, city, organizer..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              style={{ width: '100%', padding: '10px 14px 10px 40px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '0.9rem' }}
+              style={{ width: '100%', padding: '10px 14px 10px 40px', borderRadius: '8px', border: '1px solid rgba(212, 175, 55, 0.25)', background: '#0B0E17', color: '#F8FAFC', outline: 'none', fontSize: '0.9rem' }}
             />
           </div>
 
@@ -389,7 +389,7 @@ export default function AdminEvents() {
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '0.9rem', background: '#FFFFFF' }}
+              style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(212, 175, 55, 0.25)', outline: 'none', fontSize: '0.9rem', background: '#0B0E17', color: '#F8FAFC' }}
             >
               <option value="All">All Categories</option>
               <option value="Corporate Events">Corporate Events</option>
@@ -401,36 +401,36 @@ export default function AdminEvents() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '0.9rem', background: '#FFFFFF' }}
+              style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(212, 175, 55, 0.25)', outline: 'none', fontSize: '0.9rem', background: '#0B0E17', color: '#F8FAFC' }}
             >
               <option value="All">All Statuses</option>
               <option value="Published">Published Only</option>
               <option value="Unpublished">Unpublished Only</option>
             </select>
 
-            <button onClick={loadEvents} style={{ padding: '10px 16px', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, color: '#475569' }}>
-              <i class="fa-solid fa-rotate-right"></i> Refresh
+            <button onClick={loadEvents} style={{ padding: '10px 16px', background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, color: 'var(--gold-accent)' }}>
+              <i className="fa-solid fa-rotate-right"></i> Refresh
             </button>
           </div>
         </div>
 
         {/* Events Table Container */}
-        <div style={{ background: '#FFFFFF', padding: '24px', borderRadius: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.04)', border: '1px solid #e2e8f0' }}>
+        <div style={{ background: '#141824', padding: '24px', borderRadius: '16px', boxShadow: 'var(--shadow-hover)', border: '1px solid var(--border-light)' }}>
           {loading ? (
             <div style={{ padding: '60px 0', textAlign: 'center', color: '#64748b' }}>
-              <i class="fa-solid fa-circle-notch fa-spin fa-2x" style={{ color: '#D4AF37', marginBottom: '12px', display: 'block' }}></i>
+              <i className="fa-solid fa-circle-notch fa-spin fa-2x" style={{ color: '#D4AF37', marginBottom: '12px', display: 'block' }}></i>
               Loading events database...
             </div>
           ) : filteredEvents.length === 0 ? (
             <div style={{ padding: '60px 0', textAlign: 'center', color: '#64748b' }}>
-              <i class="fa-solid fa-calendar-xmark fa-2x" style={{ marginBottom: '12px', display: 'block' }}></i>
+              <i className="fa-solid fa-calendar-xmark fa-2x" style={{ marginBottom: '12px', display: 'block' }}></i>
               No events found matching your criteria.
             </div>
           ) : (
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
-                  <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b', fontSize: '0.8rem', letterSpacing: '0.05em' }}>
+                  <tr style={{ borderBottom: '1px solid rgba(212, 175, 55, 0.25)', color: 'var(--gold-accent)', fontSize: '0.8rem', letterSpacing: '0.05em' }}>
                     <th style={{ padding: '12px' }}>BANNER & TITLE</th>
                     <th style={{ padding: '12px' }}>CATEGORY</th>
                     <th style={{ padding: '12px' }}>DATE & TIME</th>
@@ -445,10 +445,10 @@ export default function AdminEvents() {
                     const isPub = evt.isPublished !== false && evt.status !== 'Unpublished';
 
                     return (
-                      <tr key={evt._id} style={{ borderBottom: '1px solid #f1f5f9', transition: 'background 0.2s ease' }}>
+                      <tr key={evt._id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)', transition: 'background 0.2s ease' }}>
                         <td style={{ padding: '14px 12px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                            <div style={{ width: '64px', height: '44px', borderRadius: '6px', overflow: 'hidden', background: '#f1f5f9', flexShrink: 0, border: '1px solid #e2e8f0' }}>
+                            <div style={{ width: '64px', height: '44px', borderRadius: '6px', overflow: 'hidden', background: '#0B0E17', flexShrink: 0, border: '1px solid rgba(212, 175, 55, 0.2)' }}>
                               <img
                                 src={evt.bannerImage}
                                 alt={evt.title}
@@ -460,35 +460,35 @@ export default function AdminEvents() {
                               />
                             </div>
                             <div>
-                              <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.98rem' }}>{evt.title}</div>
+                              <div style={{ fontWeight: 700, color: '#F8FAFC', fontSize: '0.98rem' }}>{evt.title}</div>
                               {evt.driveFileId ? (
-                                <span style={{ fontSize: '0.72rem', color: '#0284c7', background: '#e0f2fe', padding: '2px 6px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
-                                  <i class="fa-brands fa-google-drive"></i> GDrive Sync
+                                <span style={{ fontSize: '0.72rem', color: 'var(--gold-accent)', background: 'rgba(212, 175, 55, 0.15)', border: '1px solid rgba(212, 175, 55, 0.3)', padding: '2px 6px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+                                  <i className="fa-brands fa-google-drive"></i> GDrive Sync
                                 </span>
                               ) : (
-                                <span style={{ fontSize: '0.72rem', color: '#64748b' }}>Standard URL</span>
+                                <span style={{ fontSize: '0.72rem', color: '#94A3B8' }}>Standard URL</span>
                               )}
                             </div>
                           </div>
                         </td>
 
-                        <td style={{ padding: '14px 12px', color: '#475569', fontSize: '0.9rem' }}>
-                          <span style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '4px 10px', borderRadius: '20px', fontWeight: 600, fontSize: '0.8rem' }}>
+                        <td style={{ padding: '14px 12px', color: '#CBD5E1', fontSize: '0.9rem' }}>
+                          <span style={{ background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', color: 'var(--gold-accent)', padding: '4px 10px', borderRadius: '20px', fontWeight: 600, fontSize: '0.8rem' }}>
                             {evt.category}
                           </span>
                         </td>
 
-                        <td style={{ padding: '14px 12px', fontSize: '0.88rem', color: '#334155' }}>
-                          <div style={{ fontWeight: 600 }}>{evt.eventDate}</div>
-                          <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{evt.startTime}</div>
+                        <td style={{ padding: '14px 12px', fontSize: '0.88rem', color: '#CBD5E1' }}>
+                          <div style={{ fontWeight: 600, color: '#F8FAFC' }}>{evt.eventDate}</div>
+                          <div style={{ fontSize: '0.78rem', color: '#94A3B8' }}>{evt.startTime}</div>
                         </td>
 
-                        <td style={{ padding: '14px 12px', fontSize: '0.88rem', color: '#334155' }}>
-                          <div style={{ fontWeight: 600 }}>{evt.venue?.city || 'Bhagalpur'}</div>
-                          <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{evt.venue?.name}</div>
+                        <td style={{ padding: '14px 12px', fontSize: '0.88rem', color: '#CBD5E1' }}>
+                          <div style={{ fontWeight: 600, color: '#F8FAFC' }}>{evt.venue?.city || 'Bhagalpur'}</div>
+                          <div style={{ fontSize: '0.78rem', color: '#94A3B8' }}>{evt.venue?.name}</div>
                         </td>
 
-                        <td style={{ padding: '14px 12px', fontWeight: 700, color: '#B8860B' }}>
+                        <td style={{ padding: '14px 12px', fontWeight: 700, color: 'var(--gold-accent)' }}>
                           ₹{evt.price || evt.ticketTiers?.[0]?.price || 0}
                         </td>
 
@@ -497,9 +497,9 @@ export default function AdminEvents() {
                             onClick={() => handleTogglePublish(evt)}
                             title="Click to toggle publish status"
                             style={{
-                              background: isPub ? '#ecfdf5' : '#fff7ed',
-                              color: isPub ? '#047857' : '#c2410c',
-                              border: isPub ? '1px solid #a7f3d0' : '1px solid #ffedd5',
+                              background: isPub ? 'rgba(34, 197, 94, 0.12)' : 'rgba(212, 175, 55, 0.12)',
+                              color: isPub ? '#4ADE80' : 'var(--gold-accent)',
+                              border: isPub ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(212, 175, 55, 0.3)',
                               padding: '6px 12px',
                               borderRadius: '20px',
                               fontSize: '0.8rem',
@@ -510,7 +510,7 @@ export default function AdminEvents() {
                               gap: '6px'
                             }}
                           >
-                            <i class={isPub ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash'}></i>
+                            <i className={isPub ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash'}></i>
                             {isPub ? 'Published' : 'Unpublished'}
                           </button>
                         </td>
@@ -520,9 +520,9 @@ export default function AdminEvents() {
                             <button
                               onClick={() => handleOpenEditModal(evt)}
                               style={{
-                                background: '#f1f5f9',
-                                color: '#1e293b',
-                                border: '1px solid #cbd5e1',
+                                background: '#0B0E17',
+                                color: 'var(--gold-accent)',
+                                border: '1px solid rgba(212, 175, 55, 0.25)',
                                 padding: '6px 12px',
                                 borderRadius: '6px',
                                 cursor: 'pointer',
@@ -530,15 +530,15 @@ export default function AdminEvents() {
                                 fontSize: '0.85rem'
                               }}
                             >
-                              <i class="fa-solid fa-pen-to-square"></i> Edit
+                              <i className="fa-solid fa-pen-to-square"></i> Edit
                             </button>
 
                             <button
                               onClick={() => handleDelete(evt)}
                               style={{
-                                background: '#fef2f2',
-                                color: '#ef4444',
-                                border: '1px solid #fecaca',
+                                background: 'rgba(239, 68, 68, 0.12)',
+                                color: '#F87171',
+                                border: '1px solid rgba(239, 68, 68, 0.3)',
                                 padding: '6px 12px',
                                 borderRadius: '6px',
                                 cursor: 'pointer',
@@ -546,7 +546,7 @@ export default function AdminEvents() {
                                 fontSize: '0.85rem'
                               }}
                             >
-                              <i class="fa-solid fa-trash-can"></i> Delete
+                              <i className="fa-solid fa-trash-can"></i> Delete
                             </button>
                           </div>
                         </td>
@@ -580,13 +580,14 @@ export default function AdminEvents() {
         >
           <div
             style={{
-              background: '#FFFFFF',
+              background: '#141824',
               borderRadius: '16px',
               width: '100%',
               maxWidth: '750px',
               maxHeight: '92vh',
               overflowY: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8)',
+              border: '1px solid var(--border-light)',
               display: 'flex',
               flexDirection: 'column'
             }}
@@ -595,19 +596,19 @@ export default function AdminEvents() {
             <div
               style={{
                 padding: '20px 28px',
-                borderBottom: '1px solid #e2e8f0',
+                borderBottom: '1px solid rgba(212, 175, 55, 0.2)',
                 display: 'flex',
-                justify: 'space-between',
+                justifyContent: 'space-between',
                 alignItems: 'center',
-                background: '#f8fafc'
+                background: '#0B0E17'
               }}
             >
-              <h3 style={{ fontSize: '1.35rem', margin: 0, color: '#0f172a', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+              <h3 style={{ fontSize: '1.35rem', margin: 0, color: 'var(--text-heading)', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
                 {editingEvent ? `Edit Event: ${editingEvent.title}` : 'Create New Event'}
               </h3>
               <button
                 onClick={() => setShowModal(false)}
-                style={{ background: 'none', border: 'none', fontSize: '1.5rem', color: '#64748b', cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', fontSize: '1.5rem', color: '#CBD5E1', cursor: 'pointer' }}
               >
                 ×
               </button>
@@ -616,24 +617,26 @@ export default function AdminEvents() {
             {/* Modal Form */}
             <form onSubmit={handleSubmit} style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {/* Event Title */}
-              <div class="form-group" style={{ margin: 0 }}>
-                <label style={{ fontWeight: 600, color: '#1e293b' }}>Event Title *</label>
+              <div className="form-group" style={{ margin: 0 }}>
+                <label style={{ fontWeight: 600, color: '#CBD5E1' }}>Event Title *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Grand Celebrity Concert & Music Night"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  style={{ background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', color: '#F8FAFC' }}
                 />
               </div>
 
               {/* Category & Status */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div class="form-group" style={{ margin: 0 }}>
-                  <label style={{ fontWeight: 600, color: '#1e293b' }}>Category *</label>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label style={{ fontWeight: 600, color: '#CBD5E1' }}>Category *</label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    style={{ background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', color: '#F8FAFC' }}
                   >
                     <option value="Corporate Events">Corporate Events</option>
                     <option value="Concerts">Concerts</option>
@@ -643,11 +646,12 @@ export default function AdminEvents() {
                   </select>
                 </div>
 
-                <div class="form-group" style={{ margin: 0 }}>
-                  <label style={{ fontWeight: 600, color: '#1e293b' }}>Publish Status *</label>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label style={{ fontWeight: 600, color: '#CBD5E1' }}>Publish Status *</label>
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                    style={{ background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', color: '#F8FAFC' }}
                   >
                     <option value="Published">Published (Live on Website)</option>
                     <option value="Unpublished">Unpublished (Hidden / Draft)</option>
@@ -660,77 +664,83 @@ export default function AdminEvents() {
 
               {/* Date & Time */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
-                <div class="form-group" style={{ margin: 0 }}>
-                  <label style={{ fontWeight: 600, color: '#1e293b' }}>Event Date *</label>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label style={{ fontWeight: 600, color: '#CBD5E1' }}>Event Date *</label>
                   <input
                     type="date"
                     required
                     value={formData.eventDate}
                     onChange={(e) => setFormData({ ...formData, eventDate: e.target.value })}
+                    style={{ background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', color: '#F8FAFC' }}
                   />
                 </div>
 
-                <div class="form-group" style={{ margin: 0 }}>
-                  <label style={{ fontWeight: 600, color: '#1e293b' }}>Start Time</label>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label style={{ fontWeight: 600, color: '#CBD5E1' }}>Start Time</label>
                   <input
                     type="text"
                     placeholder="e.g. 10:00 AM"
                     value={formData.startTime}
                     onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                    style={{ background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', color: '#F8FAFC' }}
                   />
                 </div>
 
-                <div class="form-group" style={{ margin: 0 }}>
-                  <label style={{ fontWeight: 600, color: '#1e293b' }}>End Time</label>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label style={{ fontWeight: 600, color: '#CBD5E1' }}>End Time</label>
                   <input
                     type="text"
                     placeholder="e.g. 05:00 PM"
                     value={formData.endTime}
                     onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+                    style={{ background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', color: '#F8FAFC' }}
                   />
                 </div>
               </div>
 
               {/* Venue & City */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div class="form-group" style={{ margin: 0 }}>
-                  <label style={{ fontWeight: 600, color: '#1e293b' }}>Venue Selection *</label>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label style={{ fontWeight: 600, color: '#CBD5E1' }}>Venue Selection *</label>
                   <select
                     value={formData.venueName || 'Town Hall Bhagalpur'}
                     onChange={(e) => setFormData({ ...formData, venueName: e.target.value })}
+                    style={{ background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', color: '#F8FAFC' }}
                   >
                     <option value="Town Hall Bhagalpur">Town Hall Bhagalpur (Auditorium)</option>
                   </select>
                 </div>
 
-                <div class="form-group" style={{ margin: 0 }}>
-                  <label style={{ fontWeight: 600, color: '#1e293b' }}>City *</label>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label style={{ fontWeight: 600, color: '#CBD5E1' }}>City *</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Bhagalpur"
                     value={formData.city}
                     onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    style={{ background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', color: '#F8FAFC' }}
                   />
                 </div>
               </div>
 
               {/* Organizer & Ticket Price */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div class="form-group" style={{ margin: 0 }}>
-                  <label style={{ fontWeight: 600, color: '#1e293b' }}>Organizer Name</label>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label style={{ fontWeight: 600, color: '#CBD5E1' }}>Organizer Name</label>
                   <input
                     type="text"
                     placeholder="e.g. Vana Entertainments"
                     value={formData.organizer}
                     onChange={(e) => setFormData({ ...formData, organizer: e.target.value })}
+                    style={{ background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', color: '#F8FAFC' }}
                   />
                 </div>
 
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label style={{ fontWeight: 600, color: '#1e293b' }}>Venue Category Pricing</label>
-                  <div style={{ padding: '12px 14px', background: '#F8FAFC', border: '1px solid #CBD5E1', borderRadius: '8px', fontSize: '0.82rem', color: '#334155', fontWeight: 600 }}>
-                    <i className="fa-solid fa-building-columns" style={{ color: '#D4AF37', marginRight: '6px' }}></i>
+                  <label style={{ fontWeight: 600, color: '#CBD5E1' }}>Venue Category Pricing</label>
+                  <div style={{ padding: '12px 14px', background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', borderRadius: '8px', fontSize: '0.82rem', color: 'var(--gold-accent)', fontWeight: 600 }}>
+                    <i className="fa-solid fa-building-columns" style={{ color: 'var(--gold-primary)', marginRight: '6px' }}></i>
                     Auto-Applied Venue Tiers (Silver ₹500, Plat ₹700, Gold ₹1000, VIP ₹1500)
                   </div>
                 </div>
@@ -739,8 +749,8 @@ export default function AdminEvents() {
               {/* AUTOMATED GOOGLE DRIVE IMAGE UPLOADER SECTION */}
               <div
                 style={{
-                  background: '#f8fafc',
-                  border: '2px dashed #cbd5e1',
+                  background: '#0B0E17',
+                  border: '2px dashed rgba(212, 175, 55, 0.35)',
                   borderRadius: '12px',
                   padding: '20px',
                   textAlign: 'center',
@@ -748,12 +758,12 @@ export default function AdminEvents() {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '8px' }}>
-                  <i class="fa-brands fa-google-drive" style={{ color: '#34a853', fontSize: '1.4rem' }}></i>
-                  <span style={{ fontWeight: 700, color: '#0f172a', fontSize: '1rem' }}>
+                  <i className="fa-brands fa-google-drive" style={{ color: 'var(--gold-accent)', fontSize: '1.4rem' }}></i>
+                  <span style={{ fontWeight: 700, color: 'var(--text-heading)', fontSize: '1rem' }}>
                     Google Drive Automated Banner Uploader
                   </span>
                 </div>
-                <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '14px' }}>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginBottom: '14px' }}>
                   Supported Formats: <strong>JPG, PNG, WEBP</strong> | Max Upload Size: <strong>5 MB</strong>
                 </p>
 
@@ -774,31 +784,31 @@ export default function AdminEvents() {
                     alignItems: 'center',
                     gap: '8px',
                     padding: '10px 20px',
-                    background: '#1e293b',
-                    color: '#FFFFFF',
+                    background: 'var(--gold-gradient)',
+                    color: '#0A0D14',
                     borderRadius: '8px',
-                    fontWeight: 600,
+                    fontWeight: 700,
                     fontSize: '0.9rem',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease'
                   }}
                 >
-                  <i class="fa-solid fa-cloud-arrow-up"></i> Upload Banner Image to Google Drive
+                  <i className="fa-solid fa-cloud-arrow-up"></i> Upload Banner Image to Google Drive
                 </label>
 
                 {/* Progress Bar Indicator */}
                 {uploading && (
                   <div style={{ marginTop: '16px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: '#475569', marginBottom: '6px', fontWeight: 600 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: 'var(--gold-accent)', marginBottom: '6px', fontWeight: 600 }}>
                       <span>Uploading to Google Drive "Event Banners" folder...</span>
                       <span>{uploadProgress}%</span>
                     </div>
-                    <div style={{ height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+                    <div style={{ height: '8px', background: '#141824', borderRadius: '4px', overflow: 'hidden' }}>
                       <div
                         style={{
                           height: '100%',
                           width: `${uploadProgress}%`,
-                          background: 'linear-gradient(90deg, #3b82f6 0%, #10b981 100%)',
+                          background: 'var(--gold-gradient)',
                           transition: 'width 0.2s ease'
                         }}
                       ></div>
@@ -808,26 +818,26 @@ export default function AdminEvents() {
 
                 {/* Upload Success Badge */}
                 {uploadSuccess && (
-                  <div style={{ marginTop: '12px', color: '#059669', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                    <i class="fa-solid fa-circle-check"></i> Image stored & synced with Google Drive!
+                  <div style={{ marginTop: '12px', color: '#4ADE80', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                    <i className="fa-solid fa-circle-check"></i> Image stored & synced with Google Drive!
                   </div>
                 )}
 
                 {/* Image Preview & URL Display */}
                 {formData.bannerImage && (
-                  <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '16px', background: '#FFFFFF', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', textAlign: 'left' }}>
+                  <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '16px', background: '#141824', padding: '12px', borderRadius: '8px', border: '1px solid rgba(212, 175, 55, 0.25)', textAlign: 'left' }}>
                     <img
                       src={formData.bannerImage}
                       alt="Banner Preview"
-                      style={{ width: '90px', height: '60px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                      style={{ width: '90px', height: '60px', objectFit: 'cover', borderRadius: '6px', border: '1px solid rgba(212, 175, 55, 0.3)' }}
                     />
                     <div style={{ flex: 1, overflow: 'hidden' }}>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', display: 'block' }}>STORED IMAGE URL:</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--gold-accent)', display: 'block' }}>STORED IMAGE URL:</span>
                       <input
                         type="text"
                         value={formData.bannerImage}
                         onChange={(e) => setFormData({ ...formData, bannerImage: e.target.value })}
-                        style={{ width: '100%', padding: '6px 10px', fontSize: '0.8rem', borderRadius: '4px', border: '1px solid #cbd5e1', background: '#f8fafc' }}
+                        style={{ width: '100%', padding: '6px 10px', fontSize: '0.8rem', borderRadius: '4px', border: '1px solid rgba(212, 175, 55, 0.25)', background: '#0B0E17', color: '#F8FAFC' }}
                       />
                     </div>
                   </div>
@@ -835,13 +845,14 @@ export default function AdminEvents() {
               </div>
 
               {/* Event Description */}
-              <div class="form-group" style={{ margin: 0 }}>
-                <label style={{ fontWeight: 600, color: '#1e293b' }}>Description / Event Synopsis</label>
+              <div className="form-group" style={{ margin: 0 }}>
+                <label style={{ fontWeight: 600, color: '#CBD5E1' }}>Description / Event Synopsis</label>
                 <textarea
                   rows="3"
                   placeholder="Provide details about the event performance, keynotes, artists, venue entry guidelines..."
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  style={{ background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', color: '#F8FAFC' }}
                 ></textarea>
               </div>
 
@@ -850,19 +861,19 @@ export default function AdminEvents() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  style={{ padding: '12px 24px', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, color: '#475569' }}
+                  style={{ padding: '12px 24px', background: '#0B0E17', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, color: '#CBD5E1' }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting || uploading}
-                  class="primary-btn"
+                  className="primary-btn"
                   style={{ padding: '12px 28px', opacity: submitting || uploading ? 0.6 : 1 }}
                 >
                   {submitting ? (
                     <span>
-                      <i class="fa-solid fa-spinner fa-spin"></i> Saving...
+                      <i className="fa-solid fa-spinner fa-spin"></i> Saving...
                     </span>
                   ) : editingEvent ? (
                     'Update Event'

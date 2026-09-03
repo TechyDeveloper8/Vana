@@ -9,9 +9,11 @@ const checkInLogSchema = new mongoose.Schema(
     userEmail: { type: String, default: '' },
     ticketCategory: { type: String, default: '' },
     quantity: { type: Number, default: 1 },
+    seatNumbers: { type: String, default: '' },
+    selectedSeats: { type: Array, default: [] },
     staffId: { type: String, required: true },
     staffName: { type: String, required: true },
-    staffRole: { type: String, default: 'Gate Entry' },
+    staffRole: { type: String, default: 'Gate Passer' },
     status: {
       type: String,
       enum: ['SUCCESS', 'DUPLICATE', 'INVALID', 'WRONG_EVENT', 'UNAUTHORIZED'],

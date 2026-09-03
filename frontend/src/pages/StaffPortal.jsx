@@ -94,7 +94,10 @@ export default function StaffPortal() {
         attendeeName: res.attendeeName,
         bookingId: res.bookingId,
         ticketCategory: res.ticketCategory,
-        quantity: res.quantity
+        quantity: res.quantity,
+        seatNumbers: res.seatNumbers,
+        section: res.section,
+        showtimeDate: res.showtimeDate
       });
 
       setManualCode('');
@@ -104,10 +107,15 @@ export default function StaffPortal() {
       if (err.message.includes('ALREADY USED') || err.message.includes('checked-in')) {
         status = 'DUPLICATE';
       }
+      const errData = err.data || {};
       setSearchResult({
         status,
         title: status === 'DUPLICATE' ? '❌ TICKET ALREADY USED' : '❌ INVALID TICKET',
-        message: err.message || 'Ticket verification failed'
+        message: err.message || 'Ticket verification failed',
+        attendeeName: errData.attendeeName,
+        bookingId: errData.bookingId,
+        seatNumbers: errData.seatNumbers,
+        section: errData.section
       });
     } finally {
       setSearchVerifying(false);
@@ -118,8 +126,8 @@ export default function StaffPortal() {
     <div
       style={{
         minHeight: '100vh',
-        backgroundColor: '#F6EFE5',
-        color: '#0f172a',
+        background: 'var(--bg-primary)',
+        color: '#F8FAFC',
         fontFamily: 'Plus Jakarta Sans, -apple-system, sans-serif',
         padding: '16px 12px 40px',
         maxWidth: '560px',
@@ -129,33 +137,33 @@ export default function StaffPortal() {
       {/* 1. TOP HEADER & STAFF PROFILE CARD */}
       <div
         style={{
-          background: '#FFFFFF',
+          background: '#141824',
           borderRadius: '20px',
           padding: '16px 20px',
-          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.04)',
-          border: '1px solid rgba(184, 134, 11, 0.15)',
+          boxShadow: 'var(--shadow-hover)',
+          border: '1px solid var(--border-light)',
           marginBottom: '16px',
           display: 'flex',
-          justify: 'space-between',
+          justifyContent: 'space-between',
           alignItems: 'center'
         }}
       >
         <div>
-          <div style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600 }}>👋 Welcome,</div>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '2px 0', color: '#0f172a' }}>
+          <div style={{ fontSize: '0.85rem', color: '#94A3B8', fontWeight: 600 }}>👋 Welcome,</div>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '2px 0', color: '#F8FAFC' }}>
             {user?.name || 'Gate Staff'}
           </h2>
-          <div style={{ fontSize: '0.78rem', color: '#B8860B', fontWeight: 700 }}>
-            Gate: <span style={{ color: '#0f172a' }}>{gateName}</span> | Staff ID: <span style={{ color: '#0f172a' }}>{staffId}</span>
+          <div style={{ fontSize: '0.78rem', color: 'var(--gold-accent)', fontWeight: 700 }}>
+            Role: <span style={{ color: '#4ADE80', fontWeight: 800 }}>Gate Passer</span> | ID: <span style={{ color: '#CBD5E1' }}>{staffId}</span>
           </div>
         </div>
 
         <button
           onClick={handleLogout}
           style={{
-            background: '#fee2e2',
-            color: '#b91c1c',
-            border: '1px solid #fca5a5',
+            background: 'rgba(239, 68, 68, 0.12)',
+            color: '#F87171',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
             padding: '8px 16px',
             borderRadius: '20px',
             fontSize: '0.82rem',
@@ -171,15 +179,15 @@ export default function StaffPortal() {
       {assignedEvent && (
         <div
           style={{
-            background: '#FFFFFF',
+            background: '#141824',
             borderRadius: '20px',
             overflow: 'hidden',
-            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.04)',
-            border: '1px solid rgba(184, 134, 11, 0.15)',
+            boxShadow: 'var(--shadow-hover)',
+            border: '1px solid var(--border-light)',
             marginBottom: '16px'
           }}
         >
-          <div style={{ position: 'relative', height: '110px', background: '#0f172a' }}>
+          <div style={{ position: 'relative', height: '110px', background: '#0B0E17' }}>
             <img
               src={assignedEvent.bannerImage || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80'}
               alt={assignedEvent.title}
@@ -193,8 +201,8 @@ export default function StaffPortal() {
                 position: 'absolute',
                 top: '12px',
                 right: '12px',
-                background: '#10b981',
-                color: '#FFFFFF',
+                background: 'var(--gold-gradient)',
+                color: '#0A0D14',
                 padding: '4px 12px',
                 borderRadius: '20px',
                 fontSize: '0.75rem',
@@ -207,13 +215,13 @@ export default function StaffPortal() {
           </div>
 
           <div style={{ padding: '16px 20px' }}>
-            <div style={{ fontSize: '0.75rem', color: '#B8860B', fontWeight: 800, textTransform: 'uppercase' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--gold-accent)', fontWeight: 800, textTransform: 'uppercase' }}>
               📍 ASSIGNED VENUE GATE: {gateName}
             </div>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: '4px 0 6px', color: '#0f172a' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: '4px 0 6px', color: '#F8FAFC' }}>
               {assignedEvent.title}
             </h3>
-            <div style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600 }}>
+            <div style={{ fontSize: '0.85rem', color: '#94A3B8', fontWeight: 600 }}>
               📅 {assignedEvent.eventDate} ({assignedEvent.startTime || 'Live'}) • 📍 {assignedEvent.venue?.name || 'Venue Gate'}, {assignedEvent.venue?.city || 'City'}
             </div>
           </div>
@@ -226,8 +234,8 @@ export default function StaffPortal() {
         style={{
           width: '100%',
           padding: '20px 24px',
-          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-          color: '#FFFFFF',
+          background: 'var(--gold-gradient)',
+          color: '#0A0D14',
           border: 'none',
           borderRadius: '22px',
           fontWeight: 900,
@@ -237,7 +245,7 @@ export default function StaffPortal() {
           alignItems: 'center',
           justifyContent: 'center',
           gap: '12px',
-          boxShadow: '0 15px 35px rgba(16, 185, 129, 0.35)',
+          boxShadow: '0 15px 35px rgba(212, 175, 55, 0.4)',
           marginBottom: '20px',
           letterSpacing: '0.02em'
         }}
@@ -257,64 +265,64 @@ export default function StaffPortal() {
       >
         <div
           style={{
-            background: '#FFFFFF',
+            background: '#141824',
             padding: '16px',
             borderRadius: '18px',
-            boxShadow: '0 8px 25px rgba(0, 0, 0, 0.03)',
+            boxShadow: 'var(--shadow-hover)',
             borderLeft: '5px solid #10b981',
-            border: '1px solid rgba(184, 134, 11, 0.1)'
+            border: '1px solid var(--border-light)'
           }}
         >
-          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#10b981' }}>✅ {stats.verifiedToday}</div>
-          <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', marginTop: '2px' }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#34D399' }}>✅ {stats.verifiedToday}</div>
+          <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', marginTop: '2px' }}>
             Verified Today
           </div>
         </div>
 
         <div
           style={{
-            background: '#FFFFFF',
+            background: '#141824',
             padding: '16px',
             borderRadius: '18px',
-            boxShadow: '0 8px 25px rgba(0, 0, 0, 0.03)',
+            boxShadow: 'var(--shadow-hover)',
             borderLeft: '5px solid #3b82f6',
-            border: '1px solid rgba(184, 134, 11, 0.1)'
+            border: '1px solid var(--border-light)'
           }}
         >
-          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#2563eb' }}>⏳ {stats.pendingEntries}</div>
-          <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', marginTop: '2px' }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#60A5FA' }}>⏳ {stats.pendingEntries}</div>
+          <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', marginTop: '2px' }}>
             Pending Entries
           </div>
         </div>
 
         <div
           style={{
-            background: '#FFFFFF',
+            background: '#141824',
             padding: '16px',
             borderRadius: '18px',
-            boxShadow: '0 8px 25px rgba(0, 0, 0, 0.03)',
-            borderLeft: '5px solid #f59e0b',
-            border: '1px solid rgba(184, 134, 11, 0.1)'
+            boxShadow: 'var(--shadow-hover)',
+            borderLeft: '5px solid var(--gold-primary)',
+            border: '1px solid var(--border-light)'
           }}
         >
-          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#d97706' }}>⚠️ {stats.duplicateScans}</div>
-          <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', marginTop: '2px' }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--gold-accent)' }}>⚠️ {stats.duplicateScans}</div>
+          <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', marginTop: '2px' }}>
             Duplicate Scans
           </div>
         </div>
 
         <div
           style={{
-            background: '#FFFFFF',
+            background: '#141824',
             padding: '16px',
             borderRadius: '18px',
-            boxShadow: '0 8px 25px rgba(0, 0, 0, 0.03)',
+            boxShadow: 'var(--shadow-hover)',
             borderLeft: '5px solid #ef4444',
-            border: '1px solid rgba(184, 134, 11, 0.1)'
+            border: '1px solid var(--border-light)'
           }}
         >
-          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#dc2626' }}>❌ {stats.invalidScans}</div>
-          <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', marginTop: '2px' }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#F87171' }}>❌ {stats.invalidScans}</div>
+          <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', marginTop: '2px' }}>
             Invalid Scans
           </div>
         </div>
@@ -323,15 +331,15 @@ export default function StaffPortal() {
       {/* 5. MANUAL BOOKING ID VERIFICATION SEARCH */}
       <div
         style={{
-          background: '#FFFFFF',
+          background: '#141824',
           borderRadius: '20px',
           padding: '18px 20px',
-          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.04)',
-          border: '1px solid rgba(184, 134, 11, 0.15)',
+          boxShadow: 'var(--shadow-hover)',
+          border: '1px solid var(--border-light)',
           marginBottom: '20px'
         }}
       >
-        <h4 style={{ fontSize: '0.95rem', fontWeight: 800, margin: '0 0 10px', color: '#0f172a' }}>
+        <h4 style={{ fontSize: '0.95rem', fontWeight: 800, margin: '0 0 10px', color: '#F8FAFC' }}>
           🔍 Manual Booking ID Search
         </h4>
         <form onSubmit={handleManualSearchSubmit} style={{ display: 'flex', gap: '8px' }}>
@@ -344,7 +352,9 @@ export default function StaffPortal() {
               flex: 1,
               padding: '12px 14px',
               borderRadius: '12px',
-              border: '1px solid #cbd5e1',
+              border: '1px solid rgba(212, 175, 55, 0.25)',
+              background: '#0B0E17',
+              color: '#F8FAFC',
               fontSize: '0.95rem',
               outline: 'none',
               fontFamily: 'monospace',
@@ -371,17 +381,39 @@ export default function StaffPortal() {
         {searchResult && (
           <div
             style={{
-              marginTop: '12px',
-              padding: '12px 14px',
-              borderRadius: '12px',
-              background: searchResult.status === 'SUCCESS' ? '#dcfce7' : '#fee2e2',
-              color: searchResult.status === 'SUCCESS' ? '#15803d' : '#b91c1c',
-              fontSize: '0.88rem',
-              fontWeight: 700
+              marginTop: '14px',
+              padding: '14px 16px',
+              borderRadius: '14px',
+              background: searchResult.status === 'SUCCESS' ? 'rgba(34, 197, 94, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+              border: searchResult.status === 'SUCCESS' ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
+              color: searchResult.status === 'SUCCESS' ? '#4ADE80' : '#F87171',
+              fontSize: '0.88rem'
             }}
           >
-            <div>{searchResult.title}</div>
-            <div style={{ fontSize: '0.8rem', fontWeight: 500 }}>{searchResult.message}</div>
+            <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>{searchResult.title}</div>
+            <div style={{ fontSize: '0.82rem', marginTop: '2px', color: '#CBD5E1' }}>{searchResult.message}</div>
+
+            {searchResult.attendeeName && (
+              <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px dashed rgba(212, 175, 55, 0.25)' }}>
+                <div style={{ fontWeight: 800, color: '#F8FAFC', fontSize: '1rem' }}>
+                  {searchResult.attendeeName}
+                </div>
+                <div style={{ fontSize: '0.78rem', color: '#94A3B8' }}>
+                  Ref: {searchResult.bookingId} • {searchResult.ticketCategory || 'Pass'}
+                </div>
+
+                {/* HIGHLIGHTED SEAT ALLOCATION */}
+                <div style={{ marginTop: '8px', background: '#0B0E17', padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(212, 175, 55, 0.25)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--gold-accent)', textTransform: 'uppercase' }}>
+                    <i className="fa-solid fa-chair" style={{ marginRight: '5px' }}></i>
+                    Seats:
+                  </span>
+                  <span style={{ fontSize: '1.05rem', fontWeight: 900, color: 'var(--gold-accent)' }}>
+                    {searchResult.seatNumbers || 'General Admission'}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -389,24 +421,24 @@ export default function StaffPortal() {
       {/* 6. RECENT SCAN HISTORY (LAST 20 SCANS) */}
       <div
         style={{
-          background: '#FFFFFF',
+          background: '#141824',
           borderRadius: '20px',
           padding: '20px',
-          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.04)',
-          border: '1px solid rgba(184, 134, 11, 0.15)'
+          boxShadow: 'var(--shadow-hover)',
+          border: '1px solid var(--border-light)'
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-          <h4 style={{ fontSize: '1rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>
+          <h4 style={{ fontSize: '1rem', fontWeight: 800, margin: 0, color: '#F8FAFC' }}>
             Recent Scan History
           </h4>
-          <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 700 }}>
+          <span style={{ fontSize: '0.78rem', color: 'var(--gold-accent)', fontWeight: 700 }}>
             Shift Date: {todayDate}
           </span>
         </div>
 
         {recentScans.length === 0 ? (
-          <div style={{ fontSize: '0.85rem', color: '#94a3b8', textAlign: 'center', padding: '20px 0' }}>
+          <div style={{ fontSize: '0.85rem', color: '#94A3B8', textAlign: 'center', padding: '20px 0' }}>
             No tickets scanned yet during this shift. Tap "Start QR Scanner" above to begin verifying passes.
           </div>
         ) : (
@@ -416,31 +448,37 @@ export default function StaffPortal() {
                 key={idx}
                 style={{
                   display: 'flex',
-                  justify: 'space-between',
+                  justifyContent: 'space-between',
                   alignItems: 'center',
                   padding: '12px 14px',
                   borderRadius: '14px',
-                  background: '#f8fafc',
+                  background: '#0B0E17',
+                  border: '1px solid rgba(212, 175, 55, 0.15)',
                   borderLeft:
                     log.status === 'SUCCESS'
                       ? '4px solid #10b981'
                       : log.status === 'DUPLICATE'
-                      ? '4px solid #f59e0b'
+                      ? '4px solid var(--gold-primary)'
                       : '4px solid #ef4444'
                 }}
               >
                 <div>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.92rem' }}>
+                  <div style={{ fontWeight: 800, color: '#F8FAFC', fontSize: '0.92rem' }}>
                     {log.status === 'SUCCESS' ? '✅ ' : log.status === 'DUPLICATE' ? '⚠ ' : '❌ '}
                     {log.userName || log.bookingId}
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#94A3B8', marginTop: '2px' }}>
                     {log.bookingId} • {log.ticketCategory || 'Standard Pass'}
+                    {log.seatNumbers && (
+                      <span style={{ color: 'var(--gold-accent)', fontWeight: 800, marginLeft: '6px' }}>
+                        • <i className="fa-solid fa-chair"></i> {log.seatNumbers}
+                      </span>
+                    )}
                   </div>
                 </div>
 
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '0.78rem', color: '#0f172a', fontWeight: 700 }}>
+                  <div style={{ fontSize: '0.78rem', color: '#CBD5E1', fontWeight: 700 }}>
                     {new Date(log.scanTimestamp || log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
                   <span
@@ -449,10 +487,10 @@ export default function StaffPortal() {
                       fontWeight: 800,
                       color:
                         log.status === 'SUCCESS'
-                          ? '#15803d'
+                          ? '#4ADE80'
                           : log.status === 'DUPLICATE'
-                          ? '#b45309'
-                          : '#b91c1c'
+                          ? 'var(--gold-accent)'
+                          : '#F87171'
                     }}
                   >
                     {log.status === 'SUCCESS' ? 'APPROVED' : log.status}
