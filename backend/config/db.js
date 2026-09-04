@@ -1,4 +1,12 @@
+const dns = require('dns');
 const mongoose = require('mongoose');
+
+// Fallback to Google & Cloudflare DNS to avoid querySrv ETIMEOUT on local ISP DNS
+try {
+  dns.setServers(['8.8.8.8', '1.1.1.1', '8.8.4.4']);
+} catch (e) {
+  // Ignore if unable to set servers
+}
 
 const connectDB = async () => {
   try {

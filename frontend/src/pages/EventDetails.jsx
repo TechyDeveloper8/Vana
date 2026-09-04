@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, Calendar, Clock, Minus, Plus, ArrowLeft, Check, Ticket, ShieldCheck } from 'lucide-react';
+import { MapPin, Calendar, Clock, Minus, Plus, ArrowLeft, Check, Ticket, ShieldCheck, CreditCard } from 'lucide-react';
 import { fetchAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { formatDate, getFallbackImage } from '../components/EventCard';
+import CashfreePaymentModal from '../components/CashfreePaymentModal';
 
 export default function EventDetails() {
   const { id } = useParams();
@@ -15,8 +16,14 @@ export default function EventDetails() {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
+  const [phone, setPhone] = useState(user?.phone || '');
   const [submitting, setSubmitting] = useState(false);
   const [confirmation, setConfirmation] = useState(null);
+
+  // Cashfree PG modal states
+  const [cashfreeOrder, setCashfreeOrder] = useState(null);
+  const [showCashfreeModal, setShowCashfreeModal] = useState(false);
+  const [verifyingPayment, setVerifyingPayment] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -40,6 +47,7 @@ export default function EventDetails() {
     if (user) {
       if (user.name) setName(user.name);
       if (user.email) setEmail(user.email);
+      if (user.phone) setPhone(user.phone);
     }
   }, [user]);
 
@@ -94,19 +102,50 @@ export default function EventDetails() {
   const totalAmount = selectedItems.reduce((acc, it) => acc + it.price * it.quantity, 0);
   const totalTickets = selectedItems.reduce((acc, it) => acc + it.quantity, 0);
 
+  // Handle Booking & Payment Gateway trigger
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
     if (!name || !email) return alert('Please enter your name and email.');
     setSubmitting(true);
 
     try {
-      // Post to booking endpoint
+      // 1. Try Cashfree Payment Gateway Checkout
+      const returnUrl = `${window.location.origin}${window.location.pathname}?order_id={order_id}`;
+      const cfRes = await fetchAPI('/booking/cashfree/create-order', {
+        method: 'POST',
+        body: JSON.stringify({
+          eventId: event._id,
+          eventTitle: event.title,
+          items: selectedItems,
+          total: totalAmount,
+          userName: name,
+          userEmail: email,
+          userPhone: phone || '9999999999',
+          returnUrl
+        })
+      });
+
+      if (cfRes.success && cfRes.orderId && cfRes.paymentSessionId) {
+        setCashfreeOrder({
+          ...cfRes,
+          eventTitle: event.title,
+          userName: name,
+          userEmail: email,
+          userPhone: phone || '9999999999',
+          selectedSeats: cfRes.selectedSeats || []
+        });
+        setShowCashfreeModal(true);
+        return;
+      }
+
+      // 2. Fallback to direct reservation if gateway is in maintenance or bypass mode
       const res = await fetchAPI('/booking/reserve', {
         method: 'POST',
         body: JSON.stringify({
           eventId: event._id,
           customerName: name,
           customerEmail: email,
+          customerPhone: phone || '9999999999',
           items: selectedItems,
           total: totalAmount
         })
@@ -120,10 +159,53 @@ export default function EventDetails() {
         items: selectedItems
       });
     } catch (err) {
-      alert(err.message || 'Unable to complete booking reservation. Please select seats on the interactive venue map or try again.');
+      alert(err.message || 'Unable to initiate booking checkout. Please try again.');
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // Payment Success Handler for Cashfree
+  const handleCashfreePaymentSuccess = async (paymentPayload) => {
+    setVerifyingPayment(true);
+    try {
+      const verifyRes = await fetchAPI('/booking/cashfree/verify', {
+        method: 'POST',
+        body: JSON.stringify({
+          orderId: paymentPayload.orderId,
+          eventId: event._id,
+          eventTitle: event.title,
+          selectedSeats: cashfreeOrder?.selectedSeats || [],
+          userName: name,
+          userEmail: email,
+          userPhone: phone || '9999999999',
+          paymentMethod: paymentPayload.paymentMethod || 'Cashfree PG'
+        })
+      });
+
+      if (verifyRes.success && verifyRes.booking) {
+        setShowCashfreeModal(false);
+        setCashfreeOrder(null);
+        setConfirmation({
+          reference: verifyRes.booking.bookingId,
+          eventTitle: event.title,
+          customerEmail: email,
+          total: totalAmount,
+          items: selectedItems
+        });
+      } else {
+        alert(verifyRes.message || 'Payment verification failed with Cashfree.');
+      }
+    } catch (err) {
+      alert(err.message || 'An error occurred during payment verification.');
+    } finally {
+      setVerifyingPayment(false);
+    }
+  };
+
+  const handleCashfreeCancel = () => {
+    setShowCashfreeModal(false);
+    setCashfreeOrder(null);
   };
 
   let eventBanner = event.bannerImage || event.image;
@@ -709,6 +791,28 @@ export default function EventDetails() {
                     />
                   </div>
 
+                  <div>
+                    <label className="font-mono-x" style={{ fontSize: '11px', color: '#737373', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="10-digit mobile number"
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        background: '#050505',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        color: '#FFFFFF',
+                        outline: 'none',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+
                   <button
                     type="submit"
                     disabled={submitting}
@@ -723,16 +827,31 @@ export default function EventDetails() {
                       letterSpacing: '0.05em',
                       border: 'none',
                       cursor: 'pointer',
-                      marginTop: '8px'
+                      marginTop: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px'
                     }}
                   >
-                    {submitting ? 'Holding Reservation...' : 'Complete Instant Booking'}
+                    <CreditCard size={18} />
+                    {submitting ? 'Initiating Payment Checkout...' : `Pay ₹${totalAmount.toLocaleString('en-IN')} & Confirm Pass`}
                   </button>
                 </form>
               </div>
             )}
           </div>
         </div>
+      )}
+
+      {/* Cashfree PG Modal */}
+      {showCashfreeModal && cashfreeOrder && (
+        <CashfreePaymentModal
+          orderData={cashfreeOrder}
+          onPaymentSuccess={handleCashfreePaymentSuccess}
+          onCancel={handleCashfreeCancel}
+          verifying={verifyingPayment}
+        />
       )}
     </div>
   );

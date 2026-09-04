@@ -139,18 +139,31 @@ exports.createCashfreeOrder = async (params) => {
     };
   }
 
-  // Clean phone number (Cashfree requires 10 digits)
-  const cleanPhone = String(customerPhone).replace(/\D/g, '').slice(-10) || '9876543210';
+  // Clean phone number (Cashfree requires exactly 10 digits for Indian numbers)
+  let rawDigits = String(customerPhone || '').replace(/\D/g, '');
+  if (rawDigits.startsWith('91') && rawDigits.length === 12) {
+    rawDigits = rawDigits.slice(2);
+  } else if (rawDigits.length > 10) {
+    rawDigits = rawDigits.slice(-10);
+  } else if (rawDigits.length < 10) {
+    // Pad or fallback to valid standard demo mobile if less than 10 digits
+    rawDigits = rawDigits ? rawDigits.padEnd(10, '0') : '9876543210';
+  }
+  const cleanPhone = rawDigits;
   const formattedAmount = Number(Number(orderAmount).toFixed(2));
 
-  // Determine return URL
+  // Determine return URL — Cashfree Production strictly requires https://
   let finalReturnUrl = returnUrl;
   if (!finalReturnUrl) {
-    finalReturnUrl = `https://vanaentertainments.com/book-ticket?order_id=${orderId}`;
+    finalReturnUrl = `https://www.vanaentertainments.com/book-ticket?order_id=${orderId}`;
   } else if (!finalReturnUrl.includes('order_id=')) {
     finalReturnUrl = finalReturnUrl.includes('?')
       ? `${finalReturnUrl}&order_id=${orderId}`
       : `${finalReturnUrl}?order_id=${orderId}`;
+  }
+  // Cashfree Production rejects http:// URLs — swap to https:// for localhost dev
+  if (finalReturnUrl.startsWith('http://')) {
+    finalReturnUrl = `https://www.vanaentertainments.com/book-ticket?order_id=${orderId}`;
   }
 
   try {

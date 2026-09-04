@@ -52,9 +52,11 @@ export default function CashfreePaymentModal({
       const mode = orderData.env === 'production' ? 'production' : 'sandbox';
       const cashfree = Cashfree({ mode });
 
+      // Use '_self' redirect mode — works without domain whitelisting in Cashfree dashboard
+      // The user is redirected to Cashfree's hosted payment page, then back via return_url
       cashfree.checkout({
         paymentSessionId: orderData.paymentSessionId,
-        redirectTarget: '_modal'
+        redirectTarget: '_self'
       }).then((result) => {
         setSdkLoading(false);
         if (result.error) {
@@ -67,13 +69,12 @@ export default function CashfreePaymentModal({
             paymentMethod: result.paymentDetails?.payment_group || 'Cashfree PG'
           });
         } else if (result.redirect) {
-          console.log('[CASHFREE REDIRECT]: Redirection initiated to bank/UPI page');
-          // Redirection in progress - DO NOT call verify yet
+          console.log('[CASHFREE REDIRECT]: Redirection initiated to Cashfree payment page');
         } else {
-          console.log('[CASHFREE MODAL CLOSED / IN PROGRESS]:', result);
+          console.log('[CASHFREE CHECKOUT IN PROGRESS]:', result);
         }
       }).catch((err) => {
-        console.error('[CASHFREE MODAL PROMISE ERROR]:', err);
+        console.error('[CASHFREE CHECKOUT PROMISE ERROR]:', err);
         setSdkLoading(false);
         setSdkError(err.message || 'Failed to complete Cashfree checkout.');
       });

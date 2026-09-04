@@ -1,4 +1,5 @@
 const Booking = require('../models/Booking');
+const Event = require('../models/Event');
 const SeatAvailability = require('../models/SeatAvailability');
 const QRCode = require('qrcode');
 const { sendTicketEmail } = require('../utils/emailService');
@@ -186,6 +187,102 @@ exports.createBooking = async (req, res) => {
   }
 };
 
+// 1.1 Direct Instant Reservation (from EventDetails Quick Checkout)
+exports.reserveBooking = async (req, res) => {
+  try {
+    const {
+      eventId,
+      customerName,
+      customerEmail,
+      customerPhone,
+      items = [],
+      total
+    } = req.body;
+
+    const name = customerName || (req.user && req.user.name) || 'Guest';
+    const email = customerEmail || (req.user && req.user.email);
+    const phone = customerPhone || (req.user && req.user.phone) || '9999999999';
+
+    if (!email || !email.trim()) {
+      return res.status(400).json({ success: false, message: 'Customer email address is required.' });
+    }
+
+    let eventTitle = 'Vana Live Event';
+    let targetEvent = null;
+    if (eventId) {
+      targetEvent = await Event.findById(eventId);
+      if (targetEvent) {
+        eventTitle = targetEvent.title;
+      }
+    }
+
+    const totalQty = items.reduce((sum, it) => sum + (Number(it.quantity) || 0), 0) || 1;
+    const computedTotal = Number(total) || items.reduce((sum, it) => sum + ((Number(it.price) || 0) * (Number(it.quantity) || 0)), 0);
+    const categoryName = items.map(it => `${it.tierName || 'Standard'} (${it.quantity})`).join(', ') || 'General Pass';
+
+    const bookingId = 'VANA-' + new Date().getFullYear() + '-' + Math.floor(100000 + Math.random() * 900000);
+
+    const qrData = JSON.stringify({
+      bookingId,
+      userName: name.trim(),
+      eventTitle,
+      quantity: totalQty,
+      seats: categoryName,
+      issuedBy: 'Vana Online Desk'
+    });
+    const qrCodeUrl = await QRCode.toDataURL(qrData);
+
+    const bookingPayload = {
+      bookingId,
+      userId: req.user ? req.user.id : null,
+      userName: name.trim(),
+      userEmail: email.trim().toLowerCase(),
+      userPhone: phone.trim(),
+      eventId: eventId || null,
+      eventTitle,
+      ticketCategory: categoryName,
+      quantity: totalQty,
+      unitPrice: Math.round(computedTotal / totalQty) || 0,
+      subtotal: computedTotal,
+      gst: 0,
+      totalAmount: computedTotal,
+      paymentStatus: 'Paid',
+      paymentGateway: 'Direct Reservation',
+      paymentMethod: 'Instant Pass Reservation',
+      cashfreeOrderId: `RES_${Date.now()}`,
+      cashfreePaymentId: `RES_PAY_${Math.random().toString(36).substring(7).toUpperCase()}`,
+      qrCodeUrl,
+      isCheckedIn: false,
+      showtimeDate: 'Default',
+      selectedSeats: []
+    };
+
+    const booking = await Booking.create(bookingPayload);
+
+    // Send Ticket confirmation email
+    let emailResult = { success: false };
+    try {
+      emailResult = await sendTicketEmail(booking);
+    } catch (mailErr) {
+      console.warn('Email dispatch notice:', mailErr.message);
+    }
+
+    res.status(201).json({
+      success: true,
+      message: 'Reservation confirmed successfully!',
+      emailSent: !!emailResult.success,
+      data: {
+        bookingId: booking.bookingId,
+        reference: booking.bookingId,
+        booking
+      }
+    });
+  } catch (error) {
+    console.error('Reserve Booking Error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // 2. Get Logged-in User's Bookings
 exports.getMyBookings = async (req, res) => {
   try {
@@ -288,48 +385,78 @@ exports.createCashfreePaymentOrder = async (req, res) => {
       eventTitle = 'Vana Live Performance',
       showtimeDate = 'Default',
       selectedSeats = [],
+      items = [],
+      total,
+      ticketCategory,
       userName,
       userEmail,
       userPhone,
       returnUrl
     } = req.body;
 
-    if (!selectedSeats || selectedSeats.length === 0) {
-      return res.status(400).json({ success: false, message: 'Please select at least one seat to proceed.' });
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!userEmail || !userEmail.trim() || !emailRegex.test(userEmail.trim())) {
+      return res.status(400).json({ success: false, message: 'A valid email address is required.' });
     }
 
     const lockUser = req.user ? req.user.id : (userName ? `guest_${userName.replace(/\s+/g, '_')}` : `guest_${Date.now()}`);
-    const seatIds = selectedSeats.map(s => s.seatId);
+    const seatIds = Array.isArray(selectedSeats) ? selectedSeats.map(s => s.seatId).filter(Boolean) : [];
 
-    // 1. Fetch real-time venue seat pricing directly from SeatAvailability to guarantee authentic venue pricing
     let verifiedSeats = [];
-    if (eventId && seatIds.length > 0) {
-      const dbSeats = await SeatAvailability.find({ eventId, showtimeDate, seatId: { $in: seatIds } });
-      const dbSeatMap = new Map(dbSeats.map(s => [s.seatId, s]));
+    let computedSubtotal = 0;
 
-      verifiedSeats = selectedSeats.map(seat => {
-        const dbSeat = dbSeatMap.get(seat.seatId);
-        const verifiedPrice = dbSeat && typeof dbSeat.price === 'number' && dbSeat.price > 0
-          ? dbSeat.price
-          : (Number(seat.price) || 500);
-        return {
-          ...seat,
-          category: dbSeat?.category || seat.category || 'Standard',
-          displayLabel: dbSeat?.displayLabel || seat.displayLabel || seat.seatId,
-          price: verifiedPrice
-        };
-      });
+    if (seatIds.length > 0) {
+      // 1. Interactive numbered seat selection flow
+      if (eventId) {
+        const dbSeats = await SeatAvailability.find({ eventId, showtimeDate, seatId: { $in: seatIds } });
+        const dbSeatMap = new Map(dbSeats.map(s => [s.seatId, s]));
+
+        verifiedSeats = selectedSeats.map(seat => {
+          const dbSeat = dbSeatMap.get(seat.seatId);
+          const verifiedPrice = dbSeat && typeof dbSeat.price === 'number' && dbSeat.price > 0
+            ? dbSeat.price
+            : (Number(seat.price) || 500);
+          return {
+            ...seat,
+            category: dbSeat?.category || seat.category || 'Standard',
+            displayLabel: dbSeat?.displayLabel || seat.displayLabel || seat.seatId,
+            price: verifiedPrice
+          };
+        });
+      } else {
+        verifiedSeats = selectedSeats;
+      }
+      computedSubtotal = verifiedSeats.reduce((sum, seat) => sum + (Number(seat.price) || 0), 0);
+    } else if (Array.isArray(items) && items.length > 0) {
+      // 2. Direct tier pass selection flow from Event Details page
+      computedSubtotal = Number(total) || items.reduce((sum, it) => sum + ((Number(it.price) || 0) * (Number(it.quantity) || 0)), 0);
+      verifiedSeats = items.map(it => ({
+        seatId: `PASS_${(it.tierName || 'STD').toUpperCase().replace(/\s+/g, '_')}_${Date.now()}`,
+        displayLabel: `${it.tierName || 'Pass'} (×${it.quantity})`,
+        category: it.tierName || 'Standard',
+        price: Number(it.price) || 0,
+        quantity: Number(it.quantity) || 1
+      }));
+    } else if (Number(total) > 0) {
+      // 3. Fallback direct total amount
+      computedSubtotal = Number(total);
+      verifiedSeats = [{
+        seatId: `PASS_GEN_${Date.now()}`,
+        displayLabel: ticketCategory || 'Standard Pass',
+        category: ticketCategory || 'Standard',
+        price: computedSubtotal,
+        quantity: 1
+      }];
     } else {
-      verifiedSeats = selectedSeats;
+      return res.status(400).json({ success: false, message: 'Please select at least one ticket pass to proceed.' });
     }
 
-    // Compute prices strictly reflecting direct verified venue seat pricing (no GST)
-    const subtotal = verifiedSeats.reduce((sum, seat) => sum + (Number(seat.price) || 0), 0);
+    const subtotal = computedSubtotal;
     const gst = 0;
-    const totalAmount = subtotal; // Direct venue seat price is official price
+    const totalAmount = subtotal;
 
-    // Lock seats atomically for 10 minutes
-    if (eventId) {
+    // Lock seats atomically for 10 minutes if numbered seats were chosen
+    if (eventId && seatIds.length > 0) {
       const lockExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
       const lockedSeats = [];
       const failedSeatIds = [];

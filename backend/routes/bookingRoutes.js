@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {
   createBooking,
+  reserveBooking,
   getMyBookings,
   getAllBookings,
   getBookingById,
@@ -21,6 +22,7 @@ router.post('/cashfree/verify', optionalAuth, verifyCashfreePayment);
 router.post('/cashfree/cancel', optionalAuth, cancelCashfreeOrder);
 
 router.post('/create', optionalAuth, createBooking);
+router.post('/reserve', optionalAuth, reserveBooking);
 router.get('/my-bookings', protect, getMyBookings);
 
 router.get('/all', protect, adminOnly, getAllBookings);
