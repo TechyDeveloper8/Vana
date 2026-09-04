@@ -353,7 +353,7 @@ export default function Login() {
 
       <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '0.8rem', color: '#94a3b8' }}>
         <i className="fa-solid fa-shield-halved" style={{ marginRight: '6px' }}></i>
-        Secure OTP Verification via Gmail SMTP
+        Secure OTP Verification via Email API
       </div>
     </div>
   );

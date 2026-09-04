@@ -89,14 +89,14 @@ exports.sendSignupOTP = async (req, res) => {
     console.log('\n======================================================');
     console.log(`🔑 [VANA REGISTRATION OTP] User: ${cleanEmail}`);
     console.log(`👉 VERIFICATION CODE: [ ${otp} ]`);
-    console.log(`📨 Delivery Status: ${emailRes.success ? 'Delivered via Email' : 'Email blocked by Render (' + emailRes.error + ')'}`);
+    console.log(`📨 Delivery Status: ${emailRes.success ? 'Delivered via Email API' : 'Email API delivery error (' + emailRes.error + ')'}`);
     console.log('======================================================\n');
 
     if (!emailRes.success) {
-      console.warn(`[AUTH NOTICE] Outbound SMTP blocked on host. Providing fallback OTP for ${cleanEmail}`);
+      console.warn(`[AUTH NOTICE] Email delivery failed for ${cleanEmail}:`, emailRes.error);
       return res.json({
         success: true,
-        message: `Verification code generated. (Render free tier blocks SMTP: code is ${otp})`,
+        message: `Verification code generated. (Email notice: ${emailRes.error || 'Check Brevo API key'}: code is ${otp})`,
         devOtp: otp,
         emailSent: false
       });
@@ -140,14 +140,14 @@ exports.sendForgotOTP = async (req, res) => {
     console.log('\n======================================================');
     console.log(`🔑 [VANA PASSWORD RESET OTP] User: ${cleanEmail}`);
     console.log(`👉 VERIFICATION CODE: [ ${otp} ]`);
-    console.log(`📨 Delivery Status: ${emailRes.success ? 'Delivered via Email' : 'Email blocked by Render (' + emailRes.error + ')'}`);
+    console.log(`📨 Delivery Status: ${emailRes.success ? 'Delivered via Email API' : 'Email API delivery error (' + emailRes.error + ')'}`);
     console.log('======================================================\n');
 
     if (!emailRes.success) {
-      console.warn(`[AUTH NOTICE] Outbound SMTP blocked on host. Providing fallback OTP for ${cleanEmail}`);
+      console.warn(`[AUTH NOTICE] Email delivery failed for ${cleanEmail}:`, emailRes.error);
       return res.json({
         success: true,
-        message: `Password reset code generated. (Render free tier blocks SMTP: code is ${otp})`,
+        message: `Password reset code generated. (Email notice: ${emailRes.error || 'Check Brevo API key'}: code is ${otp})`,
         devOtp: otp,
         emailSent: false
       });

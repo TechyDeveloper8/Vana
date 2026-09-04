@@ -84,7 +84,7 @@ export default function TermsConditions() {
             </h3>
             <ul style={{ paddingLeft: '20px', listStyleType: 'disc' }}>
               <li style={{ marginBottom: '8px' }}>
-                <strong style={{ color: 'var(--text-heading)' }}>Digital Ticket Pass Requirement:</strong> Attendees must present the official digital ticket pass email (sent via Gmail SMTP) or show the pass on their Vana user dashboard on a mobile device.
+                <strong style={{ color: 'var(--text-heading)' }}>Digital Ticket Pass Requirement:</strong> Attendees must present the official digital ticket pass email (sent via official Email Pass) or show the pass on their Vana user dashboard on a mobile device.
               </li>
               <li style={{ marginBottom: '8px' }}>
                 <strong style={{ color: 'var(--text-heading)' }}>Single-Validation Scanner Check:</strong> Gate entry scanners operated by Vana staff will scan the QR code. Each pass permits entry equal to the booked quantity. Once validated, duplicate attempts will be denied.

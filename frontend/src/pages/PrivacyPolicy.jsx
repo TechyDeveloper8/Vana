@@ -48,7 +48,7 @@ export default function PrivacyPolicy() {
             </h3>
             <p style={{ marginBottom: '12px' }}>Your personal information is strictly used for legitimate business and transactional purposes:</p>
             <ul style={{ paddingLeft: '20px', listStyleType: 'disc' }}>
-              <li style={{ marginBottom: '8px' }}>To dispatch official event entry tickets and QR passes directly to your Gmail inbox via Nodemailer SMTP.</li>
+              <li style={{ marginBottom: '8px' }}>To dispatch official event entry tickets and QR passes directly to your email inbox via secure Email API.</li>
               <li style={{ marginBottom: '8px' }}>To send 6-digit Security OTP codes for account registration and password resets.</li>
               <li style={{ marginBottom: '8px' }}>To verify ticket authenticity at venue gates using scanner devices operated by authorized Vana gate staff.</li>
               <li style={{ marginBottom: '8px' }}>To provide customer support and notify you of any event schedule modifications or venue guidelines.</li>

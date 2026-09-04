@@ -1,13 +1,7 @@
-const dns = require('dns');
-if (dns.setDefaultResultOrder) {
-  dns.setDefaultResultOrder('ipv4first');
-}
-const nodemailer = require('nodemailer');
-
 const cleanStr = (val) => (val && typeof val === 'string' ? val.trim() : '');
 
 /**
- * Sends email via Brevo (formerly Sendinblue) REST API (HTTPS Port 443 - Never blocked on Render)
+ * Sends email via Brevo REST API (HTTPS Port 443 - Never blocked on cloud servers)
  * Documentation: https://developers.brevo.com/reference/sendtransacemail
  */
 const sendViaBrevo = async (mailOptions) => {
@@ -22,8 +16,6 @@ const sendViaBrevo = async (mailOptions) => {
   const senderEmail = cleanStr(
     process.env.BREVO_SENDER_EMAIL ||
     process.env.BREVO_SENDER ||
-    process.env.EMAIL_USER ||
-    process.env.GMAIL_USER ||
     'support@vanaentertainments.com'
   );
   const senderName = cleanStr(process.env.BREVO_SENDER_NAME) || 'Vana Entertainments';
@@ -105,73 +97,10 @@ const sendViaResend = async (mailOptions) => {
 };
 
 /**
- * Sends email via traditional SMTP with IPv4 and fast timeout
- */
-const sendViaSMTP = async (mailOptions) => {
-  const emailUser = cleanStr(process.env.EMAIL_USER || process.env.GMAIL_USER || process.env.SMTP_USER);
-  const emailPass = cleanStr(process.env.EMAIL_PASS || process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASS).replace(/\s+/g, '');
-  const customHost = cleanStr(process.env.SMTP_HOST);
-  const customPort = process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT, 10) : (customHost.includes('brevo') ? 587 : 465);
-
-  if (!emailUser || !emailPass) {
-    return { success: false, error: 'SMTP credentials not configured in EMAIL_USER / EMAIL_PASS or SMTP_USER / SMTP_PASS' };
-  }
-
-  const senderEmail = cleanStr(
-    process.env.BREVO_SENDER_EMAIL ||
-    process.env.BREVO_SENDER ||
-    process.env.EMAIL_FROM ||
-    emailUser
-  );
-  const senderName = cleanStr(process.env.BREVO_SENDER_NAME) || 'Vana Entertainments';
-
-  const createTransporter = (port, secure) => nodemailer.createTransport({
-    host: customHost || 'smtp.gmail.com',
-    port,
-    secure,
-    auth: {
-      user: emailUser,
-      pass: emailPass
-    },
-    family: 4,
-    connectionTimeout: 5000,
-    greetingTimeout: 5000,
-    socketTimeout: 6000,
-    tls: {
-      rejectUnauthorized: false
-    }
-  });
-
-  // Try configured/preferred port first, then alternate
-  const portsToTry = customPort === 587
-    ? [{ port: 587, secure: false }, { port: 465, secure: true }]
-    : [{ port: 465, secure: true }, { port: 587, secure: false }];
-
-  for (const { port, secure } of portsToTry) {
-    try {
-      const transporter = createTransporter(port, secure);
-      const info = await transporter.sendMail({
-        from: `"${senderName}" <${senderEmail}>`,
-        ...mailOptions
-      });
-      console.log(`[EMAIL SERVICE SUCCESS] Delivered via SMTP Port ${port} to ${mailOptions.to}. ID: ${info.messageId}`);
-      return { success: true, messageId: info.messageId, provider: `smtp_${port}` };
-    } catch (err) {
-      console.warn(`[EMAIL SERVICE WARN] SMTP Port ${port} attempt failed:`, err.message);
-    }
-  }
-
-  return {
-    success: false,
-    error: 'Outbound SMTP ports 465/587 blocked or credentials invalid. For Render hosting, generate an API Key (xkeysib-...) and use BREVO_API_KEY via HTTPS port 443.'
-  };
-};
-
-/**
- * Universal dispatcher: Prioritizes Brevo HTTPS API (Port 443), then Resend, then SMTP
+ * Universal dispatcher: Prioritizes Brevo HTTPS API (Port 443), then Resend API
  */
 const sendMailWithFallback = async (mailOptions) => {
-  // 1. Primary: Brevo HTTPS API (Port 443 - Never blocked on Render)
+  // 1. Primary: Brevo HTTPS REST API (Port 443 - Never blocked on Render)
   if (process.env.BREVO_API_KEY && !process.env.BREVO_API_KEY.trim().startsWith('xsmtpsib-')) {
     try {
       const res = await sendViaBrevo(mailOptions);
@@ -181,7 +110,7 @@ const sendMailWithFallback = async (mailOptions) => {
     }
   }
 
-  // 2. Backup: Resend HTTPS API (Port 443)
+  // 2. Backup: Resend HTTPS REST API (Port 443)
   if (process.env.RESEND_API_KEY) {
     try {
       const res = await sendViaResend(mailOptions);
@@ -191,20 +120,21 @@ const sendMailWithFallback = async (mailOptions) => {
     }
   }
 
-  // 3. Fallback: SMTP
-  return await sendViaSMTP(mailOptions);
+  return {
+    success: false,
+    error: 'Email dispatch failed: No active email API service available. Ensure BREVO_API_KEY (starting with xkeysib-) is configured.'
+  };
 };
 
 /**
- * Diagnostic helper to test Brevo and email configuration
+ * Diagnostic helper to test Brevo and email REST API configuration
  */
 exports.testEmailConfiguration = async () => {
   const brevoKey = cleanStr(process.env.BREVO_API_KEY);
   const senderEmail = cleanStr(
     process.env.BREVO_SENDER_EMAIL ||
     process.env.BREVO_SENDER ||
-    process.env.EMAIL_USER ||
-    process.env.GMAIL_USER
+    'support@vanaentertainments.com'
   );
   const senderName = cleanStr(process.env.BREVO_SENDER_NAME) || 'Vana Entertainments';
 
@@ -216,7 +146,7 @@ exports.testEmailConfiguration = async () => {
         tested: true,
         authenticated: false,
         keyType: 'SMTP_KEY_MISMATCH',
-        message: 'The key provided in BREVO_API_KEY starts with "xsmtpsib-", which is an SMTP key (password) rather than a REST API key. For Render HTTPS dispatch, get an API key starting with "xkeysib-" from https://app.brevo.com/settings/keys/api. For SMTP, set SMTP_HOST=smtp-relay.brevo.com, SMTP_USER, and SMTP_PASS.'
+        message: 'The key provided in BREVO_API_KEY starts with "xsmtpsib-", which is an SMTP key rather than a REST API key. For Render HTTPS dispatch, get an API key starting with "xkeysib-" from https://app.brevo.com/settings/keys/api.'
       };
     } else {
       try {
@@ -240,37 +170,27 @@ exports.testEmailConfiguration = async () => {
     }
   }
 
-  // SMTP Check
-  const emailUser = cleanStr(process.env.EMAIL_USER || process.env.GMAIL_USER || process.env.SMTP_USER);
-  const emailPass = cleanStr(process.env.EMAIL_PASS || process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASS);
-  const customHost = cleanStr(process.env.SMTP_HOST);
+  const isConfigured = Boolean(brevoKey && !brevoKey.startsWith('xsmtpsib-'));
 
   return {
-    provider: (brevoKey && !brevoKey.startsWith('xsmtpsib-')) ? 'brevo' : (process.env.RESEND_API_KEY ? 'resend' : 'smtp'),
-    brevoConfigured: Boolean(brevoKey),
+    provider: isConfigured ? 'brevo' : (process.env.RESEND_API_KEY ? 'resend' : 'none'),
+    brevoConfigured: isConfigured,
     brevoKeyPrefix: brevoKey ? brevoKey.substring(0, 10) + '...' : null,
-    smtpConfigured: Boolean(emailUser && emailPass),
-    smtpHost: customHost || (emailUser ? 'smtp.gmail.com' : 'NOT_CONFIGURED'),
-    smtpUser: emailUser || 'NOT_CONFIGURED',
-    senderEmail: senderEmail || 'NOT_CONFIGURED',
+    senderEmail,
     senderName,
     brevoAccountCheck: brevoCheck,
-    recommendation: brevoKey && !brevoKey.startsWith('xsmtpsib-')
+    recommendation: isConfigured
       ? (brevoCheck.authenticated
-          ? (brevoCheck.relayEnabled === false
-              ? 'Brevo API is authenticated! Note: Brevo requires a 1-time account activation for transactional sending on new accounts. Log into https://app.brevo.com to complete the verification banner, or contact Brevo support.'
-              : 'Brevo HTTPS API is verified and ready for live email dispatch.')
+          ? 'Brevo HTTPS API is verified and ready for live email dispatch.'
           : (brevoCheck.message && brevoCheck.message.includes('authorised_ips')
-              ? 'Brevo detected an unauthorized IP. Go to https://app.brevo.com/security/authorised_ips and disable the IP restriction (or add your IP) so your cloud server (Render) can make API calls.'
+              ? 'Brevo detected an unauthorized IP. Go to https://app.brevo.com/security/authorised_ips and disable the IP restriction so your server can make API calls.'
               : 'BREVO_API_KEY is configured but Brevo returned an authentication error. Please verify your API key at https://app.brevo.com/settings/keys/api'))
-      : (emailUser && emailPass
-          ? 'SMTP credentials configured. If running on Render, ensure outbound SMTP is not blocked, or use BREVO_API_KEY (xkeysib-...) over HTTPS port 443.'
-          : 'To activate email dispatch, configure your Brevo API Key (xkeysib-...) or your Brevo SMTP Login (SMTP_USER) with your SMTP key.')
+      : 'To activate email dispatch, configure your Brevo API Key (xkeysib-...) in BREVO_API_KEY.'
   };
 };
 
 /**
- * Sends an official entry pass ticket email to the user's Gmail address.
+ * Sends an official entry pass ticket email to the user's email address.
  */
 exports.sendTicketEmail = async (booking) => {
   try {
@@ -280,18 +200,14 @@ exports.sendTicketEmail = async (booking) => {
     }
 
     const attachments = [];
-    let qrImageSrc = '';
+    let qrImageSrc = booking.qrCodeUrl || '';
 
     if (booking.qrCodeUrl && booking.qrCodeUrl.startsWith('data:image')) {
       const base64Data = booking.qrCodeUrl.split(';base64,').pop();
       attachments.push({
         filename: `ticket-${booking.bookingId}-qr.png`,
-        content: Buffer.from(base64Data, 'base64'),
-        cid: 'ticketqrcode'
+        content: Buffer.from(base64Data, 'base64')
       });
-      qrImageSrc = 'cid:ticketqrcode';
-    } else if (booking.qrCodeUrl) {
-      qrImageSrc = booking.qrCodeUrl;
     }
 
     const formattedShowtime = booking.showtimeDate && booking.showtimeDate !== 'Default'
