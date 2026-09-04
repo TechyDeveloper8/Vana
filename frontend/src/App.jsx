@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -134,6 +134,8 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          {/* Catch-all Fallback for invalid or non-existent URLs */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
 

@@ -131,6 +131,13 @@ exports.toggleStaffStatus = async (req, res) => {
 exports.deleteStaff = async (req, res) => {
   try {
     const { id } = req.params;
+    const target = await User.findById(id);
+    if (!target) {
+      return res.status(404).json({ success: false, message: 'Staff account not found' });
+    }
+    if (target.email === 'vanaentertainmentswork@gmail.com' || target.role === 'admin') {
+      return res.status(403).json({ success: false, message: 'Forbidden: Master administrator account cannot be deleted.' });
+    }
     await User.findByIdAndDelete(id);
     res.json({ success: true, message: 'Staff account deleted successfully' });
   } catch (error) {

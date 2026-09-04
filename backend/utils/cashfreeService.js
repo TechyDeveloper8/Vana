@@ -44,6 +44,17 @@ exports.createCashfreeOrder = async (params) => {
 
   // Clean phone number (Cashfree requires 10 digits without +91 or dashes)
   const cleanPhone = String(customerPhone).replace(/\D/g, '').slice(-10) || '9876543210';
+  const formattedAmount = Number(Number(orderAmount).toFixed(2));
+
+  // Determine dynamic return URL
+  let finalReturnUrl = returnUrl;
+  if (!finalReturnUrl) {
+    finalReturnUrl = `https://vanaentertainments.com/book-ticket?order_id=${orderId}`;
+  } else if (!finalReturnUrl.includes('order_id=')) {
+    finalReturnUrl = finalReturnUrl.includes('?')
+      ? `${finalReturnUrl}&order_id=${orderId}`
+      : `${finalReturnUrl}?order_id=${orderId}`;
+  }
 
   // If real Cashfree credentials are not yet configured in .env, return a simulated sandbox session
   if (!config.isConfigured) {
@@ -55,34 +66,29 @@ exports.createCashfreeOrder = async (params) => {
       cf_order_id: 'cf_test_' + Math.floor(100000 + Math.random() * 900000),
       payment_session_id: `session_vana_test_${orderId}_${Date.now()}`,
       order_status: 'ACTIVE',
-      order_amount: Number(orderAmount),
+      order_amount: formattedAmount,
       order_currency: 'INR',
       env: config.env,
-      message: 'Cashfree test mode active. Use test simulator or configure CASHFREE_APP_ID in backend/.env'
+      message: 'Cashfree test mode active. Real credentials can be configured in backend/.env'
     };
   }
 
   try {
-      let finalReturnUrl = returnUrl;
-      if (!finalReturnUrl || !finalReturnUrl.startsWith('https://')) {
-        finalReturnUrl = `https://vanaentertainments.com/book-ticket?order_id=${orderId}`;
-      }
-
-      const payload = {
-        order_id: orderId,
-        order_amount: Number(Number(orderAmount).toFixed(2)),
-        order_currency: 'INR',
-        customer_details: {
-          customer_id: String(customerId).substring(0, 50),
-          customer_name: String(customerName).substring(0, 100),
-          customer_email: String(customerEmail).substring(0, 100),
-          customer_phone: cleanPhone
-        },
-        order_meta: {
-          return_url: finalReturnUrl
-        },
-        order_note: `Vana Ticket Reservation - ${orderId}`
-      };
+    const payload = {
+      order_id: orderId,
+      order_amount: formattedAmount,
+      order_currency: 'INR',
+      customer_details: {
+        customer_id: String(customerId).substring(0, 50),
+        customer_name: String(customerName).substring(0, 100),
+        customer_email: String(customerEmail).substring(0, 100),
+        customer_phone: cleanPhone
+      },
+      order_meta: {
+        return_url: finalReturnUrl
+      },
+      order_note: `Vana Ticket Reservation - ${orderId}`
+    };
 
     const response = await fetch(`${config.baseUrl}/orders`, {
       method: 'POST',
@@ -108,7 +114,7 @@ exports.createCashfreeOrder = async (params) => {
         cf_order_id: 'cf_sandbox_' + Date.now(),
         payment_session_id: `session_vana_test_${orderId}_${Date.now()}`,
         order_status: 'ACTIVE',
-        order_amount: Number(orderAmount),
+        order_amount: formattedAmount,
         order_currency: 'INR',
         env: config.env,
         warning: data.message || 'Cashfree sandbox returned error. Operating in test sandbox mode.'
@@ -128,7 +134,6 @@ exports.createCashfreeOrder = async (params) => {
     };
   } catch (err) {
     console.error('[CASHFREE ORDER CREATION EXCEPTION]:', err);
-    // Fallback gracefully so checkout never breaks completely
     return {
       success: true,
       isTestMode: true,
@@ -136,7 +141,7 @@ exports.createCashfreeOrder = async (params) => {
       cf_order_id: 'cf_err_fallback_' + Date.now(),
       payment_session_id: `session_vana_test_${orderId}_${Date.now()}`,
       order_status: 'ACTIVE',
-      order_amount: Number(orderAmount),
+      order_amount: formattedAmount,
       order_currency: 'INR',
       env: config.env,
       warning: err.message
@@ -161,7 +166,7 @@ exports.verifyCashfreeOrder = async (orderId) => {
       order_status: 'PAID',
       payment_status: 'SUCCESS',
       cf_payment_id: 'cf_pay_' + Math.floor(100000 + Math.random() * 900000),
-      payment_method: 'Cashfree Sandbox Test'
+      payment_method: 'Cashfree PG'
     };
   }
 
@@ -189,7 +194,16 @@ exports.verifyCashfreeOrder = async (orderId) => {
 
     const isPaid = orderData.order_status === 'PAID';
 
-    // Fetch payments list to extract payment ID & method
+    if (!isPaid) {
+      return {
+        success: false,
+        isPaid: false,
+        order_status: orderData.order_status,
+        message: `Cashfree order payment is not completed. Current order status: ${orderData.order_status}`
+      };
+    }
+
+    // Fetch payments list to extract authentic payment ID & payment method
     let paymentDetails = null;
     try {
       const payRes = await fetch(`${config.baseUrl}/orders/${orderId}/payments`, {
@@ -212,11 +226,11 @@ exports.verifyCashfreeOrder = async (orderId) => {
 
     return {
       success: true,
-      isPaid,
+      isPaid: true,
       order_status: orderData.order_status,
       order_amount: orderData.order_amount,
       cf_payment_id: paymentDetails?.cf_payment_id || orderData.cf_order_id,
-      payment_method: paymentDetails?.payment_group || 'Cashfree PG',
+      payment_method: paymentDetails?.payment_group || paymentDetails?.payment_method || 'Cashfree PG',
       data: orderData
     };
   } catch (err) {

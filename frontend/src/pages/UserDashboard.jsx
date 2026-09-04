@@ -133,8 +133,6 @@ export default function UserDashboard() {
               ` : `<p><strong>Reserved Seats:</strong> ${booking.selectedSeats?.map(s => s.displayLabel || s.seatId).join(', ') || 'General'}</p>`}
 
               <div style="border-top: 1px dashed #D6C7B7; margin-top: 10px; padding-top: 8px;">
-                <p style="display: flex; justify-content: space-between; margin: 4px 0;"><span>Subtotal:</span> <span>₹${booking.subtotal || booking.totalAmount}</span></p>
-                <p style="display: flex; justify-content: space-between; margin: 4px 0;"><span>GST (18%):</span> <span>₹${booking.gst || 0}</span></p>
                 <p style="display: flex; justify-content: space-between; margin: 6px 0; font-size: 15px; font-weight: bold; color: #B8860B;"><span>Total Paid:</span> <span>₹${booking.totalAmount}</span></p>
               </div>
               <p style="margin-top: 8px; font-size: 12px; color: #4B5563;"><strong>Payment Gateway:</strong> ${booking.paymentGateway || 'Cashfree Payments'} (${booking.paymentMethod || 'Paid'})</p>
@@ -950,14 +948,6 @@ export default function UserDashboard() {
                 )}
 
                 <div style={{ borderTop: '1px dashed rgba(255, 255, 255, 0.1)', marginTop: '10px', paddingTop: '8px' }}>
-                  <p style={{ margin: '3px 0', display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#737373' }}>
-                    <span>Subtotal:</span>
-                    <span>₹{selectedPass.subtotal || selectedPass.totalAmount}</span>
-                  </p>
-                  <p style={{ margin: '3px 0', display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#737373' }}>
-                    <span>GST (18%):</span>
-                    <span>₹{selectedPass.gst || 0}</span>
-                  </p>
                   <p style={{ margin: '4px 0', display: 'flex', justifyContent: 'space-between', fontWeight: 900, color: '#FF4500', fontSize: '15px' }}>
                     <span>Total Amount Paid:</span>
                     <span>₹{selectedPass.totalAmount}</span>

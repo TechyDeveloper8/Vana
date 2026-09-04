@@ -44,7 +44,7 @@ export default function Services() {
           <p style={{ color: 'var(--text-body)' }}>Comprehensive luxury production solutions engineered for high impact and flawless execution.</p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginTop: '36px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '24px', marginTop: '36px' }}>
           {servicesList.map((srv, idx) => (
             <div key={idx} className="service-card-luxury">
               <div className="icon-box">

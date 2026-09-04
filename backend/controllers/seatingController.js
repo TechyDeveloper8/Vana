@@ -39,7 +39,7 @@ exports.getLayout = async (req, res) => {
   try {
     const venueId = req.params.venueId || 'ground-floor-main';
     const forceReseed = req.query.forceReseed === 'true';
-    let layout = await SeatLayout.findOne({ venueId });
+    let layout = await SeatLayout.findOne({ venueId }).lean();
 
     // Auto-update if layout is missing, forceReseed requested, or has old colliding FFR seats
     const hasOldLayout = layout && layout.seats && layout.seats.some(s => s.seatId && s.seatId.startsWith('FFR-') && s.rotation !== 0);
@@ -72,8 +72,10 @@ exports.getShowtimeAvailability = async (req, res) => {
     // 1. Cleanup expired locks first
     const expiredSeatIds = await cleanupExpiredLocks(eventId, showtime);
 
-    // 2. Fetch existing seat inventory for this showtime
-    let availability = await SeatAvailability.find({ eventId, showtimeDate: showtime });
+    // 2. Fetch existing seat inventory for this showtime (.lean() minimizes RAM for 1,006 seats)
+    let availability = await SeatAvailability.find({ eventId, showtimeDate: showtime })
+      .select('seatId displayLabel category price status lockedBy')
+      .lean();
 
     // 3. If inventory does not exist yet, auto-initialize from venue layout
     if (availability.length === 0) {
@@ -118,7 +120,9 @@ exports.getShowtimeAvailability = async (req, res) => {
       });
 
       await SeatAvailability.insertMany(newDocs);
-      availability = await SeatAvailability.find({ eventId, showtimeDate: showtime });
+      availability = await SeatAvailability.find({ eventId, showtimeDate: showtime })
+        .select('seatId displayLabel category price status lockedBy')
+        .lean();
     }
 
     res.json({

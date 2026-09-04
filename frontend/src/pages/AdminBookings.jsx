@@ -772,16 +772,8 @@ export default function AdminBookings() {
                 )}
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '6px' }}>
-                  <span style={{ color: '#94A3B8' }}>Subtotal:</span>
-                  <span style={{ color: '#F8FAFC' }}>₹{(selectedBooking.subtotal || selectedBooking.totalAmount || 0).toLocaleString()}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '6px' }}>
-                  <span style={{ color: '#94A3B8' }}>GST (18%):</span>
-                  <span style={{ color: '#F8FAFC' }}>₹{(selectedBooking.gst || 0).toLocaleString()}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '6px' }}>
-                  <span style={{ color: '#94A3B8' }}>Total Paid:</span>
-                  <strong style={{ color: 'var(--gold-accent)', fontSize: '1rem' }}>₹{(selectedBooking.totalAmount || 0).toLocaleString()}</strong>
+                  <span style={{ color: '#94A3B8' }}>Total Paid (Official Venue Price):</span>
+                  <strong style={{ color: 'var(--gold-accent)', fontSize: '1rem' }}>₹{(selectedBooking.totalAmount || selectedBooking.subtotal || 0).toLocaleString()}</strong>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '6px' }}>
                   <span style={{ color: '#94A3B8' }}>Payment Gateway:</span>
@@ -1236,18 +1228,12 @@ export default function AdminBookings() {
 
                   {/* LIVE PRICING BREAKDOWN */}
                   {(() => {
-                    const subtotal = (Number(manualForm.quantity) || 1) * (Number(manualForm.unitPrice) || 0);
-                    const gst = Math.round(subtotal * 0.18);
-                    const total = subtotal + gst;
+                    const total = (Number(manualForm.quantity) || 1) * (Number(manualForm.unitPrice) || 0);
                     return (
                       <div style={{ background: '#141824', padding: '12px 14px', borderRadius: '10px', border: '1px solid rgba(212, 175, 55, 0.25)', fontSize: '0.85rem' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94A3B8', marginBottom: '4px' }}>
-                          <span>Subtotal ({manualForm.quantity} x ₹{manualForm.unitPrice}):</span>
-                          <span style={{ color: '#F8FAFC' }}>₹{subtotal.toLocaleString()}</span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94A3B8', marginBottom: '4px' }}>
-                          <span>GST Tax (18%):</span>
-                          <span style={{ color: '#F8FAFC' }}>₹{gst.toLocaleString()}</span>
+                          <span>Venue Seats ({manualForm.quantity} x ₹{manualForm.unitPrice}):</span>
+                          <span style={{ color: '#F8FAFC' }}>₹{total.toLocaleString()}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px dashed rgba(212, 175, 55, 0.25)', paddingTop: '6px', fontWeight: 800, color: 'var(--gold-accent)', fontSize: '1rem' }}>
                           <span>Total Amount to Collect:</span>

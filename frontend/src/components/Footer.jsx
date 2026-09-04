@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Instagram, Twitter, Youtube, ArrowUpRight } from 'lucide-react';
+import { Instagram, ArrowUpRight, MapPin, Phone, Mail, Clock } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -26,12 +26,12 @@ export default function Footer() {
           }}
           className="footer-hero-link group"
         >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
             <h2
               className="heading stroke-text"
               style={{
-                fontSize: 'clamp(4rem, 15vw, 12rem)',
-                lineHeight: 0.85,
+                fontSize: 'clamp(2.2rem, 11vw, 10rem)',
+                lineHeight: 0.9,
                 margin: 0,
                 transition: 'color 0.4s ease, -webkit-text-stroke 0.4s ease'
               }}
@@ -48,17 +48,20 @@ export default function Footer() {
             </h2>
             <div
               style={{
-                width: '64px',
-                height: '64px',
+                width: 'clamp(44px, 8vw, 64px)',
+                height: 'clamp(44px, 8vw, 64px)',
+                minWidth: '44px',
+                minHeight: '44px',
                 background: '#FF4500',
                 color: '#050505',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                transition: 'transform 0.3s ease'
+                transition: 'transform 0.3s ease',
+                flexShrink: 0
               }}
             >
-              <ArrowUpRight size={32} strokeWidth={2.5} />
+              <ArrowUpRight size={26} strokeWidth={2.5} />
             </div>
           </div>
         </Link>
@@ -67,15 +70,15 @@ export default function Footer() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-            gap: '40px',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
+            gap: '36px',
             borderTop: '1px solid rgba(255, 255, 255, 0.08)',
             paddingTop: '48px',
             marginBottom: '48px'
           }}
         >
           {/* Brand & Mission */}
-          <div style={{ gridColumn: 'span 2' }}>
+          <div style={{ minWidth: '220px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
               <span style={{ width: '10px', height: '10px', background: '#FF4500', display: 'inline-block' }} />
               <span
@@ -91,21 +94,9 @@ export default function Footer() {
                 Vana Entertainment
               </span>
             </div>
-            <p style={{ color: '#A1A1A1', fontSize: '14px', lineHeight: 1.7, maxWidth: '420px', marginBottom: '24px' }}>
+            <p style={{ color: '#A1A1A1', fontSize: '14px', lineHeight: 1.7, maxWidth: '420px', margin: 0 }}>
               We design, produce and deliver unforgettable live spectacles — from high-voltage music festivals and arena concerts to flagship corporate summits.
             </p>
-            <div
-              className="font-mono-x"
-              style={{
-                fontSize: '11px',
-                color: '#737373',
-                fontFamily: "'JetBrains Mono', monospace",
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em'
-              }}
-            >
-              Presence: Mumbai · Bengaluru · Delhi · Bhagalpur
-            </div>
           </div>
 
           {/* Quick Navigation */}
@@ -152,38 +143,112 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Legal Policies */}
+          {/* Contact Details */}
           <div>
             <p
               className="font-mono-x"
               style={{
                 fontFamily: "'JetBrains Mono', monospace",
                 fontSize: '11px',
-                color: '#737373',
+                color: '#FF4500',
                 textTransform: 'uppercase',
                 letterSpacing: '0.15em',
-                marginBottom: '18px'
+                marginBottom: '18px',
+                fontWeight: 700
               }}
             >
-              Policies & Legal
+              Contact Details
             </p>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <li>
-                <Link to="/terms-and-conditions" style={{ color: '#A1A1A1', textDecoration: 'none', fontSize: '14px' }}>
-                  Terms & Conditions
-                </Link>
-              </li>
-              <li>
-                <Link to="/terms-and-conditions" style={{ color: '#EF4444', textDecoration: 'none', fontSize: '14px', fontWeight: 600 }}>
-                  100% Non-Refundable Policy
-                </Link>
-              </li>
-              <li>
-                <Link to="/privacy-policy" style={{ color: '#A1A1A1', textDecoration: 'none', fontSize: '14px' }}>
-                  Privacy Policy
-                </Link>
-              </li>
-            </ul>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {/* Address */}
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                <MapPin size={16} color="#FF4500" style={{ flexShrink: 0, marginTop: '3px' }} />
+                <span style={{ color: '#A1A1A1', fontSize: '13px', lineHeight: 1.5 }}>
+                  Karmanchak, Bhagalpur, Bihar — 812001
+                </span>
+              </div>
+
+              {/* Phone & WhatsApp */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Phone size={16} color="#FF4500" style={{ flexShrink: 0 }} />
+                <a
+                  href="tel:+917479669858"
+                  style={{
+                    color: '#FFFFFF',
+                    fontSize: '13px',
+                    textDecoration: 'none',
+                    fontWeight: 600,
+                    transition: 'color 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = '#FF4500')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = '#FFFFFF')}
+                >
+                  +91-7479669858
+                </a>
+              </div>
+
+              {/* WhatsApp Chat Link */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <i className="fa-brands fa-whatsapp" style={{ color: '#25D366', fontSize: '16px', flexShrink: 0 }}></i>
+                <a
+                  href="https://wa.me/917479669858"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    color: '#25D366',
+                    fontSize: '13px',
+                    textDecoration: 'none',
+                    fontWeight: 600,
+                    transition: 'opacity 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.8')}
+                  onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+                >
+                  WhatsApp: +91-7479669858
+                </a>
+              </div>
+
+              {/* Email */}
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                <Mail size={16} color="#FF4500" style={{ flexShrink: 0, marginTop: '2px' }} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <a
+                    href="mailto:enquiry@vanaentertainments.com"
+                    style={{
+                      color: '#A1A1A1',
+                      fontSize: '13px',
+                      textDecoration: 'none',
+                      transition: 'color 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = '#FF4500')}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = '#A1A1A1')}
+                  >
+                    enquiry@vanaentertainments.com
+                  </a>
+                  <a
+                    href="mailto:hello@vana.live"
+                    style={{
+                      color: '#737373',
+                      fontSize: '12px',
+                      textDecoration: 'none',
+                      transition: 'color 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = '#FF4500')}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = '#737373')}
+                  >
+                    hello@vana.live
+                  </a>
+                </div>
+              </div>
+
+              {/* Operating Hours */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Clock size={16} color="#737373" style={{ flexShrink: 0 }} />
+                <span className="font-mono-x" style={{ color: '#737373', fontSize: '11px' }}>
+                  Mon — Sat: 10:00 AM — 07:00 PM IST
+                </span>
+              </div>
+            </div>
           </div>
 
           {/* Connect & Social */}
@@ -199,19 +264,23 @@ export default function Footer() {
                 marginBottom: '18px'
               }}
             >
-              Connect
+              Connect & Legal
             </p>
             <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+              {/* Instagram */}
               <a
-                href="#"
+                href="https://www.instagram.com/vanaentertainments?igsi=ZTVnbWRzaTl1NXl0"
+                target="_blank"
+                rel="noreferrer"
                 aria-label="Instagram"
+                title="Instagram: @vanaentertainments"
                 style={{
-                  width: '38px',
-                  height: '38px',
+                  width: '40px',
+                  height: '40px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
                   color: '#FFFFFF',
                   textDecoration: 'none',
                   transition: 'all 0.2s ease'
@@ -219,68 +288,59 @@ export default function Footer() {
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = '#FF4500';
                   e.currentTarget.style.color = '#FF4500';
+                  e.currentTarget.style.background = 'rgba(255, 69, 0, 0.1)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)';
                   e.currentTarget.style.color = '#FFFFFF';
+                  e.currentTarget.style.background = 'transparent';
                 }}
               >
-                <Instagram size={18} />
+                <Instagram size={20} />
               </a>
+
+              {/* WhatsApp */}
               <a
-                href="#"
-                aria-label="Twitter"
+                href="https://wa.me/917479669858"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="WhatsApp"
+                title="Chat on WhatsApp: +91 7479669858"
                 style={{
-                  width: '38px',
-                  height: '38px',
+                  width: '40px',
+                  height: '40px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  color: '#FFFFFF',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  color: '#25D366',
                   textDecoration: 'none',
                   transition: 'all 0.2s ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = '#FF4500';
-                  e.currentTarget.style.color = '#FF4500';
+                  e.currentTarget.style.borderColor = '#25D366';
+                  e.currentTarget.style.background = 'rgba(37, 211, 102, 0.15)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
-                  e.currentTarget.style.color = '#FFFFFF';
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+                  e.currentTarget.style.background = 'transparent';
                 }}
               >
-                <Twitter size={18} />
-              </a>
-              <a
-                href="#"
-                aria-label="YouTube"
-                style={{
-                  width: '38px',
-                  height: '38px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  color: '#FFFFFF',
-                  textDecoration: 'none',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = '#FF4500';
-                  e.currentTarget.style.color = '#FF4500';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
-                  e.currentTarget.style.color = '#FFFFFF';
-                }}
-              >
-                <Youtube size={18} />
+                <i className="fa-brands fa-whatsapp" style={{ fontSize: '20px' }}></i>
               </a>
             </div>
-            <p className="font-mono-x" style={{ fontSize: '12px', color: '#737373', fontFamily: "'JetBrains Mono', monospace" }}>
-              hello@vana.live
-            </p>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <li>
+                <Link to="/terms-and-conditions" style={{ color: '#737373', textDecoration: 'none', fontSize: '13px' }}>
+                  Terms & Conditions
+                </Link>
+              </li>
+              <li>
+                <Link to="/privacy-policy" style={{ color: '#737373', textDecoration: 'none', fontSize: '13px' }}>
+                  Privacy Policy
+                </Link>
+              </li>
+            </ul>
           </div>
         </div>
 
@@ -304,7 +364,6 @@ export default function Footer() {
           <span style={{ color: '#A1A1A1', textAlign: 'center', letterSpacing: '0.05em' }}>
             Managed by <strong style={{ color: '#FFFFFF' }}>Zentra Digital</strong>
           </span>
-          <span>MUMBAI — BENGALURU — DELHI — BHAGALPUR</span>
         </div>
       </div>
     </footer>

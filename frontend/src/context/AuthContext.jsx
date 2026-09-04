@@ -39,6 +39,20 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const [isStaffHidden, setIsStaffHidden] = useState(() => {
+    const saved = localStorage.getItem('vana_hide_staff');
+    return saved === null ? true : saved === 'true';
+  });
+
+  const toggleHideStaff = (shouldHide) => {
+    setIsStaffHidden(shouldHide);
+    if (shouldHide) {
+      localStorage.setItem('vana_hide_staff', 'true');
+    } else {
+      localStorage.setItem('vana_hide_staff', 'false');
+    }
+  };
+
   const login = async (email, password) => {
     const res = await fetchAPI('/auth/login', {
       method: 'POST',
@@ -116,7 +130,9 @@ export const AuthProvider = ({ children }) => {
         resetPassword,
         logout,
         isLoginHidden,
-        toggleHideLogin
+        toggleHideLogin,
+        isStaffHidden,
+        toggleHideStaff
       }}
     >
       {children}

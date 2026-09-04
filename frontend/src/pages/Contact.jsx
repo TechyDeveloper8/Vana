@@ -84,7 +84,12 @@ export default function Contact() {
                 <i className="fa-solid fa-envelope" style={{ color: 'var(--gold-accent)', fontSize: '1.1rem' }}></i> enquiry@vanaentertainments.com
               </p>
               <p style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.95rem', color: 'var(--text-body)' }}>
-                <i className="fa-solid fa-phone" style={{ color: 'var(--gold-accent)', fontSize: '1.1rem' }}></i> +91-9798988829
+                <i className="fa-solid fa-phone" style={{ color: 'var(--gold-accent)', fontSize: '1.1rem' }}></i> 
+                <a href="tel:+917479669858" style={{ color: 'inherit', textDecoration: 'none' }}>+91-7479669858</a>
+              </p>
+              <p style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.95rem', color: '#25D366' }}>
+                <i className="fa-brands fa-whatsapp" style={{ color: '#25D366', fontSize: '1.2rem' }}></i> 
+                <a href="https://wa.me/917479669858" target="_blank" rel="noreferrer" style={{ color: '#25D366', textDecoration: 'none', fontWeight: 600 }}>Chat on WhatsApp</a>
               </p>
               <p style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.95rem', color: 'var(--text-body)' }}>
                 <i className="fa-solid fa-globe" style={{ color: 'var(--gold-accent)', fontSize: '1.1rem' }}></i> www.vanaentertainments.com

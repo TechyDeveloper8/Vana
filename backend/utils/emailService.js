@@ -152,16 +152,8 @@ exports.sendTicketEmail = async (booking) => {
             ${seatsHtml}
 
             <div class="info-row">
-              <span class="info-label">Subtotal:</span>
-              <span class="info-value">₹${booking.subtotal || booking.totalAmount}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">GST Tax (18%):</span>
-              <span class="info-value">₹${booking.gst || 0}</span>
-            </div>
-            <div class="info-row">
               <span class="info-label">Total Amount Paid:</span>
-              <span class="info-value" style="color: #B8860B; font-size: 15px;">₹${booking.totalAmount}</span>
+              <span class="info-value" style="color: #FF4500; font-size: 16px; font-weight: bold;">₹${booking.totalAmount}</span>
             </div>
             <div class="info-row">
               <span class="info-label">Payment Gateway:</span>

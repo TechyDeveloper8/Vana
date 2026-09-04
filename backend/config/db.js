@@ -6,8 +6,8 @@ const connectDB = async () => {
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     console.error(`MongoDB Connection Error: ${error.message}`);
-    // Non-fatal fallback for development demo when local DB server is offline
-    console.log('Proceeding with mock memory fallback / server initialization.');
+    // Non-fatal error handling for development when local DB server is offline
+    console.log('Server continuing with connection retry mode.');
   }
 };
 

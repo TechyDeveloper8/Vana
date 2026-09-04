@@ -2,6 +2,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const express = require('express');
 const cors = require('cors');
+const compression = require('compression');
 const dotenv = require('dotenv');
 const path = require('path');
 const connectDB = require('./config/db');
@@ -28,21 +29,35 @@ app.set('io', io);
 
 // Socket.IO Connection & Room Management
 io.on('connection', (socket) => {
-  socket.on('joinShowtime', ({ eventId, showtimeDate }) => {
-    const roomName = `${eventId}_${showtimeDate || 'Default'}`;
-    socket.join(roomName);
-  });
+  const handleJoin = ({ eventId, showtimeDate }) => {
+    if (eventId) {
+      const roomName = `${eventId}_${showtimeDate || 'Default'}`;
+      socket.join(roomName);
+    }
+  };
 
-  socket.on('leaveShowtime', ({ eventId, showtimeDate }) => {
-    const roomName = `${eventId}_${showtimeDate || 'Default'}`;
-    socket.leave(roomName);
-  });
+  const handleLeave = ({ eventId, showtimeDate }) => {
+    if (eventId) {
+      const roomName = `${eventId}_${showtimeDate || 'Default'}`;
+      socket.leave(roomName);
+    }
+  };
+
+  socket.on('joinShowtime', handleJoin);
+  socket.on('joinShowtimeRoom', handleJoin);
+  socket.on('leaveShowtime', handleLeave);
+  socket.on('leaveShowtimeRoom', handleLeave);
 });
 
 // Middleware
 app.use(cors());
+app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Ultra-lightweight keep-alive endpoints for free uptime monitors (cron-job.org / UptimeRobot)
+app.get('/health', (req, res) => res.status(200).send('OK'));
+app.get('/api/ping', (req, res) => res.json({ status: 'active', time: Date.now() }));
 
 // Serve static images from frontend public directory and parent images directory
 app.use('/images', express.static(path.join(__dirname, '../frontend/public/images')));

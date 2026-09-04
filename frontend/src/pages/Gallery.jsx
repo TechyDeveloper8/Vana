@@ -41,8 +41,17 @@ export default function Gallery() {
           <p style={{ color: 'var(--text-body)' }}>Explore high-resolution multi-picture albums captured from our corporate summits, live concerts, and grand exhibitions.</p>
         </div>
 
-        {/* Category Filter Pills */}
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '36px' }}>
+        {/* Category Filter Pills (Mobile Horizontal Scrollable) */}
+        <div
+          className="mobile-scroll-x"
+          style={{
+            display: 'flex',
+            gap: '10px',
+            justifyContent: 'flex-start',
+            paddingBottom: '8px',
+            marginBottom: '36px'
+          }}
+        >
           {categories.map((cat) => (
             <button
               key={cat}
@@ -57,7 +66,9 @@ export default function Gallery() {
                 background: category === cat ? 'var(--gold-gradient)' : '#141824',
                 color: category === cat ? '#0A0D14' : '#CBD5E1',
                 boxShadow: category === cat ? '0 8px 25px rgba(212, 175, 55, 0.35)' : 'none',
-                transition: 'all 0.3s ease'
+                transition: 'all 0.3s ease',
+                whiteSpace: 'nowrap',
+                flexShrink: 0
               }}
             >
               {cat}
@@ -70,7 +81,7 @@ export default function Gallery() {
         ) : filteredItems.length === 0 ? (
           <p style={{ textAlign: 'center', color: 'var(--text-body)', padding: '40px 0' }}>No event albums found in this category.</p>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '24px' }}>
             {filteredItems.map((album, idx) => {
               const cover = album.coverImage || album.url || (album.images && album.images.length > 0 ? album.images[0] : '');
               const totalPhotos = album.images?.length || (album.url ? 1 : 0);

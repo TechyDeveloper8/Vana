@@ -148,7 +148,7 @@ export default function TermsConditions() {
             <div style={{ background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', borderRadius: '12px', padding: '16px 20px', fontSize: '0.92rem', color: '#CBD5E1' }}>
               <div><strong style={{ color: 'var(--gold-accent)' }}>Vana Entertainments Event Ticketing Desk</strong></div>
               <div>Email: enquiry@vanaentertainments.com</div>
-              <div>Phone: +91-9798988829</div>
+              <div>Phone: +91-7479669858</div>
               <div>Office: Karmanchak, Bhagalpur, Bihar - 812001</div>
             </div>
           </div>

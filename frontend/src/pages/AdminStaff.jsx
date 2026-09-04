@@ -5,7 +5,7 @@ import { fetchAPI } from '../services/api';
 import AdminSidebar from '../components/AdminSidebar';
 
 export default function AdminStaff() {
-  const { logout } = useAuth();
+  const { logout, isStaffHidden, toggleHideStaff } = useAuth();
   const navigate = useNavigate();
 
   const [staffList, setStaffList] = useState([]);
@@ -205,6 +205,68 @@ export default function AdminStaff() {
             }}
           >
             {toast.msg}
+          </div>
+        )}
+
+        {/* Notice when Staff Management is hidden in navigation */}
+        {isStaffHidden && (
+          <div
+            style={{
+              background: 'rgba(239, 68, 68, 0.12)',
+              border: '1px solid rgba(239, 68, 68, 0.35)',
+              padding: '16px 20px',
+              borderRadius: '12px',
+              marginBottom: '24px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '12px'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <i className="fa-solid fa-eye-slash" style={{ color: '#F87171', fontSize: '1.2rem' }}></i>
+              <div>
+                <strong style={{ color: '#F87171', fontSize: '0.95rem' }}>
+                  Staff Management is currently hidden from Admin Navigation.
+                </strong>
+                <p style={{ margin: '2px 0 0', fontSize: '0.85rem', color: 'var(--text-light)' }}>
+                  This module is hidden from the sidebar menu. You can unhide it whenever you are ready.
+                </p>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={() => toggleHideStaff(false)}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  background: '#16a34a',
+                  color: '#ffffff',
+                  fontSize: '0.85rem'
+                }}
+              >
+                Unhide in Sidebar
+              </button>
+              <button
+                onClick={() => navigate('/admin/dashboard')}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  background: '#141824',
+                  color: '#CBD5E1',
+                  fontSize: '0.85rem'
+                }}
+              >
+                Return to Dashboard
+              </button>
+            </div>
           </div>
         )}
 

@@ -66,6 +66,10 @@ exports.sendSignupOTP = async (req, res) => {
     }
     const cleanEmail = email.toLowerCase().trim();
 
+    if (cleanEmail === 'vanaentertainmentswork@gmail.com') {
+      return res.status(400).json({ success: false, message: 'This email is reserved for system administration.' });
+    }
+
     let userExists = null;
     try {
       userExists = await User.findOne({ email: cleanEmail });
@@ -179,6 +183,10 @@ exports.registerUser = async (req, res) => {
 
     const cleanEmail = email.toLowerCase().trim();
 
+    if (cleanEmail === 'vanaentertainmentswork@gmail.com') {
+      return res.status(403).json({ success: false, message: 'Reserved administrative email address' });
+    }
+
     const isValidOTP = await verifyOTPCode(cleanEmail, otp, 'register');
     if (!isValidOTP) {
       return res.status(400).json({ success: false, message: 'Invalid or expired verification OTP code' });
@@ -195,12 +203,7 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ success: false, message: 'User already exists with this email' });
     }
 
-    let user;
-    try {
-      user = await User.create({ name, email: cleanEmail, phone, password, role: 'user' });
-    } catch (dbErr) {
-      user = { _id: 'user_' + Date.now(), name, email: cleanEmail, phone, role: 'user' };
-    }
+    const user = await User.create({ name, email: cleanEmail, phone, password, role: 'user' });
 
     const token = generateToken(user);
     res.status(201).json({
@@ -225,98 +228,91 @@ exports.loginUser = async (req, res) => {
     }
 
     const cleanEmail = email.toLowerCase().trim();
-    let user = null;
-    try {
-      user = await User.findOne({ email: cleanEmail });
-    } catch (e) {
-      user = null;
+    const user = await User.findOne({ email: cleanEmail });
+
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
 
-    if (user) {
-      if (user.isActive === false) {
-        return res.status(403).json({
-          success: false,
-          message: 'Your account has been deactivated by administrator. Please contact support.'
-        });
+    if (user.isActive === false) {
+      return res.status(403).json({
+        success: false,
+        message: 'Your account has been deactivated by administrator. Please contact support.'
+      });
+    }
+
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Invalid email or password' });
+    }
+
+    const token = generateToken(user);
+    return res.json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role || 'user',
+        staffRole: user.staffRole || 'Gate Entry',
+        assignedEvents: user.assignedEvents || []
       }
-
-      const isMatch = await user.matchPassword(password);
-      if (isMatch) {
-        const token = generateToken(user);
-        return res.json({
-          success: true,
-          token,
-          user: {
-            id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role || 'user',
-            staffRole: user.staffRole || 'Gate Entry',
-            assignedEvents: user.assignedEvents || []
-          }
-        });
-      }
-    }
-
-    // Standard admin credentials check
-    if ((cleanEmail === 'vanaentertainmentswork@gmail.com' || cleanEmail === 'admin') && password === 'admin12@va') {
-      const adminUser = user || { _id: 'admin_1', name: 'Vana Admin', email: 'vanaentertainmentswork@gmail.com', role: 'admin' };
-      const token = generateToken(adminUser);
-      return res.json({ success: true, token, user: adminUser });
-    }
-
-    // Demo fallback for instant local testing
-    if (cleanEmail === 'demo@vana.com' && password === '123456') {
-      const demoUser = { _id: 'demo_user_1', name: 'Demo User', email: cleanEmail, role: 'user' };
-      const token = generateToken(demoUser);
-      return res.json({ success: true, token, user: demoUser });
-    }
-
-    return res.status(401).json({ success: false, message: 'Invalid email or password' });
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// Admin Login
+// Admin Login (Fixed to official admin email: vanaentertainmentswork@gmail.com)
 exports.loginAdmin = async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    if (!username || !password) {
-      return res.status(400).json({ success: false, message: 'Please provide credentials' });
+    if (!password) {
+      return res.status(400).json({ success: false, message: 'Please provide admin password' });
     }
 
-    const cleanUser = username.toLowerCase().trim();
+    const cleanUser = (username || 'vanaentertainmentswork@gmail.com').toLowerCase().trim();
 
-    if ((cleanUser === 'vanaentertainmentswork@gmail.com' || cleanUser === 'admin') && password === 'admin12@va') {
-      const adminUser = { _id: 'admin_1', name: 'Vana Admin', email: 'vanaentertainmentswork@gmail.com', role: 'admin' };
-      const token = generateToken(adminUser);
-      return res.json({ success: true, token, user: adminUser });
-    }
-
-    let user = null;
-    try {
-      user = await User.findOne({ email: cleanUser });
-    } catch (e) { user = null; }
-
-    if (user && (await user.matchPassword(password))) {
-      const token = generateToken(user);
-      return res.json({
-        success: true,
-        token,
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          staffRole: user.staffRole || 'Gate Entry',
-          assignedEvents: user.assignedEvents || []
-        }
+    if (cleanUser !== 'vanaentertainmentswork@gmail.com') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access Denied: Only the official administrator email (vanaentertainmentswork@gmail.com) is authorized.'
       });
     }
 
-    return res.status(401).json({ success: false, message: 'Invalid Admin Credentials' });
+    const user = await User.findOne({ email: 'vanaentertainmentswork@gmail.com' });
+
+    if (!user || user.role !== 'admin') {
+      return res.status(401).json({ success: false, message: 'Invalid Admin Credentials' });
+    }
+
+    if (user.isActive === false) {
+      return res.status(403).json({
+        success: false,
+        message: 'Your account has been deactivated by administrator.'
+      });
+    }
+
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Invalid Admin Credentials' });
+    }
+
+    const token = generateToken(user);
+    return res.json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        staffRole: user.staffRole || 'Gate Entry',
+        assignedEvents: user.assignedEvents || []
+      }
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -326,3 +322,4 @@ exports.loginAdmin = async (req, res) => {
 exports.getMe = async (req, res) => {
   res.json({ success: true, user: req.user });
 };
+

@@ -337,8 +337,8 @@ ul {
   border-color: var(--gold-primary);
 }
 
-/* Header & Sticky Full Golden Navbar */
-header, .navbar-golden {
+/* Sticky Golden Navbar (Legacy/Admin option) */
+.navbar-golden {
   position: sticky;
   top: 0;
   left: 0;
@@ -351,11 +351,26 @@ header, .navbar-golden {
   transition: var(--transition);
 }
 
-header .container {
+.navbar-golden .container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   height: 85px;
+}
+
+/* Navbar Off-White */
+.navbar-offwhite {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: 64px;
+  background: rgba(250, 249, 246, 0.96) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04) !important;
 }
 
 .logo-brand {
@@ -1308,13 +1323,8 @@ footer {
 
 @media (max-width: 768px) {
   header .container {
-    height: 75px;
-    padding: 8px 16px;
-  }
-
-  .logo-brand img {
-    max-height: 50px !important;
-    width: auto;
+    height: 64px;
+    padding: 0 16px;
   }
 
   .logo-brand .brand-name {
@@ -1325,46 +1335,72 @@ footer {
     font-size: 0.55rem !important;
   }
 
-  nav ul {
-    display: none;
+  /* Brutalist Dark Mobile Navigation Drawer */
+  .mobile-nav-drawer {
     position: fixed;
-    top: 75px;
+    top: 64px;
     left: 0;
     right: 0;
-    width: 100%;
-    background: linear-gradient(180deg, #FDF2D0 0%, #F5D77F 40%, #D4AF37 100%);
-    flex-direction: column;
-    padding: 20px 24px;
-    border-bottom: 2.5px solid #997316;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
-    gap: 12px;
-    z-index: 99999;
-    max-height: calc(100vh - 75px);
-    overflow-y: auto;
-  }
-
-  nav ul.show {
+    bottom: 0;
+    background: rgba(5, 5, 5, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     display: flex;
+    flex-direction: column;
+    padding: 24px 20px env(safe-area-inset-bottom, 24px) 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+    gap: 8px;
+    z-index: 9999;
+    overflow-y: auto;
+    animation: mobileDrawerSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  nav ul li a, nav ul li button {
-    display: block;
+  @keyframes mobileDrawerSlide {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .mobile-nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     width: 100%;
-    padding: 12px 18px;
+    min-height: 48px;
+    padding: 12px 16px;
     font-size: 1.05rem;
-    color: #0A0D14;
-    border-bottom: 1px solid rgba(10, 13, 20, 0.1);
-    border-radius: 8px;
+    font-weight: 700;
+    color: #FFFFFF;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 0px;
+    transition: all 0.2s ease;
   }
 
-  nav ul li a.active {
-    background: #0A0D14;
-    color: #F5D77F !important;
+  .mobile-nav-link:active,
+  .mobile-nav-link.active {
+    background: rgba(255, 69, 0, 0.12);
+    color: #FF4500 !important;
+    border-left: 3px solid #FF4500;
   }
 
   .menu-btn {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
     padding: 8px;
+    background: transparent;
+    border: none;
+    color: #FFFFFF;
+    cursor: pointer;
   }
 
   .hero-luxury {
@@ -1606,4 +1642,63 @@ footer {
 .luxury-table tr:hover td {
   background: rgba(212, 175, 55, 0.04);
 }
+
+/* ==========================================
+   MOBILE FIRST & TOUCH-FRIENDLY UTILITIES
+   ========================================== */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  -webkit-overflow-scrolling: touch;
+}
+
+button, a, input, select, textarea {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Horizontal touch scroll wrapper with hidden scrollbars */
+.mobile-scroll-x {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  gap: 10px;
+  padding-bottom: 6px;
+}
+
+.mobile-scroll-x::-webkit-scrollbar {
+  display: none;
+}
+
+/* Responsive Table Scroll Container */
+.table-responsive-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0px;
+}
+
+/* Touch target minimum standard */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 640px) {
+  .mobile-stack-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .mobile-p-16 {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}
+
 

@@ -13,7 +13,7 @@ const bookingSchema = new mongoose.Schema(
     quantity: { type: Number, required: true, min: 1 },
     unitPrice: { type: Number, required: true },
     subtotal: { type: Number, required: true },
-    gst: { type: Number, required: true },
+    gst: { type: Number, default: 0 },
     totalAmount: { type: Number, required: true },
     paymentStatus: { type: String, enum: ['Paid', 'Pending', 'Failed'], default: 'Paid' },
     cashfreeOrderId: { type: String, default: '' },

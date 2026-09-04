@@ -106,7 +106,7 @@ export default function VenueLayout({
       style={{
         position: 'relative',
         width: '100%',
-        height: 'clamp(420px, 62vh, 580px)',
+        height: 'clamp(360px, 55vh, 580px)',
         backgroundColor: '#0F172A',
         borderRadius: '20px',
         overflow: 'hidden',
@@ -447,7 +447,9 @@ export default function VenueLayout({
         {layout.seats.map((seat) => {
           const avail = availabilityMap[seat.seatId] || {};
           const status = avail.status || 'Available';
-          const price = avail.price || (seat.category === 'Silver' ? 999 : seat.category === 'Platinum' ? 2499 : seat.category === 'VIP Lounge' ? 4999 : 1499);
+          const price = typeof avail.price === 'number' && avail.price > 0
+            ? avail.price
+            : (seat.price || (seat.category === 'Silver' ? 500 : seat.category === 'Platinum' ? 700 : seat.category === 'VIP Lounge' ? 1500 : 1000));
           
           // Determine if seat should be dimmed based on active plan selection
           const isDimmed = activePlan !== 'All' && seat.category !== activePlan && !(activePlan === 'Silver' && (seat.category === 'Silver' || seat.section?.startsWith('FIRST_FLOOR')));

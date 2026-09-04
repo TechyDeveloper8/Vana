@@ -36,6 +36,7 @@ const HERO_IMG = "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?c
 export default function Home() {
   const { user } = useAuth();
   const [events, setEvents] = useState([]);
+  const [eventsLoading, setEventsLoading] = useState(true);
   const [activeFaq, setActiveFaq] = useState(null);
 
   // Quick Consultation Form State
@@ -57,73 +58,18 @@ export default function Home() {
   const imgScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
 
   useEffect(() => {
+    setEventsLoading(true);
     fetchAPI('/events')
       .then((res) => {
         const list = res.data || [];
-        if (list.length > 0) {
-          setEvents(list.slice(0, 3));
-        } else {
-          setEvents([
-            {
-              _id: 'ev-1',
-              title: 'Neon Pulse Electric Music Festival',
-              category: 'Music',
-              date: '2026-10-15',
-              city: 'Mumbai',
-              image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200',
-              tiers: [{ name: 'General', price: 999 }]
-            },
-            {
-              _id: 'ev-2',
-              title: 'Global Tech & Innovation Summit 2026',
-              category: 'Corporate',
-              date: '2026-11-04',
-              city: 'Bengaluru',
-              image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200',
-              tiers: [{ name: 'Delegate', price: 1499 }]
-            },
-            {
-              _id: 'ev-3',
-              title: 'The Royal Symphony: Live Orchestral Night',
-              category: 'Theater',
-              date: '2026-11-20',
-              city: 'Delhi',
-              image: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200',
-              tiers: [{ name: 'Silver', price: 799 }]
-            }
-          ]);
-        }
+        setEvents(list.slice(0, 6));
       })
-      .catch(() => {
-        setEvents([
-          {
-            _id: 'ev-1',
-            title: 'Neon Pulse Electric Music Festival',
-            category: 'Music',
-            date: '2026-10-15',
-            city: 'Mumbai',
-            image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200',
-            tiers: [{ name: 'General', price: 999 }]
-          },
-          {
-            _id: 'ev-2',
-            title: 'Global Tech & Innovation Summit 2026',
-            category: 'Corporate',
-            date: '2026-11-04',
-            city: 'Bengaluru',
-            image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200',
-            tiers: [{ name: 'Delegate', price: 1499 }]
-          },
-          {
-            _id: 'ev-3',
-            title: 'The Royal Symphony: Live Orchestral Night',
-            category: 'Theater',
-            date: '2026-11-20',
-            city: 'Delhi',
-            image: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200',
-            tiers: [{ name: 'Silver', price: 799 }]
-          }
-        ]);
+      .catch((err) => {
+        console.error('Failed to load events from backend:', err);
+        setEvents([]);
+      })
+      .finally(() => {
+        setEventsLoading(false);
       });
   }, []);
 
@@ -175,8 +121,7 @@ export default function Home() {
         ref={heroRef}
         style={{
           position: 'relative',
-          height: '92vh',
-          minHeight: '640px',
+          minHeight: 'clamp(540px, 88vh, 850px)',
           overflow: 'hidden',
           display: 'flex',
           alignItems: 'flex-end',
@@ -207,7 +152,7 @@ export default function Home() {
             width: '100%',
             maxWidth: '1400px',
             margin: '0 auto',
-            padding: '0 24px 72px 24px'
+            padding: '0 clamp(16px, 4vw, 24px) clamp(40px, 7vh, 72px) clamp(16px, 4vw, 24px)'
           }}
         >
           <motion.p
@@ -341,12 +286,12 @@ export default function Home() {
       </section>
 
       {/* 3. KEY STATS ROW */}
-      <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '96px 24px' }}>
+      <section style={{ maxWidth: '1400px', margin: '0 auto', padding: 'clamp(48px, 8vw, 96px) clamp(16px, 4vw, 24px)' }}>
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '32px'
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))',
+            gap: '24px'
           }}
         >
           {[
@@ -394,7 +339,7 @@ export default function Home() {
       </section>
 
       {/* 4. FEATURED LINE-UP */}
-      <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 24px 96px 24px' }}>
+      <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(16px, 4vw, 24px) clamp(48px, 8vw, 96px) clamp(16px, 4vw, 24px)' }}>
         <Reveal>
           <div
             style={{
@@ -455,19 +400,80 @@ export default function Home() {
           </div>
         </Reveal>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: '28px'
-          }}
-        >
-          {events.map((e, idx) => (
-            <Reveal key={e._id || idx} delay={idx * 0.1}>
-              <EventCard event={e} index={idx} />
-            </Reveal>
-          ))}
-        </div>
+        {eventsLoading ? (
+          <div style={{ padding: '64px 24px', textAlign: 'center', color: '#737373' }} className="font-mono-x">
+            Loading Live Events...
+          </div>
+        ) : events.length === 0 ? (
+          <div
+            style={{
+              padding: '64px 32px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              background: '#121212',
+              textAlign: 'center'
+            }}
+          >
+            <p
+              className="font-mono-x"
+              style={{
+                fontSize: '12px',
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                color: '#FF4500',
+                marginBottom: '8px'
+              }}
+            >
+              Upcoming Schedule
+            </p>
+            <h3
+              className="font-display"
+              style={{
+                fontSize: '1.5rem',
+                fontWeight: 800,
+                color: '#FFFFFF',
+                textTransform: 'uppercase',
+                marginBottom: '12px'
+              }}
+            >
+              No Live Events Published Yet
+            </h3>
+            <p style={{ color: '#A1A1A1', fontSize: '14px', maxWidth: '440px', margin: '0 auto 24px auto' }}>
+              Check back soon as we unveil stadium concerts, leadership summits, and cultural spectacles.
+            </p>
+            <Link
+              to="/contact"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                background: '#FF4500',
+                color: '#050505',
+                padding: '10px 24px',
+                fontWeight: 800,
+                fontSize: '13px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+                textDecoration: 'none'
+              }}
+            >
+              Enquire For Private Productions
+            </Link>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+              gap: '24px'
+            }}
+          >
+            {events.map((e, idx) => (
+              <Reveal key={e._id || idx} delay={idx * 0.1}>
+                <EventCard event={e} index={idx} />
+              </Reveal>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* 5. CHAPTER MANIFESTO: FROM FIRST SPARK TO FINAL ENCORE */}
@@ -567,12 +573,12 @@ export default function Home() {
       </section>
 
       {/* 6. EVENT CONSULTATION FORM & FAQ */}
-      <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '96px 24px' }}>
+      <section style={{ maxWidth: '1400px', margin: '0 auto', padding: 'clamp(48px, 8vw, 96px) clamp(16px, 4vw, 24px)' }}>
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: '64px'
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
+            gap: '48px'
           }}
         >
           {/* Consultation Form */}
@@ -625,7 +631,7 @@ export default function Home() {
                 </div>
               ) : (
                 <form onSubmit={handleEnquirySubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '16px' }}>
                     <input
                       type="text"
                       required
@@ -658,7 +664,7 @@ export default function Home() {
                     />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '16px' }}>
                     <input
                       type="tel"
                       placeholder="Phone Number"

@@ -98,50 +98,51 @@ export default function AdminDashboard() {
           </Link>
         </div>
 
-        {/* Quick System Control: Hide / Show Public Login Option */}
-        <div
-          style={{
-            background: isLoginHidden ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)',
-            border: `1px solid ${isLoginHidden ? 'rgba(239, 68, 68, 0.3)' : 'rgba(34, 197, 94, 0.3)'}`,
-            padding: '16px 20px',
-            borderRadius: '12px',
-            marginBottom: '24px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '12px'
-          }}
-        >
-          <div>
-            <h4 style={{ margin: 0, fontSize: '0.95rem', color: isLoginHidden ? '#F87171' : '#4ADE80', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <i className={`fa-solid ${isLoginHidden ? 'fa-eye-slash' : 'fa-eye'}`}></i>
-              Public Header Login Link: {isLoginHidden ? 'HIDDEN' : 'VISIBLE'}
-            </h4>
-            <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: 'var(--text-light)' }}>
-              {isLoginHidden
-                ? 'The Login link in the website header is currently hidden from public visitors.'
-                : 'The Login & Book Ticket links are active and visible in the header.'}
-            </p>
-          </div>
-          <button
-            onClick={() => toggleHideLogin(!isLoginHidden)}
+        {/* Quick System Control: Public Login Visibility */}
+        <div style={{ marginBottom: '24px' }}>
+          <div
             style={{
-              padding: '8px 16px',
-              borderRadius: '8px',
-              border: 'none',
-              fontWeight: 600,
-              cursor: 'pointer',
-              background: isLoginHidden ? '#e11d48' : '#16a34a',
-              color: '#ffffff',
-              fontSize: '0.85rem',
+              background: isLoginHidden ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)',
+              border: `1px solid ${isLoginHidden ? 'rgba(239, 68, 68, 0.3)' : 'rgba(34, 197, 94, 0.3)'}`,
+              padding: '16px 20px',
+              borderRadius: '12px',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px'
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '12px'
             }}
           >
-            {isLoginHidden ? 'Unhide Login Option' : 'Hide Login Option'}
-          </button>
+            <div>
+              <h4 style={{ margin: 0, fontSize: '0.95rem', color: isLoginHidden ? '#F87171' : '#4ADE80', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <i className={`fa-solid ${isLoginHidden ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                Public Header Login: {isLoginHidden ? 'HIDDEN' : 'VISIBLE'}
+              </h4>
+              <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: 'var(--text-light)' }}>
+                {isLoginHidden
+                  ? 'Login link in website header is hidden from public visitors.'
+                  : 'Login & Book Ticket links are active and visible in header.'}
+              </p>
+            </div>
+            <button
+              onClick={() => toggleHideLogin(!isLoginHidden)}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '8px',
+                border: 'none',
+                fontWeight: 600,
+                cursor: 'pointer',
+                background: isLoginHidden ? '#e11d48' : '#16a34a',
+                color: '#ffffff',
+                fontSize: '0.85rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              {isLoginHidden ? 'Unhide Login' : 'Hide Login'}
+            </button>
+          </div>
         </div>
 
         {/* Stats Grid */}

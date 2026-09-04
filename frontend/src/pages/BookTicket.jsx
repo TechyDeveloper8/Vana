@@ -74,54 +74,144 @@ export default function BookTicket() {
       .catch((err) => console.error('Error fetching showtime availability:', err));
 
     // 2. Connect Socket.IO for real-time updates
-    const socket = io('http://localhost:5000', {
+    const rawEnv = (import.meta.env.VITE_API_URL || '').trim().replace(/\/api\/?$/, '').replace(/\/$/, '');
+    const socketUrl = rawEnv || (window.location.hostname === 'localhost' ? 'http://localhost:5000' : window.location.origin);
+    const socket = io(socketUrl, {
       transports: ['websocket', 'polling']
     });
     socketRef.current = socket;
 
     socket.on('connect', () => {
-      socket.emit('joinShowtimeRoom', { eventId: id, showtimeDate });
+      socket.emit('joinShowtime', { eventId: id, showtimeDate });
     });
 
-    socket.on('seatStatusChanged', ({ seatId, status, lockedBy }) => {
+    socket.on('seatStatusChanged', (payload) => {
+      if (!payload) return;
       setAvailabilityMap((prevMap) => {
         const updated = { ...prevMap };
-        if (updated[seatId]) {
-          updated[seatId] = { ...updated[seatId], status, lockedBy };
+
+        // 1. Single seat object format: { seatId, status, lockedBy }
+        if (payload.seatId && updated[payload.seatId]) {
+          updated[payload.seatId] = {
+            ...updated[payload.seatId],
+            status: payload.status,
+            lockedBy: payload.lockedBy
+          };
         }
+
+        // 2. Array of populated seat objects: { seats: [...], action, lockedBy }
+        if (Array.isArray(payload.seats)) {
+          payload.seats.forEach((seat) => {
+            if (seat && seat.seatId && updated[seat.seatId]) {
+              const seatStatus = seat.status || (payload.action === 'lock' ? 'Temporarily Locked' : payload.action === 'booked' ? 'Booked' : 'Available');
+              updated[seat.seatId] = {
+                ...updated[seat.seatId],
+                ...seat,
+                status: seatStatus
+              };
+            }
+          });
+        } else if (Array.isArray(payload.seatIds)) {
+          // 3. Array of seat IDs: { seatIds: [...], action, lockedBy }
+          const seatStatus = payload.action === 'lock' ? 'Temporarily Locked' : payload.action === 'booked' ? 'Booked' : 'Available';
+          payload.seatIds.forEach((sid) => {
+            if (updated[sid]) {
+              updated[sid] = {
+                ...updated[sid],
+                status: seatStatus,
+                lockedBy: payload.lockedBy || null
+              };
+            }
+          });
+        }
+
         return updated;
       });
     });
 
     return () => {
-      socket.emit('leaveShowtimeRoom', { eventId: id, showtimeDate });
+      socket.emit('leaveShowtime', { eventId: id, showtimeDate });
       socket.disconnect();
     };
   }, [id, showtimeDate]);
 
-  // Handle seat click on venue map
+  // Check URL search params for return redirect from Cashfree PG (?order_id=...)
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const returnOrderId = searchParams.get('order_id');
+    if (returnOrderId && !bookingSuccess && !verifyingPayment) {
+      console.log('[CASHFREE RETURN] Authenticating returned order:', returnOrderId);
+      handleCashfreeSuccess({
+        orderId: returnOrderId,
+        paymentMethod: 'Cashfree PG'
+      });
+    }
+  }, [location.search]);
+
+  // Dynamic tier price calculation derived directly from venue seat availability / layout / event tiers
+  const getTierPrice = (tierCategory) => {
+    // 1. Check availabilityMap for any matching seat price
+    const availSeats = Object.values(availabilityMap);
+    const matchingAvailSeat = availSeats.find(
+      (s) => s.category?.toLowerCase() === tierCategory.toLowerCase() && typeof s.price === 'number' && s.price > 0
+    );
+    if (matchingAvailSeat) return matchingAvailSeat.price;
+
+    // 2. Check event.ticketTiers
+    if (event?.ticketTiers && event.ticketTiers.length > 0) {
+      const matchingTier = event.ticketTiers.find((t) => {
+        const name = (t.tierName || '').toLowerCase();
+        const cat = tierCategory.toLowerCase();
+        if (cat === 'silver') return name.includes('silv') || name.includes('first');
+        if (cat === 'platinum') return name.includes('plat');
+        if (cat === 'gold') return name.includes('gold');
+        if (cat.includes('vip')) return name.includes('vip');
+        return name.includes(cat);
+      });
+      if (matchingTier && typeof matchingTier.price === 'number') return matchingTier.price;
+    }
+
+    // 3. Check layout.seats
+    if (layout?.seats && layout.seats.length > 0) {
+      const matchingLayoutSeat = layout.seats.find(
+        (s) => s.category?.toLowerCase() === tierCategory.toLowerCase() && typeof s.price === 'number' && s.price > 0
+      );
+      if (matchingLayoutSeat) return matchingLayoutSeat.price;
+    }
+
+    // 4. Default fallbacks matching venue layout
+    if (tierCategory === 'Silver') return 500;
+    if (tierCategory === 'Platinum') return 700;
+    if (tierCategory === 'VIP Lounge' || tierCategory === 'VIP') return 1500;
+    return 1000;
+  };
+
+  // Handle seat click on venue map with authentic venue seat pricing
   const handleSeatClick = (seat, price) => {
     const exists = selectedSeats.some((s) => s.seatId === seat.seatId);
 
     if (exists) {
       setSelectedSeats(selectedSeats.filter((s) => s.seatId !== seat.seatId));
     } else {
+      const verifiedSeatPrice = (typeof price === 'number' && price > 0)
+        ? price
+        : (availabilityMap[seat.seatId]?.price || getTierPrice(seat.category));
+
       setSelectedSeats([
         ...selectedSeats,
         {
           seatId: seat.seatId,
-          displayLabel: seat.displayLabel,
-          category: seat.category,
-          price
+          displayLabel: seat.displayLabel || seat.seatId,
+          category: seat.category || 'Standard',
+          price: verifiedSeatPrice
         }
       ]);
     }
   };
 
-  // Subtotal & Tax Calculation
+  // Price Calculation - Direct venue seat pricing is official price (no GST)
   const subtotal = selectedSeats.reduce((sum, s) => sum + (s.price || 0), 0);
-  const gst = Math.round(subtotal * 0.18);
-  const grandTotal = subtotal + gst;
+  const grandTotal = subtotal;
 
   // Handle seat reservation and Cashfree payment checkout
   const handleBooking = async (e) => {
@@ -294,8 +384,6 @@ export default function BookTicket() {
               ` : `<p><strong>Reserved Seats:</strong> ${booking.selectedSeats?.map(s => s.displayLabel || s.seatId).join(', ') || 'General'}</p>`}
 
               <div style="border-top: 1px dashed #D6C7B7; margin-top: 10px; padding-top: 8px;">
-                <p style="display: flex; justify-content: space-between; margin: 4px 0;"><span>Subtotal:</span> <span>₹${booking.subtotal || booking.totalAmount}</span></p>
-                <p style="display: flex; justify-content: space-between; margin: 4px 0;"><span>GST (18%):</span> <span>₹${booking.gst || 0}</span></p>
                 <p style="display: flex; justify-content: space-between; margin: 6px 0; font-size: 15px; font-weight: bold; color: #B8860B;"><span>Total Paid:</span> <span>₹${booking.totalAmount}</span></p>
               </div>
               <p style="margin-top: 8px; font-size: 12px; color: #4B5563;"><strong>Payment:</strong> ${booking.paymentGateway || 'Cashfree Payments'} (${booking.paymentMethod || 'Paid'})</p>
@@ -399,13 +487,9 @@ export default function BookTicket() {
 
               {/* Price & Payment Breakdown */}
               <div style={{ background: '#141824', borderRadius: '12px', padding: '12px 14px', border: '1px solid rgba(212, 175, 55, 0.25)', fontSize: '0.85rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', color: '#94A3B8' }}>
-                  <span>Subtotal:</span>
-                  <span>₹{bookingSuccess.subtotal || bookingSuccess.totalAmount}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', color: '#94A3B8' }}>
-                  <span>GST Tax (18%):</span>
-                  <span>₹{bookingSuccess.gst || 0}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94A3B8', marginBottom: '4px' }}>
+                  <span>Seats ({bookingSuccess.selectedSeats?.length || bookingSuccess.quantity || 1}):</span>
+                  <span>₹{bookingSuccess.totalAmount}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px dashed rgba(212, 175, 55, 0.25)', paddingTop: '6px', fontWeight: 800, color: 'var(--gold-accent)', fontSize: '1rem' }}>
                   <span>Total Amount Paid:</span>
@@ -606,7 +690,7 @@ export default function BookTicket() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                 <strong style={{ fontSize: '0.88rem', color: '#CBD5E1' }}>🥈 Silver Plan</strong>
-                <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--gold-accent)' }}>₹999</span>
+                <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--gold-accent)' }}>₹{getTierPrice('Silver')}</span>
               </div>
               <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--text-light)' }}>Rows 1A–1H • First Floor Balcony</p>
             </button>
@@ -628,7 +712,7 @@ export default function BookTicket() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                 <strong style={{ fontSize: '0.88rem', color: '#E2E8F0' }}>💎 Platinum Plan</strong>
-                <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--gold-accent)' }}>₹2,499</span>
+                <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--gold-accent)' }}>₹{getTierPrice('Platinum')}</span>
               </div>
               <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--text-light)' }}>Rows A–E • Premium Front Stage</p>
             </button>
@@ -650,7 +734,7 @@ export default function BookTicket() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                 <strong style={{ fontSize: '0.88rem', color: 'var(--gold-accent)' }}>🥇 Gold Plan</strong>
-                <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--gold-accent)' }}>₹1,499</span>
+                <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--gold-accent)' }}>₹{getTierPrice('Gold')}</span>
               </div>
               <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--text-light)' }}>Rows F–Q • Main Auditorium</p>
             </button>
@@ -672,7 +756,7 @@ export default function BookTicket() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                 <strong style={{ fontSize: '0.88rem', color: '#F87171' }}>👑 VIP Lounge</strong>
-                <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--gold-accent)' }}>₹4,999</span>
+                <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--gold-accent)' }}>₹{getTierPrice('VIP Lounge')}</span>
               </div>
               <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--text-light)' }}>Units V1–V15 • Red Velvet Sofas</p>
             </button>
@@ -797,15 +881,11 @@ export default function BookTicket() {
               {/* Price Calculation Table */}
               <div style={{ background: '#0B0E17', padding: '16px', borderRadius: '14px', marginBottom: '20px', border: '1px solid rgba(212, 175, 55, 0.25)', fontSize: '0.88rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', color: '#CBD5E1' }}>
-                  <span>Seats Subtotal ({selectedSeats.length})</span>
-                  <span>₹{subtotal}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: '#CBD5E1' }}>
-                  <span>GST Tax (18%)</span>
-                  <span>₹{gst}</span>
+                  <span>Reserved Seats ({selectedSeats.length})</span>
+                  <span>₹{grandTotal}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px dashed rgba(212, 175, 55, 0.25)', paddingTop: '8px', color: 'var(--gold-accent)', fontWeight: 800, fontSize: '1.1rem' }}>
-                  <span>Grand Total</span>
+                  <span>Official Total</span>
                   <span>₹{grandTotal}</span>
                 </div>
               </div>

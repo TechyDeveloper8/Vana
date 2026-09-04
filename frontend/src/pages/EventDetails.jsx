@@ -19,38 +19,19 @@ export default function EventDetails() {
   const [confirmation, setConfirmation] = useState(null);
 
   useEffect(() => {
+    setLoading(true);
     fetchAPI(`/events/${id}`)
       .then((res) => {
         const ev = res.data || res;
         setEvent(ev);
-        const tiers = ev.tiers || ev.ticketTiers || [
-          { name: 'General Admission', price: 999, capacity: 500, sold: 120 },
-          { name: 'VIP Lounge Access', price: 2499, capacity: 100, sold: 30 }
-        ];
+        const tiers = ev.tiers || ev.ticketTiers || [];
         setQty(Object.fromEntries(tiers.map((t) => [t.name || t.tierName, 0])));
-        setLoading(false);
       })
-      .catch(() => {
-        // Fallback sample event if specific ID is not found in backend
-        const fallback = {
-          _id: id || 'ev-sample',
-          title: 'Neon Pulse Electric Music Festival',
-          category: 'Music',
-          eventDate: '2026-10-15',
-          startTime: '06:00 PM',
-          endTime: '01:00 AM',
-          venue: { name: 'Jio World Garden', city: 'Mumbai' },
-          organizer: 'Vana Entertainment & Productions',
-          description: 'Experience an unparalleled auditory and visual journey at Neon Pulse. Featuring multi-genre electronic music legends, mind-bending holographic stage designs, world-class laser mapping, and state-of-the-art acoustic engineering.',
-          bannerImage: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?crop=entropy&cs=srgb&fm=jpg&q=85&w=1800',
-          tiers: [
-            { name: 'General Entry', price: 999, capacity: 500, sold: 120 },
-            { name: 'Fan Pit Pass', price: 1799, capacity: 200, sold: 90 },
-            { name: 'VIP Lounge Pass', price: 2999, capacity: 80, sold: 35 }
-          ]
-        };
-        setEvent(fallback);
-        setQty(Object.fromEntries(fallback.tiers.map((t) => [t.name, 0])));
+      .catch((err) => {
+        console.error('Failed to load event details:', err);
+        setEvent(null);
+      })
+      .finally(() => {
         setLoading(false);
       });
   }, [id]);
@@ -72,8 +53,17 @@ export default function EventDetails() {
 
   if (!event) {
     return (
-      <div style={{ minHeight: '75vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#050505', color: '#737373' }} className="font-mono-x">
-        Event Not Found.
+      <div style={{ minHeight: '75vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#050505', color: '#FFFFFF', padding: '24px' }}>
+        <p className="font-mono-x" style={{ color: '#FF4500', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '8px' }}>
+          404 · Not Found
+        </p>
+        <h2 className="heading" style={{ fontSize: '2rem', marginBottom: '16px' }}>Event Not Found</h2>
+        <p style={{ color: '#A1A1A1', fontSize: '15px', maxWidth: '440px', textAlign: 'center', marginBottom: '24px' }}>
+          This event may have been updated, unpublished, or does not exist in our active schedule.
+        </p>
+        <Link to="/events" style={{ background: '#FF4500', color: '#050505', padding: '12px 28px', fontWeight: 800, textTransform: 'uppercase', textDecoration: 'none', letterSpacing: '0.04em' }}>
+          Browse Live Events
+        </Link>
       </div>
     );
   }
@@ -123,21 +113,14 @@ export default function EventDetails() {
       });
 
       setConfirmation({
-        reference: res.data?.reference || `VANA-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+        reference: res.data?.reference || res.data?.bookingId,
         eventTitle: event.title,
         customerEmail: email,
         total: totalAmount,
         items: selectedItems
       });
-    } catch {
-      // Mock confirmation for immediate visual success
-      setConfirmation({
-        reference: `VANA-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-        eventTitle: event.title,
-        customerEmail: email,
-        total: totalAmount,
-        items: selectedItems
-      });
+    } catch (err) {
+      alert(err.message || 'Unable to complete booking reservation. Please select seats on the interactive venue map or try again.');
     } finally {
       setSubmitting(false);
     }
@@ -240,18 +223,32 @@ export default function EventDetails() {
       </div>
 
       {/* Main Content & Ticket Selector Grid */}
+      <style>{`
+        .event-details-grid {
+          display: grid;
+          grid-template-columns: 2fr 1fr;
+          gap: 48px;
+        }
+        @media (max-width: 900px) {
+          .event-details-grid {
+            grid-template-columns: 1fr !important;
+            gap: 32px !important;
+          }
+          .event-details-grid > div {
+            grid-column: span 1 !important;
+          }
+        }
+      `}</style>
       <div
+        className="event-details-grid"
         style={{
           maxWidth: '1400px',
           margin: '0 auto',
-          padding: '56px 24px',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '48px'
+          padding: 'clamp(32px, 6vw, 56px) clamp(16px, 4vw, 24px)'
         }}
       >
         {/* Left Column: Synopsis & Metadata */}
-        <div style={{ gridColumn: 'span 2' }}>
+        <div>
           {/* Quick Meta Row */}
           <div
             style={{
@@ -405,15 +402,18 @@ export default function EventDetails() {
                         </p>
                       </div>
 
-                      {/* Quantity Buttons */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      {/* Quantity Buttons - Mobile Optimized 42px Touch Targets */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <button
                           onClick={() => setTierQty(t.name, -1)}
                           disabled={isSoldOut || currentCount === 0}
+                          aria-label={`Decrease ${t.name} quantity`}
                           style={{
-                            width: '32px',
-                            height: '32px',
-                            border: '1px solid rgba(255, 255, 255, 0.15)',
+                            width: '42px',
+                            height: '42px',
+                            minWidth: '42px',
+                            minHeight: '42px',
+                            border: '1px solid rgba(255, 255, 255, 0.2)',
                             background: '#050505',
                             color: '#FFFFFF',
                             display: 'flex',
@@ -424,17 +424,17 @@ export default function EventDetails() {
                             borderRadius: '0px'
                           }}
                         >
-                          <Minus size={14} />
+                          <Minus size={16} />
                         </button>
 
                         <span
                           className="font-mono-x"
                           style={{
-                            width: '24px',
+                            width: '28px',
                             textAlign: 'center',
                             fontFamily: "'JetBrains Mono', monospace",
                             fontWeight: 700,
-                            fontSize: '14px',
+                            fontSize: '15px',
                             color: '#FFFFFF'
                           }}
                         >
@@ -444,10 +444,13 @@ export default function EventDetails() {
                         <button
                           onClick={() => setTierQty(t.name, 1)}
                           disabled={isSoldOut || currentCount >= remaining}
+                          aria-label={`Increase ${t.name} quantity`}
                           style={{
-                            width: '32px',
-                            height: '32px',
-                            border: '1px solid rgba(255, 255, 255, 0.15)',
+                            width: '42px',
+                            height: '42px',
+                            minWidth: '42px',
+                            minHeight: '42px',
+                            border: '1px solid rgba(255, 255, 255, 0.2)',
                             background: '#050505',
                             color: '#FFFFFF',
                             display: 'flex',
@@ -458,7 +461,7 @@ export default function EventDetails() {
                             borderRadius: '0px'
                           }}
                         >
-                          <Plus size={14} />
+                          <Plus size={16} />
                         </button>
                       </div>
                     </div>

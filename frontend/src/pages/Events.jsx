@@ -13,54 +13,12 @@ export default function Events() {
     fetchAPI('/events')
       .then((res) => {
         setEvents(res.data || []);
-        setLoading(false);
       })
-      .catch(() => {
-        // Fallback default sample events if backend is empty
-        setEvents([
-          {
-            _id: 'ev-1',
-            title: 'Neon Pulse Electric Music Festival',
-            category: 'Music',
-            date: '2026-10-15',
-            city: 'Mumbai',
-            venue: { name: 'Jio World Garden', city: 'Mumbai' },
-            description: 'A 2-day multi-genre electronic music festival featuring top international DJs, holographic stages, and immersive soundscapes.',
-            image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200',
-            tiers: [
-              { name: 'General Entry', price: 999, capacity: 500, sold: 120 },
-              { name: 'VIP Access', price: 2499, capacity: 150, sold: 45 }
-            ]
-          },
-          {
-            _id: 'ev-2',
-            title: 'Global Tech & Innovation Summit 2026',
-            category: 'Corporate',
-            date: '2026-11-04',
-            city: 'Bengaluru',
-            venue: { name: 'BIEC Convention Center', city: 'Bengaluru' },
-            description: 'India\'s premier tech leadership summit hosting founders, investors, and visionaries discussing AI, robotics, and next-gen ventures.',
-            image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200',
-            tiers: [
-              { name: 'Delegate Pass', price: 1499, capacity: 300, sold: 80 },
-              { name: 'Executive VIP', price: 4999, capacity: 50, sold: 20 }
-            ]
-          },
-          {
-            _id: 'ev-3',
-            title: 'The Royal Symphony: Live Orchestral Night',
-            category: 'Theater',
-            date: '2026-11-20',
-            city: 'Delhi',
-            venue: { name: 'Siri Fort Auditorium', city: 'Delhi' },
-            description: 'A mesmerizing evening of live cinematic scores and classical orchestral compositions performed by a 70-piece international ensemble.',
-            image: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200',
-            tiers: [
-              { name: 'Silver Tier', price: 799, capacity: 200, sold: 60 },
-              { name: 'Gold Tier', price: 1999, capacity: 100, sold: 40 }
-            ]
-          }
-        ]);
+      .catch((err) => {
+        console.error('Failed to load events:', err);
+        setEvents([]);
+      })
+      .finally(() => {
         setLoading(false);
       });
   }, []);
@@ -85,7 +43,7 @@ export default function Events() {
         padding: '64px 0 100px 0'
       }}
     >
-      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(16px, 4vw, 24px)' }}>
         {/* Section Header */}
         <Reveal>
           <p
@@ -109,8 +67,8 @@ export default function Events() {
               flexWrap: 'wrap',
               alignItems: 'flex-end',
               justifyContent: 'space-between',
-              gap: '24px',
-              marginBottom: '48px'
+              gap: '20px',
+              marginBottom: '40px'
             }}
           >
             <h1
@@ -118,7 +76,7 @@ export default function Events() {
               style={{
                 fontFamily: "'Cabinet Grotesk', -apple-system, sans-serif",
                 fontWeight: 900,
-                fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
+                fontSize: 'clamp(2.4rem, 6vw, 4.5rem)',
                 textTransform: 'uppercase',
                 letterSpacing: '-0.03em',
                 lineHeight: 0.95,
@@ -129,8 +87,17 @@ export default function Events() {
               All Events
             </h1>
 
-            {/* Category Filter Buttons */}
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {/* Category Filter Buttons - Touch Scroll on Mobile */}
+            <div
+              className="mobile-scroll-x"
+              style={{
+                display: 'flex',
+                gap: '8px',
+                overflowX: 'auto',
+                maxWidth: '100%',
+                paddingBottom: '4px'
+              }}
+            >
               {categories.map((cat) => {
                 const isSelected = category === cat;
                 return (
@@ -138,7 +105,8 @@ export default function Events() {
                     key={cat}
                     onClick={() => setCategory(cat)}
                     style={{
-                      padding: '8px 20px',
+                      padding: '10px 22px',
+                      minHeight: '44px',
                       borderRadius: '0px',
                       border: isSelected ? '1px solid #FF4500' : '1px solid rgba(255, 255, 255, 0.12)',
                       background: isSelected ? '#FF4500' : '#121212',
@@ -149,6 +117,8 @@ export default function Events() {
                       textTransform: 'uppercase',
                       letterSpacing: '0.05em',
                       cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      flexShrink: 0,
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {
@@ -177,7 +147,7 @@ export default function Events() {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))',
               gap: '24px'
             }}
           >
@@ -210,8 +180,8 @@ export default function Events() {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
-              gap: '28px'
+              gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))',
+              gap: '24px'
             }}
           >
             {filteredEvents.map((evt, idx) => (

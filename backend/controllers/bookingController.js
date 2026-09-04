@@ -74,8 +74,8 @@ exports.createBooking = async (req, res) => {
     }
 
     const subtotal = computedSubtotal;
-    const gst = Math.round(subtotal * 0.18);
-    const totalAmount = subtotal + gst;
+    const gst = 0;
+    const totalAmount = subtotal; // Direct venue seat price is official price (no GST)
     const bookingId = 'VANA-' + new Date().getFullYear() + '-' + Math.floor(100000 + Math.random() * 900000);
 
     // Format seat labels for QR code & Ticket Pass
@@ -301,10 +301,32 @@ exports.createCashfreePaymentOrder = async (req, res) => {
     const lockUser = req.user ? req.user.id : (userName ? `guest_${userName.replace(/\s+/g, '_')}` : `guest_${Date.now()}`);
     const seatIds = selectedSeats.map(s => s.seatId);
 
-    // Compute prices
-    const subtotal = selectedSeats.reduce((sum, seat) => sum + (Number(seat.price) || 0), 0);
-    const gst = Math.round(subtotal * 0.18);
-    const totalAmount = subtotal + gst;
+    // 1. Fetch real-time venue seat pricing directly from SeatAvailability to guarantee authentic venue pricing
+    let verifiedSeats = [];
+    if (eventId && seatIds.length > 0) {
+      const dbSeats = await SeatAvailability.find({ eventId, showtimeDate, seatId: { $in: seatIds } });
+      const dbSeatMap = new Map(dbSeats.map(s => [s.seatId, s]));
+
+      verifiedSeats = selectedSeats.map(seat => {
+        const dbSeat = dbSeatMap.get(seat.seatId);
+        const verifiedPrice = dbSeat && typeof dbSeat.price === 'number' && dbSeat.price > 0
+          ? dbSeat.price
+          : (Number(seat.price) || 500);
+        return {
+          ...seat,
+          category: dbSeat?.category || seat.category || 'Standard',
+          displayLabel: dbSeat?.displayLabel || seat.displayLabel || seat.seatId,
+          price: verifiedPrice
+        };
+      });
+    } else {
+      verifiedSeats = selectedSeats;
+    }
+
+    // Compute prices strictly reflecting direct verified venue seat pricing (no GST)
+    const subtotal = verifiedSeats.reduce((sum, seat) => sum + (Number(seat.price) || 0), 0);
+    const gst = 0;
+    const totalAmount = subtotal; // Direct venue seat price is official price
 
     // Lock seats atomically for 10 minutes
     if (eventId) {
@@ -392,7 +414,7 @@ exports.createCashfreePaymentOrder = async (req, res) => {
       gst,
       isTestMode: cfOrder.isTestMode,
       env: cfOrder.env,
-      selectedSeats,
+      selectedSeats: verifiedSeats,
       warning: cfOrder.warning
     });
   } catch (error) {
@@ -421,29 +443,52 @@ exports.verifyCashfreePayment = async (req, res) => {
       return res.status(400).json({ success: false, message: 'orderId is required for payment verification.' });
     }
 
-    // Verify payment with Cashfree PG
+    // Authenticate payment status with Cashfree PG API
     const verification = await verifyCashfreeOrder(orderId);
 
     if (!verification.success || !verification.isPaid) {
       return res.status(400).json({
         success: false,
-        message: verification.message || 'Payment not verified with Cashfree. Order is not paid.',
+        message: verification.message || 'Payment authentication failed with Cashfree. Order is not paid.',
         verification
       });
     }
 
-    // Compute final pricing
-    const finalQuantity = selectedSeats.length > 0 ? selectedSeats.length : 1;
-    const computedSubtotal = selectedSeats.length > 0
-      ? selectedSeats.reduce((sum, s) => sum + (Number(s.price) || 0), 0)
-      : 999;
-    const gst = Math.round(computedSubtotal * 0.18);
-    const totalAmount = computedSubtotal + gst;
+    // Re-verify venue seat pricing from database for all selected seats
+    const seatIds = selectedSeats.map(s => s.seatId);
+    let verifiedSeats = [];
+    if (eventId && seatIds.length > 0) {
+      const dbSeats = await SeatAvailability.find({ eventId, showtimeDate, seatId: { $in: seatIds } });
+      const dbSeatMap = new Map(dbSeats.map(s => [s.seatId, s]));
+
+      verifiedSeats = selectedSeats.map(seat => {
+        const dbSeat = dbSeatMap.get(seat.seatId);
+        const verifiedPrice = dbSeat && typeof dbSeat.price === 'number' && dbSeat.price > 0
+          ? dbSeat.price
+          : (Number(seat.price) || 500);
+        return {
+          ...seat,
+          category: dbSeat?.category || seat.category || 'Standard',
+          displayLabel: dbSeat?.displayLabel || seat.displayLabel || seat.seatId,
+          price: verifiedPrice
+        };
+      });
+    } else {
+      verifiedSeats = selectedSeats;
+    }
+
+    // Compute final pricing strictly from verified venue seat prices (no GST)
+    const finalQuantity = verifiedSeats.length > 0 ? verifiedSeats.length : 1;
+    const computedSubtotal = verifiedSeats.length > 0
+      ? verifiedSeats.reduce((sum, s) => sum + (Number(s.price) || 0), 0)
+      : 500;
+    const gst = 0;
+    const totalAmount = computedSubtotal; // Direct venue seat price is official price
 
     const bookingId = 'VANA-' + new Date().getFullYear() + '-' + Math.floor(100000 + Math.random() * 900000);
-    const seatDisplayString = selectedSeats.map(s => s.displayLabel || s.seatId).join(', ');
-    const categoryString = selectedSeats.length > 0
-      ? [...new Set(selectedSeats.map(s => s.category))].join(', ')
+    const seatDisplayString = verifiedSeats.map(s => s.displayLabel || s.seatId).join(', ');
+    const categoryString = verifiedSeats.length > 0
+      ? [...new Set(verifiedSeats.map(s => s.category))].join(', ')
       : (ticketCategory || 'Standard Pass');
 
     // Generate QR Code data URL
@@ -480,7 +525,7 @@ exports.verifyCashfreePayment = async (req, res) => {
       qrCodeUrl,
       isCheckedIn: false,
       showtimeDate,
-      selectedSeats
+      selectedSeats: verifiedSeats
     };
 
     const booking = await Booking.create(bookingPayload);
