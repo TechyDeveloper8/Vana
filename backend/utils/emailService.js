@@ -5,18 +5,98 @@ if (dns.setDefaultResultOrder) {
 const nodemailer = require('nodemailer');
 
 /**
- * Universal email dispatcher with forced IPv4 and dual-port resilience (465 SSL & 587 STARTTLS)
- * Resolves cloud container ENETUNREACH issues where outbound IPv6 is unreachable.
+ * Sends email via Resend REST API (HTTPS Port 443 - Never blocked on Render)
  */
-const sendMailWithFallback = async (mailOptions) => {
+const sendViaResend = async (mailOptions) => {
+  const apiKey = (process.env.RESEND_API_KEY || '').trim();
+  if (!apiKey) return null;
+
+  const fromAddress = (process.env.RESEND_FROM || 'Vana Entertainments <onboarding@resend.dev>').trim();
+  const toAddress = Array.isArray(mailOptions.to) ? mailOptions.to : [mailOptions.to];
+
+  const payload = {
+    from: fromAddress,
+    to: toAddress,
+    subject: mailOptions.subject,
+    html: mailOptions.html
+  };
+
+  if (mailOptions.attachments && mailOptions.attachments.length > 0) {
+    payload.attachments = mailOptions.attachments.map(att => ({
+      filename: att.filename,
+      content: Buffer.isBuffer(att.content) ? att.content.toString('base64') : att.content
+    }));
+  }
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Resend HTTP API error');
+  }
+
+  console.log(`[EMAIL SERVICE SUCCESS] Delivered via Resend HTTPS API to ${mailOptions.to}. ID: ${data.id}`);
+  return { success: true, messageId: data.id, provider: 'resend' };
+};
+
+/**
+ * Sends email via Brevo REST API (HTTPS Port 443 - Never blocked on Render)
+ */
+const sendViaBrevo = async (mailOptions) => {
+  const apiKey = (process.env.BREVO_API_KEY || '').trim();
+  if (!apiKey) return null;
+
+  const senderEmail = (process.env.EMAIL_USER || process.env.BREVO_SENDER || 'support@vanaentertainments.com').trim();
+  const payload = {
+    sender: { name: 'Vana Entertainments', email: senderEmail },
+    to: [{ email: mailOptions.to }],
+    subject: mailOptions.subject,
+    htmlContent: mailOptions.html
+  };
+
+  if (mailOptions.attachments && mailOptions.attachments.length > 0) {
+    payload.attachment = mailOptions.attachments.map(att => ({
+      name: att.filename,
+      content: Buffer.isBuffer(att.content) ? att.content.toString('base64') : att.content
+    }));
+  }
+
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'api-key': apiKey,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Brevo HTTP API error');
+  }
+
+  console.log(`[EMAIL SERVICE SUCCESS] Delivered via Brevo HTTPS API to ${mailOptions.to}. ID: ${data.messageId}`);
+  return { success: true, messageId: data.messageId, provider: 'brevo' };
+};
+
+/**
+ * Sends email via traditional SMTP with IPv4 and quick timeout
+ */
+const sendViaSMTP = async (mailOptions) => {
   const emailUser = (process.env.EMAIL_USER || process.env.GMAIL_USER || process.env.SMTP_USER || '').trim();
-  // Strip all whitespace from Google App Passwords (e.g. "abcd efgh ijkl mnop" -> "abcdefghijklmnop")
   const emailPass = (process.env.EMAIL_PASS || process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASS || '').trim().replace(/\s+/g, '');
   const customHost = (process.env.SMTP_HOST || '').trim();
 
   if (!emailUser || !emailPass) {
-    console.warn(`[EMAIL SERVICE] Email credentials not configured in environment variables (EMAIL_USER / EMAIL_PASS). Skipping dispatch.`);
-    return { success: false, error: 'Email credentials not configured in environment variables' };
+    return { success: false, error: 'SMTP credentials not configured in EMAIL_USER / EMAIL_PASS' };
   }
 
   const createTransporter = (port, secure) => nodemailer.createTransport({
@@ -27,52 +107,78 @@ const sendMailWithFallback = async (mailOptions) => {
       user: emailUser,
       pass: emailPass
     },
-    family: 4, // Strictly force IPv4 to avoid ENETUNREACH on IPv6-disabled cloud containers
-    connectionTimeout: 12000,
-    greetingTimeout: 10000,
-    socketTimeout: 15000,
+    family: 4, // Force IPv4
+    connectionTimeout: 4000, // 4-second timeout to avoid long hangs on Render free SMTP block
+    greetingTimeout: 4000,
+    socketTimeout: 5000,
     tls: {
       rejectUnauthorized: false
     }
   });
 
-  // Attempt 1: Port 465 (Direct SSL) with forced IPv4
+  // Attempt Port 465 (SSL)
   try {
     const transporter465 = createTransporter(465, true);
     const info = await transporter465.sendMail({
       from: `"Vana Entertainments" <${emailUser}>`,
       ...mailOptions
     });
-    console.log(`[EMAIL SERVICE SUCCESS] Email delivered via Port 465 to ${mailOptions.to}. MessageId: ${info.messageId}`);
-    return { success: true, messageId: info.messageId };
+    console.log(`[EMAIL SERVICE SUCCESS] Delivered via SMTP Port 465 to ${mailOptions.to}. ID: ${info.messageId}`);
+    return { success: true, messageId: info.messageId, provider: 'smtp_465' };
   } catch (err465) {
-    console.warn(`[EMAIL SERVICE] Port 465 delivery attempt failed: ${err465.message}. Retrying via Port 587 (STARTTLS)...`);
-    // Attempt 2: Port 587 (STARTTLS) with forced IPv4
+    // Attempt Port 587 (STARTTLS)
     try {
       const transporter587 = createTransporter(587, false);
       const info = await transporter587.sendMail({
         from: `"Vana Entertainments" <${emailUser}>`,
         ...mailOptions
       });
-      console.log(`[EMAIL SERVICE SUCCESS] Email delivered via Port 587 to ${mailOptions.to}. MessageId: ${info.messageId}`);
-      return { success: true, messageId: info.messageId };
+      console.log(`[EMAIL SERVICE SUCCESS] Delivered via SMTP Port 587 to ${mailOptions.to}. ID: ${info.messageId}`);
+      return { success: true, messageId: info.messageId, provider: 'smtp_587' };
     } catch (err587) {
-      console.error(`[EMAIL SERVICE ERROR] Email dispatch failed on both Port 465 and Port 587:`, err587.message);
-      return { success: false, error: err587.message };
+      return {
+        success: false,
+        error: `Render outbound SMTP ports 465/587 blocked: ${err587.message}`
+      };
     }
   }
 };
 
 /**
+ * Universal dispatcher trying HTTPS APIs first (Resend / Brevo), then SMTP fallback
+ */
+const sendMailWithFallback = async (mailOptions) => {
+  // 1. Try Resend HTTPS API (Port 443 - Never blocked on Render)
+  if (process.env.RESEND_API_KEY) {
+    try {
+      const res = await sendViaResend(mailOptions);
+      if (res) return res;
+    } catch (err) {
+      console.warn('[EMAIL SERVICE] Resend delivery failed:', err.message);
+    }
+  }
+
+  // 2. Try Brevo HTTPS API (Port 443 - Never blocked on Render)
+  if (process.env.BREVO_API_KEY) {
+    try {
+      const res = await sendViaBrevo(mailOptions);
+      if (res) return res;
+    } catch (err) {
+      console.warn('[EMAIL SERVICE] Brevo delivery failed:', err.message);
+    }
+  }
+
+  // 3. Try SMTP (Will succeed on local or paid Render; fails fast on free Render)
+  return await sendViaSMTP(mailOptions);
+};
+
+/**
  * Sends an official entry pass ticket email to the user's Gmail address.
- * @param {Object} booking - Booking object containing bookingId, userName, userEmail, eventTitle, quantity, totalAmount, qrCodeUrl, etc.
- * @returns {Promise<{success: boolean, messageId?: string, error?: string}>}
  */
 exports.sendTicketEmail = async (booking) => {
   try {
     const userEmail = booking.userEmail;
     if (!userEmail) {
-      console.warn('[EMAIL SERVICE WARNING] No recipient email specified for booking:', booking.bookingId);
       return { success: false, error: 'Recipient email missing' };
     }
 
@@ -257,10 +363,6 @@ exports.sendTicketEmail = async (booking) => {
 
 /**
  * Sends a 6-digit Verification OTP email for Account Sign-up or Password Reset.
- * @param {string} email - Recipient email address
- * @param {string} otp - 6-digit OTP code
- * @param {string} purpose - 'register' or 'forgot_password'
- * @returns {Promise<{success: boolean, messageId?: string, error?: string}>}
  */
 exports.sendOTPEmail = async (email, otp, purpose = 'register') => {
   try {

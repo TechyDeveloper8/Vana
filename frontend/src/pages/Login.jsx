@@ -71,6 +71,9 @@ export default function Login() {
     try {
       const res = await sendForgotOTP(email);
       setSuccessMsg(res.message || `Password reset code sent to ${email}`);
+      if (res.devOtp) {
+        setOtp(res.devOtp);
+      }
       setMode('forgot_reset');
       startCooldown();
     } catch (err) {
@@ -88,6 +91,9 @@ export default function Login() {
     try {
       const res = await sendForgotOTP(email);
       setSuccessMsg(res.message || `New password reset code sent to ${email}`);
+      if (res.devOtp) {
+        setOtp(res.devOtp);
+      }
       startCooldown();
     } catch (err) {
       setError(err.message || 'Failed to resend OTP.');

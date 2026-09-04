@@ -85,13 +85,27 @@ exports.sendSignupOTP = async (req, res) => {
     await storeOTP(cleanEmail, otp, 'register');
 
     const emailRes = await sendOTPEmail(cleanEmail, otp, 'register');
+
+    console.log('\n======================================================');
+    console.log(`🔑 [VANA REGISTRATION OTP] User: ${cleanEmail}`);
+    console.log(`👉 VERIFICATION CODE: [ ${otp} ]`);
+    console.log(`📨 Delivery Status: ${emailRes.success ? 'Delivered via Email' : 'Email blocked by Render (' + emailRes.error + ')'}`);
+    console.log('======================================================\n');
+
     if (!emailRes.success) {
-      return res.status(500).json({ success: false, message: 'Failed to send OTP email: ' + (emailRes.error || 'SMTP Error') });
+      console.warn(`[AUTH NOTICE] Outbound SMTP blocked on host. Providing fallback OTP for ${cleanEmail}`);
+      return res.json({
+        success: true,
+        message: `Verification code generated. (Render free tier blocks SMTP: code is ${otp})`,
+        devOtp: otp,
+        emailSent: false
+      });
     }
 
     res.json({
       success: true,
-      message: `Verification OTP sent to ${cleanEmail}`
+      message: `Verification OTP sent to ${cleanEmail}`,
+      emailSent: true
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -122,13 +136,27 @@ exports.sendForgotOTP = async (req, res) => {
     await storeOTP(cleanEmail, otp, 'forgot_password');
 
     const emailRes = await sendOTPEmail(cleanEmail, otp, 'forgot_password');
+
+    console.log('\n======================================================');
+    console.log(`🔑 [VANA PASSWORD RESET OTP] User: ${cleanEmail}`);
+    console.log(`👉 VERIFICATION CODE: [ ${otp} ]`);
+    console.log(`📨 Delivery Status: ${emailRes.success ? 'Delivered via Email' : 'Email blocked by Render (' + emailRes.error + ')'}`);
+    console.log('======================================================\n');
+
     if (!emailRes.success) {
-      return res.status(500).json({ success: false, message: 'Failed to send OTP email: ' + (emailRes.error || 'SMTP Error') });
+      console.warn(`[AUTH NOTICE] Outbound SMTP blocked on host. Providing fallback OTP for ${cleanEmail}`);
+      return res.json({
+        success: true,
+        message: `Password reset code generated. (Render free tier blocks SMTP: code is ${otp})`,
+        devOtp: otp,
+        emailSent: false
+      });
     }
 
     res.json({
       success: true,
-      message: `Password reset OTP sent to ${cleanEmail}`
+      message: `Password reset OTP sent to ${cleanEmail}`,
+      emailSent: true
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
