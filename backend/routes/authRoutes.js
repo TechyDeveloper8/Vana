@@ -7,10 +7,12 @@ const {
   getMe,
   sendSignupOTP,
   sendForgotOTP,
-  resetPassword
+  resetPassword,
+  getEmailStatus
 } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 
+router.get('/email-status', getEmailStatus);
 router.post('/send-signup-otp', sendSignupOTP);
 router.post('/register', registerUser);
 router.post('/send-forgot-otp', sendForgotOTP);

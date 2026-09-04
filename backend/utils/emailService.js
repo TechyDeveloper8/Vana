@@ -4,14 +4,67 @@ if (dns.setDefaultResultOrder) {
 }
 const nodemailer = require('nodemailer');
 
+const cleanStr = (val) => (val && typeof val === 'string' ? val.trim() : '');
+
 /**
- * Sends email via Resend REST API (HTTPS Port 443 - Never blocked on Render)
+ * Sends email via Brevo (formerly Sendinblue) REST API (HTTPS Port 443 - Never blocked on Render)
+ * Documentation: https://developers.brevo.com/reference/sendtransacemail
  */
-const sendViaResend = async (mailOptions) => {
-  const apiKey = (process.env.RESEND_API_KEY || '').trim();
+const sendViaBrevo = async (mailOptions) => {
+  const apiKey = cleanStr(process.env.BREVO_API_KEY);
   if (!apiKey) return null;
 
-  const fromAddress = (process.env.RESEND_FROM || 'Vana Entertainments <onboarding@resend.dev>').trim();
+  const senderEmail = cleanStr(
+    process.env.BREVO_SENDER_EMAIL ||
+    process.env.BREVO_SENDER ||
+    process.env.EMAIL_USER ||
+    process.env.GMAIL_USER ||
+    'support@vanaentertainments.com'
+  );
+  const senderName = cleanStr(process.env.BREVO_SENDER_NAME) || 'Vana Entertainments';
+
+  const toAddress = cleanStr(mailOptions.to);
+  const payload = {
+    sender: { name: senderName, email: senderEmail },
+    to: [{ email: toAddress }],
+    subject: mailOptions.subject,
+    htmlContent: mailOptions.html
+  };
+
+  if (mailOptions.attachments && mailOptions.attachments.length > 0) {
+    payload.attachment = mailOptions.attachments.map(att => ({
+      name: att.filename,
+      content: Buffer.isBuffer(att.content) ? att.content.toString('base64') : att.content
+    }));
+  }
+
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'api-key': apiKey,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || `Brevo API error (${response.status})`);
+  }
+
+  console.log(`[EMAIL SERVICE SUCCESS] Delivered via Brevo HTTPS API to ${toAddress}. MessageId: ${data.messageId}`);
+  return { success: true, messageId: data.messageId, provider: 'brevo' };
+};
+
+/**
+ * Sends email via Resend REST API (HTTPS Port 443 - Backup provider)
+ */
+const sendViaResend = async (mailOptions) => {
+  const apiKey = cleanStr(process.env.RESEND_API_KEY);
+  if (!apiKey) return null;
+
+  const fromAddress = cleanStr(process.env.RESEND_FROM) || 'Vana Entertainments <onboarding@resend.dev>';
   const toAddress = Array.isArray(mailOptions.to) ? mailOptions.to : [mailOptions.to];
 
   const payload = {
@@ -47,53 +100,12 @@ const sendViaResend = async (mailOptions) => {
 };
 
 /**
- * Sends email via Brevo REST API (HTTPS Port 443 - Never blocked on Render)
- */
-const sendViaBrevo = async (mailOptions) => {
-  const apiKey = (process.env.BREVO_API_KEY || '').trim();
-  if (!apiKey) return null;
-
-  const senderEmail = (process.env.EMAIL_USER || process.env.BREVO_SENDER || 'support@vanaentertainments.com').trim();
-  const payload = {
-    sender: { name: 'Vana Entertainments', email: senderEmail },
-    to: [{ email: mailOptions.to }],
-    subject: mailOptions.subject,
-    htmlContent: mailOptions.html
-  };
-
-  if (mailOptions.attachments && mailOptions.attachments.length > 0) {
-    payload.attachment = mailOptions.attachments.map(att => ({
-      name: att.filename,
-      content: Buffer.isBuffer(att.content) ? att.content.toString('base64') : att.content
-    }));
-  }
-
-  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
-    method: 'POST',
-    headers: {
-      'api-key': apiKey,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    },
-    body: JSON.stringify(payload)
-  });
-
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.message || 'Brevo HTTP API error');
-  }
-
-  console.log(`[EMAIL SERVICE SUCCESS] Delivered via Brevo HTTPS API to ${mailOptions.to}. ID: ${data.messageId}`);
-  return { success: true, messageId: data.messageId, provider: 'brevo' };
-};
-
-/**
- * Sends email via traditional SMTP with IPv4 and quick timeout
+ * Sends email via traditional SMTP with IPv4 and fast timeout
  */
 const sendViaSMTP = async (mailOptions) => {
-  const emailUser = (process.env.EMAIL_USER || process.env.GMAIL_USER || process.env.SMTP_USER || '').trim();
-  const emailPass = (process.env.EMAIL_PASS || process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASS || '').trim().replace(/\s+/g, '');
-  const customHost = (process.env.SMTP_HOST || '').trim();
+  const emailUser = cleanStr(process.env.EMAIL_USER || process.env.GMAIL_USER || process.env.SMTP_USER);
+  const emailPass = cleanStr(process.env.EMAIL_PASS || process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASS).replace(/\s+/g, '');
+  const customHost = cleanStr(process.env.SMTP_HOST);
 
   if (!emailUser || !emailPass) {
     return { success: false, error: 'SMTP credentials not configured in EMAIL_USER / EMAIL_PASS' };
@@ -107,8 +119,8 @@ const sendViaSMTP = async (mailOptions) => {
       user: emailUser,
       pass: emailPass
     },
-    family: 4, // Force IPv4
-    connectionTimeout: 4000, // 4-second timeout to avoid long hangs on Render free SMTP block
+    family: 4,
+    connectionTimeout: 4000,
     greetingTimeout: 4000,
     socketTimeout: 5000,
     tls: {
@@ -116,7 +128,6 @@ const sendViaSMTP = async (mailOptions) => {
     }
   });
 
-  // Attempt Port 465 (SSL)
   try {
     const transporter465 = createTransporter(465, true);
     const info = await transporter465.sendMail({
@@ -126,7 +137,6 @@ const sendViaSMTP = async (mailOptions) => {
     console.log(`[EMAIL SERVICE SUCCESS] Delivered via SMTP Port 465 to ${mailOptions.to}. ID: ${info.messageId}`);
     return { success: true, messageId: info.messageId, provider: 'smtp_465' };
   } catch (err465) {
-    // Attempt Port 587 (STARTTLS)
     try {
       const transporter587 = createTransporter(587, false);
       const info = await transporter587.sendMail({
@@ -145,20 +155,10 @@ const sendViaSMTP = async (mailOptions) => {
 };
 
 /**
- * Universal dispatcher trying HTTPS APIs first (Resend / Brevo), then SMTP fallback
+ * Universal dispatcher: Prioritizes Brevo HTTPS API (Port 443), then Resend, then SMTP
  */
 const sendMailWithFallback = async (mailOptions) => {
-  // 1. Try Resend HTTPS API (Port 443 - Never blocked on Render)
-  if (process.env.RESEND_API_KEY) {
-    try {
-      const res = await sendViaResend(mailOptions);
-      if (res) return res;
-    } catch (err) {
-      console.warn('[EMAIL SERVICE] Resend delivery failed:', err.message);
-    }
-  }
-
-  // 2. Try Brevo HTTPS API (Port 443 - Never blocked on Render)
+  // 1. Primary: Brevo HTTPS API (Port 443 - Never blocked on Render)
   if (process.env.BREVO_API_KEY) {
     try {
       const res = await sendViaBrevo(mailOptions);
@@ -168,8 +168,67 @@ const sendMailWithFallback = async (mailOptions) => {
     }
   }
 
-  // 3. Try SMTP (Will succeed on local or paid Render; fails fast on free Render)
+  // 2. Backup: Resend HTTPS API (Port 443)
+  if (process.env.RESEND_API_KEY) {
+    try {
+      const res = await sendViaResend(mailOptions);
+      if (res) return res;
+    } catch (err) {
+      console.warn('[EMAIL SERVICE] Resend delivery failed:', err.message);
+    }
+  }
+
+  // 3. Fallback: SMTP
   return await sendViaSMTP(mailOptions);
+};
+
+/**
+ * Diagnostic helper to test Brevo and email configuration
+ */
+exports.testEmailConfiguration = async () => {
+  const brevoKey = cleanStr(process.env.BREVO_API_KEY);
+  const senderEmail = cleanStr(
+    process.env.BREVO_SENDER_EMAIL ||
+    process.env.BREVO_SENDER ||
+    process.env.EMAIL_USER ||
+    process.env.GMAIL_USER
+  );
+  const senderName = cleanStr(process.env.BREVO_SENDER_NAME) || 'Vana Entertainments';
+
+  let brevoCheck = { tested: false, authenticated: false };
+
+  if (brevoKey) {
+    try {
+      const res = await fetch('https://api.brevo.com/v3/account', {
+        headers: { 'api-key': brevoKey, 'Accept': 'application/json' }
+      });
+      const data = await res.json().catch(() => ({}));
+      brevoCheck = {
+        tested: true,
+        status: res.status,
+        authenticated: res.status === 200,
+        accountEmail: data.email || null,
+        planType: data.plan?.map(p => p.type).join(', ') || null,
+        message: data.message || (res.status === 200 ? 'Authenticated with Brevo successfully' : res.statusText)
+      };
+    } catch (err) {
+      brevoCheck = { tested: true, authenticated: false, error: err.message };
+    }
+  }
+
+  return {
+    provider: brevoKey ? 'brevo' : (process.env.RESEND_API_KEY ? 'resend' : 'smtp'),
+    brevoConfigured: Boolean(brevoKey),
+    brevoKeyPrefix: brevoKey ? brevoKey.substring(0, 10) + '...' : null,
+    senderEmail: senderEmail || 'NOT_CONFIGURED',
+    senderName,
+    brevoAccountCheck: brevoCheck,
+    recommendation: brevoKey
+      ? (brevoCheck.authenticated
+          ? 'Brevo API is verified and ready for live email dispatch.'
+          : 'BREVO_API_KEY is configured but Brevo returned an authentication error. Please verify your API key at https://app.brevo.com/settings/keys/api')
+      : 'To send emails reliably from Render, set BREVO_API_KEY and BREVO_SENDER_EMAIL in your Render dashboard environment variables.'
+  };
 };
 
 /**

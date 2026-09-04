@@ -1,7 +1,7 @@
 const User = require('../models/User');
 const OTP = require('../models/OTP');
 const jwt = require('jsonwebtoken');
-const { sendOTPEmail } = require('../utils/emailService');
+const { sendOTPEmail, testEmailConfiguration } = require('../utils/emailService');
 
 const inMemoryOTPs = new Map();
 
@@ -350,4 +350,15 @@ exports.loginAdmin = async (req, res) => {
 exports.getMe = async (req, res) => {
   res.json({ success: true, user: req.user });
 };
+
+// Check Email Service & Brevo Gateway Status
+exports.getEmailStatus = async (req, res) => {
+  try {
+    const status = await testEmailConfiguration();
+    res.json({ success: true, ...status });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
 
