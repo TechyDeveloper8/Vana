@@ -53,9 +53,6 @@ export default function Register() {
     try {
       const res = await sendSignupOTP(email);
       setSuccessMsg(res.message || `Verification code dispatched to ${email}`);
-      if (res.devOtp) {
-        setOtp(res.devOtp);
-      }
       setStep(2);
       startCooldown();
     } catch (err) {
@@ -73,9 +70,6 @@ export default function Register() {
     try {
       const res = await sendSignupOTP(email);
       setSuccessMsg(res.message || `New OTP code dispatched to ${email}`);
-      if (res.devOtp) {
-        setOtp(res.devOtp);
-      }
       startCooldown();
     } catch (err) {
       setError(err.message || 'Failed to resend OTP.');

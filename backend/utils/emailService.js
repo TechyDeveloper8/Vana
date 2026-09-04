@@ -101,7 +101,8 @@ const sendViaResend = async (mailOptions) => {
  */
 const sendMailWithFallback = async (mailOptions) => {
   // 1. Primary: Brevo HTTPS REST API (Port 443 - Never blocked on Render)
-  if (process.env.BREVO_API_KEY && !process.env.BREVO_API_KEY.trim().startsWith('xsmtpsib-')) {
+  const brevoKey = cleanStr(process.env.BREVO_API_KEY);
+  if (brevoKey && !brevoKey.startsWith('xsmtpsib-')) {
     try {
       const res = await sendViaBrevo(mailOptions);
       if (res) return res;
@@ -122,7 +123,7 @@ const sendMailWithFallback = async (mailOptions) => {
 
   return {
     success: false,
-    error: 'Email dispatch failed: No active email API service available. Ensure BREVO_API_KEY (starting with xkeysib-) is configured.'
+    error: 'Email dispatch failed: No active email API service available. Ensure BREVO_API_KEY (starting with xkeysib-) is configured in environment variables.'
   };
 };
 

@@ -93,12 +93,10 @@ exports.sendSignupOTP = async (req, res) => {
     console.log('======================================================\n');
 
     if (!emailRes.success) {
-      console.warn(`[AUTH NOTICE] Email delivery failed for ${cleanEmail}:`, emailRes.error);
-      return res.json({
-        success: true,
-        message: `Verification code generated. (Email notice: ${emailRes.error || 'Check Brevo API key'}: code is ${otp})`,
-        devOtp: otp,
-        emailSent: false
+      console.error(`[AUTH ERROR] Failed to send registration OTP email to ${cleanEmail}:`, emailRes.error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to deliver verification code email. Please check your email address or try again later.'
       });
     }
 
@@ -140,16 +138,14 @@ exports.sendForgotOTP = async (req, res) => {
     console.log('\n======================================================');
     console.log(`🔑 [VANA PASSWORD RESET OTP] User: ${cleanEmail}`);
     console.log(`👉 VERIFICATION CODE: [ ${otp} ]`);
-    console.log(`📨 Delivery Status: ${emailRes.success ? 'Delivered via Email API' : 'Email API delivery error (' + emailRes.error + ')'}`);
+    console.log(`📨 Delivery Status: ${emailRes.success ? 'Delivered via Email API' : 'Email delivery failed: ' + (emailRes.error || 'Unknown error')}`);
     console.log('======================================================\n');
 
     if (!emailRes.success) {
-      console.warn(`[AUTH NOTICE] Email delivery failed for ${cleanEmail}:`, emailRes.error);
-      return res.json({
-        success: true,
-        message: `Password reset code generated. (Email notice: ${emailRes.error || 'Check Brevo API key'}: code is ${otp})`,
-        devOtp: otp,
-        emailSent: false
+      console.error(`[AUTH ERROR] Failed to send password reset OTP email to ${cleanEmail}:`, emailRes.error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to deliver password reset email. Please try again later.'
       });
     }
 
