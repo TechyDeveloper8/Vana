@@ -52,11 +52,10 @@ export default function CashfreePaymentModal({
       const mode = orderData.env === 'production' ? 'production' : 'sandbox';
       const cashfree = Cashfree({ mode });
 
-      // Use '_self' redirect mode — works without domain whitelisting in Cashfree dashboard
-      // The user is redirected to Cashfree's hosted payment page, then back via return_url
+      // Use '_modal' for slick in-page payment popup (works seamlessly in sandbox)
       cashfree.checkout({
         paymentSessionId: orderData.paymentSessionId,
-        redirectTarget: '_self'
+        redirectTarget: '_modal'
       }).then((result) => {
         setSdkLoading(false);
         if (result.error) {
@@ -84,6 +83,16 @@ export default function CashfreePaymentModal({
       setSdkError(`Cashfree Gateway SDK Notice: ${err.message}`);
     }
   };
+
+  // Automatically trigger Cashfree payment modal upon mount
+  useEffect(() => {
+    if (orderData?.paymentSessionId) {
+      const timer = setTimeout(() => {
+        handleCashfreeCheckout();
+      }, 350);
+      return () => clearTimeout(timer);
+    }
+  }, [orderData?.paymentSessionId]);
 
   return (
     <div

@@ -161,8 +161,8 @@ exports.createCashfreeOrder = async (params) => {
       ? `${finalReturnUrl}&order_id=${orderId}`
       : `${finalReturnUrl}?order_id=${orderId}`;
   }
-  // Cashfree Production rejects http:// URLs — swap to https:// for localhost dev
-  if (finalReturnUrl.startsWith('http://')) {
+  // Cashfree Production strictly requires HTTPS, while Sandbox permits http://localhost
+  if (finalReturnUrl.startsWith('http://') && config.preferredEnv === 'production') {
     finalReturnUrl = `https://www.vanaentertainments.com/book-ticket?order_id=${orderId}`;
   }
 
