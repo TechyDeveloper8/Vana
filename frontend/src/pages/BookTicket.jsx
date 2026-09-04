@@ -181,7 +181,7 @@ export default function BookTicket() {
 
     // 4. Default fallbacks matching venue layout
     if (tierCategory === 'Silver') return 500;
-    if (tierCategory === 'Platinum') return 700;
+    if (tierCategory === 'Gold') return 700;
     if (tierCategory === 'VIP Lounge' || tierCategory === 'VIP') return 1500;
     return 1000;
   };
@@ -735,28 +735,6 @@ export default function BookTicket() {
               <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--text-light)' }}>Rows 1A–1H • First Floor Balcony</p>
             </button>
 
-            {/* Platinum Plan */}
-            <button
-              type="button"
-              onClick={() => setActivePlan('Platinum')}
-              style={{
-                padding: '12px 14px',
-                borderRadius: '14px',
-                border: activePlan === 'Platinum' ? '2px solid var(--gold-primary)' : '1px solid rgba(212, 175, 55, 0.2)',
-                background: activePlan === 'Platinum' ? 'linear-gradient(135deg, #1E293B 0%, #0B0E17 100%)' : '#141824',
-                color: '#FFF',
-                textAlign: 'left',
-                cursor: 'pointer',
-                boxShadow: activePlan === 'Platinum' ? '0 0 14px rgba(212, 175, 55, 0.35)' : 'none'
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                <strong style={{ fontSize: '0.88rem', color: '#E2E8F0' }}>💎 Platinum Plan</strong>
-                <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--gold-accent)' }}>₹{getTierPrice('Platinum')}</span>
-              </div>
-              <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--text-light)' }}>Rows A–E • Premium Front Stage</p>
-            </button>
-
             {/* Gold Plan */}
             <button
               type="button"
@@ -775,6 +753,28 @@ export default function BookTicket() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                 <strong style={{ fontSize: '0.88rem', color: 'var(--gold-accent)' }}>🥇 Gold Plan</strong>
                 <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--gold-accent)' }}>₹{getTierPrice('Gold')}</span>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--text-light)' }}>Rows A–E • Premium Front Stage</p>
+            </button>
+
+            {/* Platinum Plan */}
+            <button
+              type="button"
+              onClick={() => setActivePlan('Platinum')}
+              style={{
+                padding: '12px 14px',
+                borderRadius: '14px',
+                border: activePlan === 'Platinum' ? '2px solid var(--gold-primary)' : '1px solid rgba(212, 175, 55, 0.2)',
+                background: activePlan === 'Platinum' ? 'linear-gradient(135deg, #1E293B 0%, #0B0E17 100%)' : '#141824',
+                color: '#FFF',
+                textAlign: 'left',
+                cursor: 'pointer',
+                boxShadow: activePlan === 'Platinum' ? '0 0 14px rgba(212, 175, 55, 0.35)' : 'none'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                <strong style={{ fontSize: '0.88rem', color: '#E2E8F0' }}>💎 Platinum Plan</strong>
+                <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--gold-accent)' }}>₹{getTierPrice('Platinum')}</span>
               </div>
               <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--text-light)' }}>Rows F–Q • Main Auditorium</p>
             </button>

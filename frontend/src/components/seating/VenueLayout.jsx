@@ -32,10 +32,10 @@ export default function VenueLayout({
     if (activePlan === 'Silver' || activePlan === 'First Floor') {
       setScale(1.25);
       setPan({ x: 0, y: 220 });
-    } else if (activePlan === 'Platinum') {
+    } else if (activePlan === 'Gold') {
       setScale(1.25);
       setPan({ x: 0, y: -180 });
-    } else if (activePlan === 'Gold') {
+    } else if (activePlan === 'Platinum') {
       setScale(1.15);
       setPan({ x: 0, y: -100 });
     } else if (activePlan === 'VIP Lounge') {
@@ -449,7 +449,7 @@ export default function VenueLayout({
           const status = avail.status || 'Available';
           const price = typeof avail.price === 'number' && avail.price > 0
             ? avail.price
-            : (seat.price || (seat.category === 'Silver' ? 500 : seat.category === 'Platinum' ? 700 : seat.category === 'VIP Lounge' ? 1500 : 1000));
+            : (seat.price || (seat.category === 'Silver' ? 500 : seat.category === 'Gold' ? 700 : seat.category === 'VIP Lounge' ? 1500 : 1000));
           
           // Determine if seat should be dimmed based on active plan selection
           const isDimmed = activePlan !== 'All' && seat.category !== activePlan && !(activePlan === 'Silver' && (seat.category === 'Silver' || seat.section?.startsWith('FIRST_FLOOR')));

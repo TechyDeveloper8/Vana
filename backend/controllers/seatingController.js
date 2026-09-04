@@ -41,8 +41,11 @@ exports.getLayout = async (req, res) => {
     const forceReseed = req.query.forceReseed === 'true';
     let layout = await SeatLayout.findOne({ venueId }).lean();
 
-    // Auto-update if layout is missing, forceReseed requested, or has old colliding FFR seats
-    const hasOldLayout = layout && layout.seats && layout.seats.some(s => s.seatId && s.seatId.startsWith('FFR-') && s.rotation !== 0);
+    // Auto-update if layout is missing, forceReseed requested, or has old colliding FFR seats or old category mapping
+    const hasOldLayout = layout && layout.seats && (
+      layout.seats.some(s => s.seatId && s.seatId.startsWith('FFR-') && s.rotation !== 0) ||
+      layout.seats.some(s => ['A', 'B', 'C', 'D', 'E'].includes(s.row) && s.category === 'Platinum')
+    );
 
     if (!layout || forceReseed || hasOldLayout) {
       console.log('Seeding / updating corrected seating layout...');
@@ -88,24 +91,24 @@ exports.getShowtimeAvailability = async (req, res) => {
       // Check if event has price tiers configured
       const event = await Event.findById(eventId);
       let defaultSilverPrice = 500;
-      let defaultPlatinumPrice = 700;
-      let defaultGoldPrice = 1000;
+      let defaultGoldPrice = 700;
+      let defaultPlatinumPrice = 1000;
       let defaultVipPrice = 1500;
 
       if (event && event.ticketTiers && event.ticketTiers.length > 0) {
         event.ticketTiers.forEach(tier => {
           const name = tier.tierName.toLowerCase();
           if (name.includes('silv') || name.includes('first')) defaultSilverPrice = tier.price;
-          if (name.includes('plat')) defaultPlatinumPrice = tier.price;
           if (name.includes('gold')) defaultGoldPrice = tier.price;
+          if (name.includes('plat')) defaultPlatinumPrice = tier.price;
           if (name.includes('vip')) defaultVipPrice = tier.price;
         });
       }
 
       const newDocs = layout.seats.map(seat => {
-        let price = defaultGoldPrice;
+        let price = defaultPlatinumPrice;
         if (seat.category === 'Silver') price = defaultSilverPrice;
-        if (seat.category === 'Platinum') price = defaultPlatinumPrice;
+        if (seat.category === 'Gold') price = defaultGoldPrice;
         if (seat.category === 'VIP Lounge') price = defaultVipPrice;
 
         return {
@@ -342,8 +345,8 @@ exports.adminUpdateTierPrices = async (req, res) => {
 
     const formattedTiers = [
       { tierName: 'Silver (First Floor Rows 1A–1H)', price: Number(prices.Silver || 500), totalSeats: 260, availableSeats: 260 },
-      { tierName: 'Platinum (Rows A–E)', price: Number(prices.Platinum || 700), totalSeats: 150, availableSeats: 150 },
-      { tierName: 'Gold (Rows F–Q)', price: Number(prices.Gold || 1000), totalSeats: 450, availableSeats: 450 },
+      { tierName: 'Gold (Rows A–E)', price: Number(prices.Gold || 700), totalSeats: 150, availableSeats: 150 },
+      { tierName: 'Platinum (Rows F–Q)', price: Number(prices.Platinum || 1000), totalSeats: 450, availableSeats: 450 },
       { tierName: 'VIP Lounge (Row V)', price: Number(prices['VIP Lounge'] || 1500), totalSeats: 40, availableSeats: 40 }
     ];
 

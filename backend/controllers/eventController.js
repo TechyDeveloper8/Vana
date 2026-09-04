@@ -135,10 +135,10 @@ exports.getEvents = async (req, res) => {
           description: 'Experience an extraordinary evening of live music, mesmerizing visuals, and interactive auditorium seating featuring First Floor Balcony & Ground Floor tiers.',
           bannerImage: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80',
           ticketTiers: [
-            { tierName: 'Silver (First Floor)', price: 999, totalSeats: 352, availableSeats: 352 },
-            { tierName: 'Gold Pass', price: 1499, totalSeats: 450, availableSeats: 450 },
-            { tierName: 'Platinum Pass', price: 2499, totalSeats: 200, availableSeats: 200 },
-            { tierName: 'VIP Lounge', price: 4999, totalSeats: 26, availableSeats: 26 }
+            { tierName: 'Silver (First Floor)', price: 500, totalSeats: 260, availableSeats: 260 },
+            { tierName: 'Gold (Rows A–E)', price: 700, totalSeats: 150, availableSeats: 150 },
+            { tierName: 'Platinum (Rows F–Q)', price: 1000, totalSeats: 450, availableSeats: 450 },
+            { tierName: 'VIP Lounge', price: 1500, totalSeats: 40, availableSeats: 40 }
           ]
         },
         {
@@ -156,10 +156,10 @@ exports.getEvents = async (req, res) => {
           description: 'Connect with industry leaders, tech visionaries, and creative entrepreneurs in an immersive auditorium layout.',
           bannerImage: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=1200&q=80',
           ticketTiers: [
-            { tierName: 'Silver (First Floor)', price: 999, totalSeats: 352, availableSeats: 352 },
-            { tierName: 'Gold Pass', price: 1499, totalSeats: 450, availableSeats: 450 },
-            { tierName: 'Platinum Pass', price: 2499, totalSeats: 200, availableSeats: 200 },
-            { tierName: 'VIP Lounge', price: 4999, totalSeats: 26, availableSeats: 26 }
+            { tierName: 'Silver (First Floor)', price: 500, totalSeats: 260, availableSeats: 260 },
+            { tierName: 'Gold (Rows A–E)', price: 700, totalSeats: 150, availableSeats: 150 },
+            { tierName: 'Platinum (Rows F–Q)', price: 1000, totalSeats: 450, availableSeats: 450 },
+            { tierName: 'VIP Lounge', price: 1500, totalSeats: 40, availableSeats: 40 }
           ]
         }
       ];

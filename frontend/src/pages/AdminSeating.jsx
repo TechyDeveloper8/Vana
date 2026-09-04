@@ -15,8 +15,8 @@ export default function AdminSeating() {
   // Category price settings form state
   const [prices, setPrices] = useState({
     Silver: 500,
-    Platinum: 700,
-    Gold: 1000,
+    Gold: 700,
+    Platinum: 1000,
     'VIP Lounge': 1500
   });
   const [savingPrices, setSavingPrices] = useState(false);
@@ -58,14 +58,14 @@ export default function AdminSeating() {
 
           // Update price input state based on fetched inventory
           const sampleSilver = res.data.find((s) => s.category === 'Silver');
-          const samplePlatinum = res.data.find((s) => s.category === 'Platinum');
           const sampleGold = res.data.find((s) => s.category === 'Gold');
+          const samplePlatinum = res.data.find((s) => s.category === 'Platinum');
           const sampleVip = res.data.find((s) => s.category === 'VIP Lounge');
 
           setPrices({
             Silver: sampleSilver ? sampleSilver.price : 500,
-            Platinum: samplePlatinum ? samplePlatinum.price : 700,
-            Gold: sampleGold ? sampleGold.price : 1000,
+            Gold: sampleGold ? sampleGold.price : 700,
+            Platinum: samplePlatinum ? samplePlatinum.price : 1000,
             'VIP Lounge': sampleVip ? sampleVip.price : 1500
           });
         }
@@ -383,23 +383,23 @@ export default function AdminSeating() {
                 </div>
 
                 <div style={{ marginBottom: '12px' }}>
-                  <label style={{ display: 'block', fontSize: '0.78rem', color: '#CBD5E1', marginBottom: '4px' }}>Platinum Category (Rows A–E)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={prices.Platinum}
-                    onChange={(e) => setPrices({ ...prices, Platinum: Number(e.target.value) })}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', color: '#F8FAFC' }}
-                  />
-                </div>
-
-                <div style={{ marginBottom: '12px' }}>
-                  <label style={{ display: 'block', fontSize: '0.78rem', color: '#CBD5E1', marginBottom: '4px' }}>Gold Category (Rows F–Q)</label>
+                  <label style={{ display: 'block', fontSize: '0.78rem', color: '#CBD5E1', marginBottom: '4px' }}>Gold Category (Rows A–E)</label>
                   <input
                     type="number"
                     min="0"
                     value={prices.Gold}
                     onChange={(e) => setPrices({ ...prices, Gold: Number(e.target.value) })}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', color: '#F8FAFC' }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: '12px' }}>
+                  <label style={{ display: 'block', fontSize: '0.78rem', color: '#CBD5E1', marginBottom: '4px' }}>Platinum Category (Rows F–Q)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={prices.Platinum}
+                    onChange={(e) => setPrices({ ...prices, Platinum: Number(e.target.value) })}
                     style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', background: '#0B0E17', border: '1px solid rgba(212, 175, 55, 0.25)', color: '#F8FAFC' }}
                   />
                 </div>

@@ -86,16 +86,16 @@ async function inspectAndReset() {
     
     // Check tier prices
     let defaultSilverPrice = 500;
-    let defaultPlatinumPrice = 700;
-    let defaultGoldPrice = 1000;
+    let defaultGoldPrice = 700;
+    let defaultPlatinumPrice = 1000;
     let defaultVipPrice = 1500;
 
     if (ev.ticketTiers && ev.ticketTiers.length > 0) {
       ev.ticketTiers.forEach(tier => {
         const name = (tier.tierName || '').toLowerCase();
         if (name.includes('silv') || name.includes('first')) defaultSilverPrice = tier.price;
-        if (name.includes('plat')) defaultPlatinumPrice = tier.price;
         if (name.includes('gold')) defaultGoldPrice = tier.price;
+        if (name.includes('plat')) defaultPlatinumPrice = tier.price;
         if (name.includes('vip')) defaultVipPrice = tier.price;
       });
     }
@@ -103,9 +103,9 @@ async function inspectAndReset() {
     for (const st of showtimes) {
       const showtimeKey = typeof st === 'string' ? st : (st.date || 'Default');
       const docs = freshLayout.seats.map(seat => {
-        let price = defaultGoldPrice;
+        let price = defaultPlatinumPrice;
         if (seat.category === 'Silver') price = defaultSilverPrice;
-        if (seat.category === 'Platinum') price = defaultPlatinumPrice;
+        if (seat.category === 'Gold') price = defaultGoldPrice;
         if (seat.category === 'VIP Lounge') price = defaultVipPrice;
 
         return {
