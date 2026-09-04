@@ -211,13 +211,13 @@ export default function Home() {
             <p
               style={{
                 color: '#A1A1A1',
-                maxWidth: '480px',
-                fontSize: '1.1rem',
+                maxWidth: '580px',
+                fontSize: '1.05rem',
                 lineHeight: 1.6,
                 margin: 0
               }}
             >
-              Vana Entertainment produces festivals, concerts, theatre and corporate spectacles — and lets you book tickets in seconds.
+              Vana Entertainments is a dynamic new-age event and entertainment startup founded by Vaishnavi Sharma and Sudhanshu Shekhar, with a shared vision to bring bigger, better and more memorable entertainment experiences.
             </p>
 
             <Link
