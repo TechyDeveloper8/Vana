@@ -230,6 +230,8 @@ exports.testEmailConfiguration = async () => {
           authenticated: res.status === 200,
           accountEmail: data.email || null,
           planType: data.plan?.map(p => p.type).join(', ') || null,
+          relayEnabled: data.relay ? data.relay.enabled : null,
+          relayUser: data.relay?.data?.userName || null,
           message: data.message || (res.status === 200 ? 'Authenticated with Brevo successfully' : res.statusText)
         };
       } catch (err) {
@@ -255,7 +257,9 @@ exports.testEmailConfiguration = async () => {
     brevoAccountCheck: brevoCheck,
     recommendation: brevoKey && !brevoKey.startsWith('xsmtpsib-')
       ? (brevoCheck.authenticated
-          ? 'Brevo HTTPS API is verified and ready for live email dispatch.'
+          ? (brevoCheck.relayEnabled === false
+              ? 'Brevo API is authenticated! Note: Brevo requires a 1-time account activation for transactional sending on new accounts. Log into https://app.brevo.com to complete the verification banner, or contact Brevo support.'
+              : 'Brevo HTTPS API is verified and ready for live email dispatch.')
           : (brevoCheck.message && brevoCheck.message.includes('authorised_ips')
               ? 'Brevo detected an unauthorized IP. Go to https://app.brevo.com/security/authorised_ips and disable the IP restriction (or add your IP) so your cloud server (Render) can make API calls.'
               : 'BREVO_API_KEY is configured but Brevo returned an authentication error. Please verify your API key at https://app.brevo.com/settings/keys/api'))
