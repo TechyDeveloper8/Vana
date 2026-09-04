@@ -5,9 +5,9 @@
  */
 
 const getCashfreeConfig = () => {
-  const appId = (process.env.CASHFREE_APP_ID || '').trim();
+  const appId = (process.env.CASHFREE_APP_ID || '1390076f72edc0a19549a7355bb6700931').trim();
   const secretKey = (process.env.CASHFREE_SECRET_KEY || '').trim();
-  const env = (process.env.CASHFREE_ENV || 'sandbox').toLowerCase().trim();
+  const env = (process.env.CASHFREE_ENV || (appId.startsWith('TEST') ? 'sandbox' : 'production')).toLowerCase().trim();
   const apiVersion = process.env.CASHFREE_API_VERSION || '2023-08-01';
 
   const baseUrl = env === 'production'
