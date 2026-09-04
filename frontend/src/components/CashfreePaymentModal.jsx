@@ -47,19 +47,6 @@ export default function CashfreePaymentModal({
     setSdkLoading(true);
     setSdkError('');
 
-    // If order was created in simulated sandbox mode (real API keys not configured in .env)
-    if (orderData.isTestMode || orderData.paymentSessionId.startsWith('session_vana_test_')) {
-      console.log('[CASHFREE CHECKOUT] Operating in Cashfree Sandbox test mode for Order:', orderData.orderId);
-      setTimeout(() => {
-        setSdkLoading(false);
-        onPaymentSuccess({
-          orderId: orderData.orderId,
-          paymentMethod: 'Cashfree Sandbox PG'
-        });
-      }, 1200);
-      return;
-    }
-
     try {
       const Cashfree = await loadCashfreeSDK();
       const mode = orderData.env === 'production' ? 'production' : 'sandbox';
@@ -354,19 +341,20 @@ export default function CashfreePaymentModal({
               <div style={{ marginTop: '8px' }}>
                 <button
                   type="button"
-                  onClick={() => onPaymentSuccess({ orderId: orderData.orderId, paymentMethod: 'Cashfree Test PG' })}
+                  onClick={handleCashfreeCheckout}
                   style={{
                     background: '#F59E0B',
                     color: '#000',
                     border: 'none',
                     borderRadius: '6px',
-                    padding: '4px 10px',
-                    fontSize: '0.75rem',
+                    padding: '6px 14px',
+                    fontSize: '0.78rem',
                     fontWeight: 700,
                     cursor: 'pointer'
                   }}
                 >
-                  Complete via Cashfree Test Verification
+                  <i className="fa-solid fa-rotate-right" style={{ marginRight: '6px' }}></i>
+                  Retry Real-Time Checkout
                 </button>
               </div>
             </div>

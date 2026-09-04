@@ -2,7 +2,7 @@ const Booking = require('../models/Booking');
 const SeatAvailability = require('../models/SeatAvailability');
 const QRCode = require('qrcode');
 const { sendTicketEmail } = require('../utils/emailService');
-const { createCashfreeOrder, verifyCashfreeOrder } = require('../utils/cashfreeService');
+const { createCashfreeOrder, verifyCashfreeOrder, testCashfreeConnection } = require('../utils/cashfreeService');
 
 // 1. Create Booking (Online or Admin Manual Entry)
 exports.createBooking = async (req, res) => {
@@ -404,6 +404,31 @@ exports.createCashfreePaymentOrder = async (req, res) => {
       returnUrl
     });
 
+    if (!cfOrder.success) {
+      // Rollback locked seats because order creation failed with Cashfree
+      if (eventId && seatIds.length > 0) {
+        await SeatAvailability.updateMany(
+          { eventId, showtimeDate, seatId: { $in: seatIds }, lockedBy: lockUser },
+          { $set: { status: 'Available', lockedBy: null, lockExpiresAt: null } }
+        );
+        const io = req.app.get('io');
+        if (io) {
+          const roomName = `${eventId}_${showtimeDate}`;
+          io.to(roomName).emit('seatStatusChanged', {
+            action: 'unlock',
+            seatIds
+          });
+        }
+      }
+
+      return res.status(400).json({
+        success: false,
+        message: cfOrder.error || 'Failed to initialize Cashfree payment gateway session.',
+        code: cfOrder.code,
+        env: cfOrder.env
+      });
+    }
+
     // Save pending booking so details are preserved even on bank redirect
     try {
       await Booking.create({
@@ -439,10 +464,8 @@ exports.createCashfreePaymentOrder = async (req, res) => {
       orderAmount: totalAmount,
       subtotal,
       gst,
-      isTestMode: cfOrder.isTestMode,
       env: cfOrder.env,
-      selectedSeats: verifiedSeats,
-      warning: cfOrder.warning
+      selectedSeats: verifiedSeats
     });
   } catch (error) {
     console.error('Create Cashfree Order Error:', error);
@@ -670,3 +693,15 @@ exports.cancelCashfreeOrder = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// 10. Check Cashfree Gateway Connectivity & Diagnostics
+exports.getCashfreeStatus = async (req, res) => {
+  try {
+    const status = await testCashfreeConnection();
+    res.status(200).json({ success: true, ...status });
+  } catch (error) {
+    console.error('Cashfree Status Error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
