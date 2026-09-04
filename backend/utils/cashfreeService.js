@@ -171,7 +171,7 @@ exports.verifyCashfreeOrder = async (orderId) => {
   }
 
   try {
-    const response = await fetch(`${config.baseUrl}/orders/${orderId}`, {
+    let response = await fetch(`${config.baseUrl}/orders/${orderId}`, {
       method: 'GET',
       headers: {
         'x-client-id': config.appId,
@@ -181,7 +181,7 @@ exports.verifyCashfreeOrder = async (orderId) => {
       }
     });
 
-    const orderData = await response.json();
+    let orderData = await response.json();
 
     if (!response.ok) {
       console.warn('[CASHFREE VERIFY ORDER ERROR]:', orderData);
@@ -192,19 +192,10 @@ exports.verifyCashfreeOrder = async (orderId) => {
       };
     }
 
-    const isPaid = orderData.order_status === 'PAID';
-
-    if (!isPaid) {
-      return {
-        success: false,
-        isPaid: false,
-        order_status: orderData.order_status,
-        message: `Cashfree order payment is not completed. Current order status: ${orderData.order_status}`
-      };
-    }
-
-    // Fetch payments list to extract authentic payment ID & payment method
+    let isPaid = orderData.order_status === 'PAID';
     let paymentDetails = null;
+
+    // Check payment attempts directly from Cashfree payments endpoint
     try {
       const payRes = await fetch(`${config.baseUrl}/orders/${orderId}/payments`, {
         method: 'GET',
@@ -215,13 +206,50 @@ exports.verifyCashfreeOrder = async (orderId) => {
           'Accept': 'application/json'
         }
       });
-      const payments = await payRes.json();
-      if (Array.isArray(payments) && payments.length > 0) {
-        // Find successful payment
-        paymentDetails = payments.find(p => p.payment_status === 'SUCCESS') || payments[0];
+      if (payRes.ok) {
+        const payments = await payRes.json();
+        if (Array.isArray(payments) && payments.length > 0) {
+          paymentDetails = payments.find(p => p.payment_status === 'SUCCESS') || payments[0];
+          if (paymentDetails && paymentDetails.payment_status === 'SUCCESS') {
+            isPaid = true;
+          }
+        }
       }
     } catch (payErr) {
       console.warn('[CASHFREE FETCH PAYMENTS WARNING]:', payErr.message);
+    }
+
+    // If order is ACTIVE but not yet confirmed PAID, wait 1.5s and retry once (handles banking webhook propagation)
+    if (!isPaid && orderData.order_status === 'ACTIVE') {
+      await new Promise(r => setTimeout(r, 1500));
+      try {
+        const retryRes = await fetch(`${config.baseUrl}/orders/${orderId}`, {
+          method: 'GET',
+          headers: {
+            'x-client-id': config.appId,
+            'x-client-secret': config.secretKey,
+            'x-api-version': config.apiVersion,
+            'Accept': 'application/json'
+          }
+        });
+        if (retryRes.ok) {
+          orderData = await retryRes.json();
+          if (orderData.order_status === 'PAID') {
+            isPaid = true;
+          }
+        }
+      } catch (retryErr) {
+        console.warn('[CASHFREE RETRY ERROR]:', retryErr.message);
+      }
+    }
+
+    if (!isPaid) {
+      return {
+        success: false,
+        isPaid: false,
+        order_status: orderData.order_status,
+        message: `Payment is not completed yet (status: ${orderData.order_status}). If your payment was just deducted, please wait 3 seconds and click 'Verify Payment'.`
+      };
     }
 
     return {

@@ -404,6 +404,33 @@ exports.createCashfreePaymentOrder = async (req, res) => {
       returnUrl
     });
 
+    // Save pending booking so details are preserved even on bank redirect
+    try {
+      await Booking.create({
+        bookingId: 'PENDING_' + orderId,
+        userId: req.user ? req.user.id : null,
+        userName: userName || (req.user ? req.user.name : 'Guest User'),
+        userEmail: userEmail || (req.user ? req.user.email : 'guest@example.com'),
+        userPhone: userPhone || '9876543210',
+        eventId: eventId || null,
+        eventTitle: eventTitle || 'Vana Live Performance',
+        ticketCategory: verifiedSeats.length > 0 ? [...new Set(verifiedSeats.map(s => s.category))].join(', ') : 'Standard Pass',
+        quantity: verifiedSeats.length > 0 ? verifiedSeats.length : 1,
+        unitPrice: verifiedSeats.length > 0 ? verifiedSeats[0].price : totalAmount,
+        subtotal,
+        gst: 0,
+        totalAmount,
+        paymentStatus: 'Pending',
+        cashfreeOrderId: orderId,
+        paymentSessionId: cfOrder.payment_session_id,
+        paymentGateway: 'Cashfree',
+        showtimeDate,
+        selectedSeats: verifiedSeats
+      });
+    } catch (pendErr) {
+      console.warn('Pending booking save note:', pendErr.message);
+    }
+
     res.status(200).json({
       success: true,
       orderId,
@@ -443,6 +470,16 @@ exports.verifyCashfreePayment = async (req, res) => {
       return res.status(400).json({ success: false, message: 'orderId is required for payment verification.' });
     }
 
+    // Check if booking is already verified and marked Paid (idempotent)
+    const existingPaid = await Booking.findOne({ cashfreeOrderId: orderId, paymentStatus: 'Paid' });
+    if (existingPaid) {
+      return res.status(200).json({
+        success: true,
+        message: 'Payment already verified and booking confirmed.',
+        booking: existingPaid
+      });
+    }
+
     // Authenticate payment status with Cashfree PG API
     const verification = await verifyCashfreeOrder(orderId);
 
@@ -454,14 +491,27 @@ exports.verifyCashfreePayment = async (req, res) => {
       });
     }
 
+    // Retrieve pending booking details if frontend seats/details are empty (e.g. from bank redirect)
+    const pendingBooking = await Booking.findOne({ cashfreeOrderId: orderId, paymentStatus: 'Pending' });
+
+    const effectiveSeats = (selectedSeats && selectedSeats.length > 0)
+      ? selectedSeats
+      : (pendingBooking?.selectedSeats || []);
+    const effectiveEventId = eventId || pendingBooking?.eventId;
+    const effectiveShowtime = showtimeDate || pendingBooking?.showtimeDate || 'Default';
+    const effectiveUserName = userName || pendingBooking?.userName || (req.user ? req.user.name : 'Guest User');
+    const effectiveEmail = userEmail || pendingBooking?.userEmail || (req.user ? req.user.email : 'guest@example.com');
+    const effectivePhone = userPhone || pendingBooking?.userPhone || '9876543210';
+    const effectiveEventTitle = eventTitle || pendingBooking?.eventTitle || 'Vana Live Performance';
+
     // Re-verify venue seat pricing from database for all selected seats
-    const seatIds = selectedSeats.map(s => s.seatId);
+    const seatIds = effectiveSeats.map(s => s.seatId);
     let verifiedSeats = [];
-    if (eventId && seatIds.length > 0) {
-      const dbSeats = await SeatAvailability.find({ eventId, showtimeDate, seatId: { $in: seatIds } });
+    if (effectiveEventId && seatIds.length > 0) {
+      const dbSeats = await SeatAvailability.find({ eventId: effectiveEventId, showtimeDate: effectiveShowtime, seatId: { $in: seatIds } });
       const dbSeatMap = new Map(dbSeats.map(s => [s.seatId, s]));
 
-      verifiedSeats = selectedSeats.map(seat => {
+      verifiedSeats = effectiveSeats.map(seat => {
         const dbSeat = dbSeatMap.get(seat.seatId);
         const verifiedPrice = dbSeat && typeof dbSeat.price === 'number' && dbSeat.price > 0
           ? dbSeat.price
@@ -474,14 +524,14 @@ exports.verifyCashfreePayment = async (req, res) => {
         };
       });
     } else {
-      verifiedSeats = selectedSeats;
+      verifiedSeats = effectiveSeats;
     }
 
     // Compute final pricing strictly from verified venue seat prices (no GST)
     const finalQuantity = verifiedSeats.length > 0 ? verifiedSeats.length : 1;
     const computedSubtotal = verifiedSeats.length > 0
       ? verifiedSeats.reduce((sum, s) => sum + (Number(s.price) || 0), 0)
-      : 500;
+      : (pendingBooking?.totalAmount || 500);
     const gst = 0;
     const totalAmount = computedSubtotal; // Direct venue seat price is official price
 
@@ -489,52 +539,67 @@ exports.verifyCashfreePayment = async (req, res) => {
     const seatDisplayString = verifiedSeats.map(s => s.displayLabel || s.seatId).join(', ');
     const categoryString = verifiedSeats.length > 0
       ? [...new Set(verifiedSeats.map(s => s.category))].join(', ')
-      : (ticketCategory || 'Standard Pass');
+      : (ticketCategory || pendingBooking?.ticketCategory || 'Standard Pass');
 
     // Generate QR Code data URL
     const qrData = JSON.stringify({
       bookingId,
-      userName,
-      eventTitle,
+      userName: effectiveUserName,
+      eventTitle: effectiveEventTitle,
       quantity: finalQuantity,
       seats: seatDisplayString,
       cashfreeOrderId: orderId
     });
     const qrCodeUrl = await QRCode.toDataURL(qrData);
 
-    // Create permanent Booking record
-    const bookingPayload = {
-      bookingId,
-      userId: req.user ? req.user.id : null,
-      userName: userName || (req.user ? req.user.name : 'Guest User'),
-      userEmail: userEmail || (req.user ? req.user.email : 'guest@example.com'),
-      userPhone: userPhone || '+91-9876543210',
-      eventId: eventId || null,
-      eventTitle,
-      ticketCategory: categoryString,
-      quantity: finalQuantity,
-      unitPrice: Math.round(computedSubtotal / finalQuantity),
-      subtotal: computedSubtotal,
-      gst,
-      totalAmount,
-      paymentStatus: 'Paid',
-      paymentGateway: 'Cashfree',
-      paymentMethod: verification.payment_method || paymentMethod || 'Cashfree PG',
-      cashfreeOrderId: orderId,
-      cashfreePaymentId: verification.cf_payment_id || `cf_pay_${Date.now()}`,
-      qrCodeUrl,
-      isCheckedIn: false,
-      showtimeDate,
-      selectedSeats: verifiedSeats
-    };
-
-    const booking = await Booking.create(bookingPayload);
+    // Create or update permanent Booking record
+    let booking;
+    if (pendingBooking) {
+      pendingBooking.bookingId = bookingId;
+      pendingBooking.paymentStatus = 'Paid';
+      pendingBooking.paymentGateway = 'Cashfree';
+      pendingBooking.paymentMethod = verification.payment_method || paymentMethod || 'Cashfree PG';
+      pendingBooking.cashfreeOrderId = orderId;
+      pendingBooking.cashfreePaymentId = verification.cf_payment_id || `cf_pay_${Date.now()}`;
+      pendingBooking.qrCodeUrl = qrCodeUrl;
+      pendingBooking.selectedSeats = verifiedSeats;
+      pendingBooking.ticketCategory = categoryString;
+      pendingBooking.unitPrice = Math.round(computedSubtotal / finalQuantity);
+      pendingBooking.subtotal = computedSubtotal;
+      pendingBooking.totalAmount = totalAmount;
+      booking = await pendingBooking.save();
+    } else {
+      const bookingPayload = {
+        bookingId,
+        userId: req.user ? req.user.id : null,
+        userName: effectiveUserName,
+        userEmail: effectiveEmail,
+        userPhone: effectivePhone,
+        eventId: effectiveEventId || null,
+        eventTitle: effectiveEventTitle,
+        ticketCategory: categoryString,
+        quantity: finalQuantity,
+        unitPrice: Math.round(computedSubtotal / finalQuantity),
+        subtotal: computedSubtotal,
+        gst,
+        totalAmount,
+        paymentStatus: 'Paid',
+        paymentGateway: 'Cashfree',
+        paymentMethod: verification.payment_method || paymentMethod || 'Cashfree PG',
+        cashfreeOrderId: orderId,
+        cashfreePaymentId: verification.cf_payment_id || `cf_pay_${Date.now()}`,
+        qrCodeUrl,
+        isCheckedIn: false,
+        showtimeDate: effectiveShowtime,
+        selectedSeats: verifiedSeats
+      };
+      booking = await Booking.create(bookingPayload);
+    }
 
     // Permanently mark seats as Booked
-    if (eventId && selectedSeats.length > 0) {
-      const seatIds = selectedSeats.map(s => s.seatId);
+    if (effectiveEventId && seatIds.length > 0) {
       await SeatAvailability.updateMany(
-        { eventId, showtimeDate, seatId: { $in: seatIds } },
+        { eventId: effectiveEventId, showtimeDate: effectiveShowtime, seatId: { $in: seatIds } },
         {
           $set: {
             status: 'Booked',
@@ -546,11 +611,11 @@ exports.verifyCashfreePayment = async (req, res) => {
         }
       );
 
-      const updatedSeats = await SeatAvailability.find({ eventId, showtimeDate, seatId: { $in: seatIds } });
+      const updatedSeats = await SeatAvailability.find({ eventId: effectiveEventId, showtimeDate: effectiveShowtime, seatId: { $in: seatIds } });
 
       const io = req.app.get('io');
       if (io) {
-        const roomName = `${eventId}_${showtimeDate}`;
+        const roomName = `${effectiveEventId}_${effectiveShowtime}`;
         io.to(roomName).emit('seatStatusChanged', {
           action: 'booked',
           bookingId: booking.bookingId,

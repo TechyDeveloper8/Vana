@@ -72,19 +72,18 @@ export default function CashfreePaymentModal({
         setSdkLoading(false);
         if (result.error) {
           console.warn('[CASHFREE CHECKOUT ERROR]:', result.error);
-          setSdkError(result.error.message || 'Payment was cancelled or closed before completion.');
+          setSdkError(result.error.message || 'Payment window closed or cancelled.');
         } else if (result.paymentDetails) {
           console.log('[CASHFREE PAYMENT SUCCESS]:', result.paymentDetails);
           onPaymentSuccess({
             orderId: orderData.orderId,
             paymentMethod: result.paymentDetails?.payment_group || 'Cashfree PG'
           });
+        } else if (result.redirect) {
+          console.log('[CASHFREE REDIRECT]: Redirection initiated to bank/UPI page');
+          // Redirection in progress - DO NOT call verify yet
         } else {
-          // If modal completed without error
-          onPaymentSuccess({
-            orderId: orderData.orderId,
-            paymentMethod: 'Cashfree PG'
-          });
+          console.log('[CASHFREE MODAL CLOSED / IN PROGRESS]:', result);
         }
       }).catch((err) => {
         console.error('[CASHFREE MODAL PROMISE ERROR]:', err);
@@ -94,7 +93,7 @@ export default function CashfreePaymentModal({
     } catch (err) {
       console.error('[CASHFREE INITIALIZATION ERROR]:', err);
       setSdkLoading(false);
-      setSdkError(`Cashfree Gateway SDK Notice: ${err.message}. If you are testing offline or without live credentials, you may complete via Cashfree Test Verification.`);
+      setSdkError(`Cashfree Gateway SDK Notice: ${err.message}`);
     }
   };
 
@@ -406,6 +405,41 @@ export default function CashfreePaymentModal({
               </>
             )}
           </button>
+
+          {/* Secondary Action: Check / Verify Payment Status */}
+          <div style={{ marginTop: '12px' }}>
+            <button
+              type="button"
+              onClick={() => onPaymentSuccess({ orderId: orderData.orderId, paymentMethod: 'Cashfree PG' })}
+              disabled={verifying}
+              style={{
+                background: 'rgba(255, 255, 255, 0.04)',
+                color: '#CBD5E1',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '12px',
+                padding: '10px 18px',
+                fontSize: '0.84rem',
+                fontWeight: 600,
+                cursor: verifying ? 'not-allowed' : 'pointer',
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.5)';
+                e.currentTarget.style.color = '#F59E0B';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                e.currentTarget.style.color = '#CBD5E1';
+              }}
+            >
+              <i className="fa-solid fa-arrows-rotate"></i> Paid in App / Bank? Verify Payment Status
+            </button>
+          </div>
         </div>
 
         {/* Verifying Overlay */}

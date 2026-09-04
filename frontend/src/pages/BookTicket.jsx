@@ -231,6 +231,8 @@ export default function BookTicket() {
     setLocking(true);
 
     try {
+      const returnUrl = `${window.location.origin}${window.location.pathname}?order_id={order_id}`;
+
       // Create Cashfree Payment Order (Backend automatically locks seats for 10 minutes)
       const orderRes = await fetchAPI('/booking/cashfree/create-order', {
         method: 'POST',
@@ -239,19 +241,36 @@ export default function BookTicket() {
           eventTitle: event?.title || 'Vana Live Performance',
           showtimeDate,
           selectedSeats,
-          userName: name || user.name,
-          userEmail: email || user.email,
-          userPhone: phone || user.phone || '9876543210'
+          userName: name || user?.name || 'Guest User',
+          userEmail: email || user?.email || 'guest@example.com',
+          userPhone: phone || user?.phone || '9876543210',
+          returnUrl
         })
       });
 
       if (orderRes.success && orderRes.orderId) {
+        // Cache pending booking in sessionStorage in case browser redirects to bank gateway
+        try {
+          sessionStorage.setItem('pending_cf_booking', JSON.stringify({
+            orderId: orderRes.orderId,
+            eventId: id || event?._id,
+            eventTitle: event?.title || 'Vana Live Performance',
+            showtimeDate,
+            selectedSeats,
+            userName: name || user?.name || 'Guest User',
+            userEmail: email || user?.email || 'guest@example.com',
+            userPhone: phone || user?.phone || '9876543210'
+          }));
+        } catch (e) {
+          console.warn('Session storage cache note:', e.message);
+        }
+
         setCashfreeOrder({
           ...orderRes,
           eventTitle: event?.title || 'Vana Live Performance',
-          userName: name || user.name,
-          userEmail: email || user.email,
-          userPhone: phone || user.phone,
+          userName: name || user?.name || 'Guest User',
+          userEmail: email || user?.email || 'guest@example.com',
+          userPhone: phone || user?.phone || '9876543210',
           selectedSeats
         });
         setShowCashfreeModal(true);
@@ -285,6 +304,7 @@ export default function BookTicket() {
       });
 
       if (verifyRes.success && verifyRes.booking) {
+        try { sessionStorage.removeItem('pending_cf_booking'); } catch (e) {}
         setShowCashfreeModal(false);
         setCashfreeOrder(null);
         setBookingSuccess(verifyRes.booking);
@@ -298,6 +318,26 @@ export default function BookTicket() {
       setVerifyingPayment(false);
     }
   };
+
+  // Check for return from Cashfree bank redirect with ?order_id=...
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const orderIdParam = searchParams.get('order_id');
+    if (orderIdParam) {
+      window.history.replaceState({}, '', window.location.pathname);
+      let cached = {};
+      try {
+        const raw = sessionStorage.getItem('pending_cf_booking');
+        if (raw) cached = JSON.parse(raw);
+      } catch (e) {}
+
+      handleCashfreeSuccess({
+        orderId: orderIdParam,
+        paymentMethod: 'Cashfree PG',
+        ...cached
+      });
+    }
+  }, []);
 
   // Handle modal cancellation and release locked seats
   const handleCashfreeCancel = async () => {
