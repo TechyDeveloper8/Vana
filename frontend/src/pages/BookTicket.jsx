@@ -75,7 +75,7 @@ export default function BookTicket() {
 
     // 2. Connect Socket.IO for real-time updates
     const rawEnv = (import.meta.env.VITE_API_URL || '').trim().replace(/\/api\/?$/, '').replace(/\/$/, '');
-    const socketUrl = rawEnv || (window.location.hostname === 'localhost' ? 'http://localhost:5000' : window.location.origin);
+    const socketUrl = rawEnv || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : 'https://vana-y29w.onrender.com');
     const socket = io(socketUrl, {
       transports: ['websocket', 'polling']
     });

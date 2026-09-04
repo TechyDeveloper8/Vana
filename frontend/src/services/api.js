@@ -7,6 +7,8 @@ if (rawEnv) {
   } else {
     API_BASE = `${rawEnv}/api`;
   }
+} else if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+  API_BASE = 'https://vana-y29w.onrender.com/api';
 }
 
 export const fetchAPI = async (endpoint, options = {}) => {

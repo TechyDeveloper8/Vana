@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": "https://vana-y29w.onrender.com/api/$1"
+    },
+    {
+      "source": "/images/(.*)",
+      "destination": "https://vana-y29w.onrender.com/images/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

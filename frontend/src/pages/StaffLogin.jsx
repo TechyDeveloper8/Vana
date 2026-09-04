@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { fetchAPI } from '../services/api';
 
 export default function StaffLogin() {
   const [email, setEmail] = useState('');
@@ -16,15 +17,12 @@ export default function StaffLogin() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/staff/login', {
+      const data = await fetchAPI('/staff/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
 
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
+      if (!data.success) {
         throw new Error(data.message || 'Staff login failed');
       }
 
