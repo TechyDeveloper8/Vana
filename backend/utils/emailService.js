@@ -1,4 +1,67 @@
+const dns = require('dns');
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
 const nodemailer = require('nodemailer');
+
+/**
+ * Universal email dispatcher with forced IPv4 and dual-port resilience (465 SSL & 587 STARTTLS)
+ * Resolves cloud container ENETUNREACH issues where outbound IPv6 is unreachable.
+ */
+const sendMailWithFallback = async (mailOptions) => {
+  const emailUser = (process.env.EMAIL_USER || process.env.GMAIL_USER || process.env.SMTP_USER || '').trim();
+  // Strip all whitespace from Google App Passwords (e.g. "abcd efgh ijkl mnop" -> "abcdefghijklmnop")
+  const emailPass = (process.env.EMAIL_PASS || process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASS || '').trim().replace(/\s+/g, '');
+  const customHost = (process.env.SMTP_HOST || '').trim();
+
+  if (!emailUser || !emailPass) {
+    console.warn(`[EMAIL SERVICE] Email credentials not configured in environment variables (EMAIL_USER / EMAIL_PASS). Skipping dispatch.`);
+    return { success: false, error: 'Email credentials not configured in environment variables' };
+  }
+
+  const createTransporter = (port, secure) => nodemailer.createTransport({
+    host: customHost || 'smtp.gmail.com',
+    port,
+    secure,
+    auth: {
+      user: emailUser,
+      pass: emailPass
+    },
+    family: 4, // Strictly force IPv4 to avoid ENETUNREACH on IPv6-disabled cloud containers
+    connectionTimeout: 12000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
+    tls: {
+      rejectUnauthorized: false
+    }
+  });
+
+  // Attempt 1: Port 465 (Direct SSL) with forced IPv4
+  try {
+    const transporter465 = createTransporter(465, true);
+    const info = await transporter465.sendMail({
+      from: `"Vana Entertainments" <${emailUser}>`,
+      ...mailOptions
+    });
+    console.log(`[EMAIL SERVICE SUCCESS] Email delivered via Port 465 to ${mailOptions.to}. MessageId: ${info.messageId}`);
+    return { success: true, messageId: info.messageId };
+  } catch (err465) {
+    console.warn(`[EMAIL SERVICE] Port 465 delivery attempt failed: ${err465.message}. Retrying via Port 587 (STARTTLS)...`);
+    // Attempt 2: Port 587 (STARTTLS) with forced IPv4
+    try {
+      const transporter587 = createTransporter(587, false);
+      const info = await transporter587.sendMail({
+        from: `"Vana Entertainments" <${emailUser}>`,
+        ...mailOptions
+      });
+      console.log(`[EMAIL SERVICE SUCCESS] Email delivered via Port 587 to ${mailOptions.to}. MessageId: ${info.messageId}`);
+      return { success: true, messageId: info.messageId };
+    } catch (err587) {
+      console.error(`[EMAIL SERVICE ERROR] Email dispatch failed on both Port 465 and Port 587:`, err587.message);
+      return { success: false, error: err587.message };
+    }
+  }
+};
 
 /**
  * Sends an official entry pass ticket email to the user's Gmail address.
@@ -12,22 +75,6 @@ exports.sendTicketEmail = async (booking) => {
       console.warn('[EMAIL SERVICE WARNING] No recipient email specified for booking:', booking.bookingId);
       return { success: false, error: 'Recipient email missing' };
     }
-
-    const emailUser = process.env.EMAIL_USER || process.env.GMAIL_USER || process.env.SMTP_USER;
-    const emailPass = process.env.EMAIL_PASS || process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASS;
-
-    if (!emailUser || !emailPass) {
-      console.warn(`[EMAIL SERVICE] Gmail credentials not configured in backend/.env (EMAIL_USER / EMAIL_PASS). Skipping live email dispatch for Booking ${booking.bookingId} to ${userEmail}.`);
-      return { success: false, error: 'Gmail credentials not configured in .env' };
-    }
-
-    const transporter = nodemailer.createTransport({
-      service: process.env.EMAIL_SERVICE || 'gmail',
-      auth: {
-        user: emailUser,
-        pass: emailPass
-      }
-    });
 
     const attachments = [];
     let qrImageSrc = '';
@@ -196,17 +243,12 @@ exports.sendTicketEmail = async (booking) => {
     </html>
     `;
 
-    const mailOptions = {
-      from: `"Vana Entertainments Pass Desk" <${emailUser}>`,
+    return await sendMailWithFallback({
       to: userEmail,
       subject: `Your Event Ticket Pass: ${booking.eventTitle} (${booking.bookingId})`,
       html: htmlContent,
       attachments
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`[EMAIL SERVICE SUCCESS] Ticket email sent to ${userEmail} for Booking ${booking.bookingId}. MessageId: ${info.messageId}`);
-    return { success: true, messageId: info.messageId };
+    });
   } catch (error) {
     console.error(`[EMAIL SERVICE ERROR] Failed to send ticket email for Booking ${booking.bookingId}:`, error.message);
     return { success: false, error: error.message };
@@ -225,22 +267,6 @@ exports.sendOTPEmail = async (email, otp, purpose = 'register') => {
     if (!email) {
       return { success: false, error: 'Recipient email missing' };
     }
-
-    const emailUser = process.env.EMAIL_USER || process.env.GMAIL_USER || process.env.SMTP_USER;
-    const emailPass = process.env.EMAIL_PASS || process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASS;
-
-    if (!emailUser || !emailPass) {
-      console.warn(`[EMAIL SERVICE] Gmail credentials missing in .env for OTP dispatch to ${email}.`);
-      return { success: false, error: 'Gmail credentials not configured in .env' };
-    }
-
-    const transporter = nodemailer.createTransport({
-      service: process.env.EMAIL_SERVICE || 'gmail',
-      auth: {
-        user: emailUser,
-        pass: emailPass
-      }
-    });
 
     const isSignUp = purpose === 'register';
     const subjectTitle = isSignUp ? 'Verification Code for Vana Account Registration' : 'Password Reset Verification Code - Vana';
@@ -299,19 +325,13 @@ exports.sendOTPEmail = async (email, otp, purpose = 'register') => {
     </html>
     `;
 
-    const mailOptions = {
-      from: `"Vana Entertainments Security" <${emailUser}>`,
+    return await sendMailWithFallback({
       to: email,
       subject: subjectTitle,
       html: htmlContent
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`[EMAIL SERVICE SUCCESS] OTP email sent to ${email} (${purpose}). MessageId: ${info.messageId}`);
-    return { success: true, messageId: info.messageId };
+    });
   } catch (error) {
     console.error(`[EMAIL SERVICE ERROR] Failed to send OTP email to ${email}:`, error.message);
     return { success: false, error: error.message };
   }
 };
-
