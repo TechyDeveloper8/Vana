@@ -125,7 +125,7 @@ export default function Home() {
           overflow: 'hidden',
           display: 'flex',
           alignItems: 'flex-end',
-          paddingTop: '64px'
+          paddingTop: '88px'
         }}
       >
         <motion.div

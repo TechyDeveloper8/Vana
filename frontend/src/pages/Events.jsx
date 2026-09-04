@@ -40,7 +40,7 @@ export default function Events() {
       style={{
         background: '#050505',
         minHeight: '85vh',
-        padding: '64px 0 100px 0'
+        padding: '96px 0 100px 0'
       }}
     >
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(16px, 4vw, 24px)' }}>

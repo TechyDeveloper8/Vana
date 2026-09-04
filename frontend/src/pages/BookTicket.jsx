@@ -407,7 +407,7 @@ export default function BookTicket() {
       : 'Main Performance Show';
 
     return (
-      <div style={{ padding: '60px 0', textAlign: 'center', background: 'var(--bg-primary)', minHeight: '80vh' }}>
+      <div style={{ padding: '96px 16px 80px 16px', textAlign: 'center', background: 'var(--bg-primary)', minHeight: '80vh' }}>
         <div className="container" style={{ maxWidth: '680px' }}>
           <div className="white-card" style={{ padding: '36px 28px', borderRadius: '24px', boxShadow: 'var(--shadow-hover)', border: '1px solid var(--gold-primary)' }}>
             <i className="fa-solid fa-circle-check" style={{ fontSize: '54px', color: 'var(--gold-accent)', marginBottom: '16px' }}></i>
@@ -534,7 +534,7 @@ export default function BookTicket() {
   }
 
   return (
-    <div style={{ background: 'var(--bg-primary)', color: '#FFF', minHeight: '100vh', padding: '30px 16px 120px 16px' }}>
+    <div style={{ background: 'var(--bg-primary)', color: '#FFF', minHeight: '100vh', padding: '96px 16px 120px 16px' }}>
       {/* Mobile Responsive Global CSS Override */}
       <style>{`
         @media (max-width: 900px) {

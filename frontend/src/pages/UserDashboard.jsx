@@ -151,7 +151,7 @@ export default function UserDashboard() {
   };
 
   return (
-    <div style={{ padding: '60px 0', background: 'var(--bg-primary)', minHeight: '85vh' }}>
+    <div style={{ padding: '96px 0 80px 0', background: 'var(--bg-primary)', minHeight: '85vh' }}>
       <div className="container">
         {/* User Greeting Banner */}
         <div

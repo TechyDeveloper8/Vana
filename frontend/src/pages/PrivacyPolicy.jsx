@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 export default function PrivacyPolicy() {
   return (
-    <div style={{ background: 'var(--bg-primary)', minHeight: '100vh', padding: '60px 0 80px' }}>
+    <div style={{ background: 'var(--bg-primary)', minHeight: '100vh', padding: '96px 0 80px' }}>
       <div className="container" style={{ maxWidth: '960px' }}>
         
         {/* Header Badge & Title */}

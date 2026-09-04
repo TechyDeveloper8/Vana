@@ -36,7 +36,7 @@ export default function Services() {
   ];
 
   return (
-    <div className="page-padding" style={{ padding: '60px 0', background: 'var(--bg-primary)', minHeight: '85vh' }}>
+    <div className="page-padding" style={{ padding: '96px 0 80px 0', background: 'var(--bg-primary)', minHeight: '85vh' }}>
       <div className="container">
         <div className="section-header">
           <span className="sub-badge">Excellence Delivered</span>

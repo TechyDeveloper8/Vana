@@ -161,11 +161,10 @@ export default function EventDetails() {
             inset: 0,
             maxWidth: '1400px',
             margin: '0 auto',
-            padding: '0 24px',
+            padding: '96px 24px 48px',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'flex-end',
-            paddingBottom: '48px'
+            justifyContent: 'flex-end'
           }}
         >
           <Link
