@@ -256,7 +256,9 @@ exports.testEmailConfiguration = async () => {
     recommendation: brevoKey && !brevoKey.startsWith('xsmtpsib-')
       ? (brevoCheck.authenticated
           ? 'Brevo HTTPS API is verified and ready for live email dispatch.'
-          : 'BREVO_API_KEY is configured but Brevo returned an authentication error. Please verify your API key at https://app.brevo.com/settings/keys/api')
+          : (brevoCheck.message && brevoCheck.message.includes('authorised_ips')
+              ? 'Brevo detected an unauthorized IP. Go to https://app.brevo.com/security/authorised_ips and disable the IP restriction (or add your IP) so your cloud server (Render) can make API calls.'
+              : 'BREVO_API_KEY is configured but Brevo returned an authentication error. Please verify your API key at https://app.brevo.com/settings/keys/api'))
       : (emailUser && emailPass
           ? 'SMTP credentials configured. If running on Render, ensure outbound SMTP is not blocked, or use BREVO_API_KEY (xkeysib-...) over HTTPS port 443.'
           : 'To activate email dispatch, configure your Brevo API Key (xkeysib-...) or your Brevo SMTP Login (SMTP_USER) with your SMTP key.')
