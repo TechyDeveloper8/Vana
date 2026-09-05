@@ -41,10 +41,12 @@ exports.getLayout = async (req, res) => {
     const forceReseed = req.query.forceReseed === 'true';
     let layout = await SeatLayout.findOne({ venueId }).lean();
 
-    // Auto-update if layout is missing, forceReseed requested, or has old colliding FFR seats or old category mapping
+    // Auto-update if layout is missing, forceReseed requested, or has old colliding FFR/FFL seats or old category mapping
     const hasOldLayout = layout && layout.seats && (
       layout.seats.some(s => s.seatId && s.seatId.startsWith('FFR-') && s.rotation !== 0) ||
-      layout.seats.some(s => ['A', 'B', 'C', 'D', 'E'].includes(s.row) && s.category === 'Gold')
+      layout.seats.some(s => s.seatId && s.seatId.startsWith('FFL-') && s.rotation !== 0) ||
+      layout.seats.some(s => ['A', 'B', 'C', 'D', 'E'].includes(s.row) && s.category === 'Gold') ||
+      layout.dimensions?.height !== 1150
     );
 
     if (!layout || forceReseed || hasOldLayout) {
