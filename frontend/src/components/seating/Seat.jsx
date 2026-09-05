@@ -140,7 +140,8 @@ export default function Seat({
           transition: 'all 0.2s ease',
           opacity: isDimmed ? 0.15 : (style.opacity || 1),
           pointerEvents: isDimmed ? 'none' : 'auto',
-          filter: isDimmed ? 'grayscale(80%)' : 'none'
+          filter: isDimmed ? 'grayscale(80%)' : 'none',
+          touchAction: 'none'
         }}
       >
         <span
@@ -179,13 +180,14 @@ export default function Seat({
         cursor: isClickable ? 'pointer' : 'not-allowed',
         display: 'flex',
         alignItems: 'center',
-        justify: 'center',
+        justifyContent: 'center',
         padding: 0,
         outline: 'none',
         transition: 'all 0.2s ease',
         opacity: isDimmed ? 0.15 : (style.opacity || 1),
         pointerEvents: isDimmed ? 'none' : 'auto',
-        filter: isDimmed ? 'grayscale(80%)' : 'none'
+        filter: isDimmed ? 'grayscale(80%)' : 'none',
+        touchAction: 'none'
       }}
     >
       <span

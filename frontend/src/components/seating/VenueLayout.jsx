@@ -37,7 +37,7 @@ export default function VenueLayout({
 
   // Standardized auditorium architecture bounds
   const viewWidth = 1700;
-  const viewHeight = 1120;
+  const viewHeight = 1150;
 
   // Keep refs synchronized with state
   useEffect(() => {
@@ -97,7 +97,7 @@ export default function VenueLayout({
         panRef.current = p;
       } else if (activePlan === 'VIP Lounge') {
         const s = Math.max(fitScale * 2.0, 1.25);
-        const p = { x: 0, y: -Math.round(viewHeight * 0.34) };
+        const p = { x: 0, y: -Math.round(viewHeight * 0.35) };
         setScale(s);
         setPan(p);
         scaleRef.current = s;
@@ -187,164 +187,175 @@ export default function VenueLayout({
     setIsDragging(false);
   };
 
-  // Mobile Touch Gestures (Multi-touch Pinch to Zoom + 1-finger Drag + Double Tap)
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+  // Mobile Touch Gestures: Single-finger Drag, Two-finger Pinch to Zoom, Double Tap
+  const handleTouchStart = (e) => {
+    if (e.touches.length >= 2) {
+      // Multi-touch: Start Pinch to Zoom
+      if (e.cancelable) e.preventDefault();
+      touchModeRef.current = 'pinch';
+      isDraggingRef.current = false;
+      setIsDragging(false);
 
-    const getTouchDist = (t1, t2) => Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
-    const getTouchMid = (t1, t2) => ({
-      x: (t1.clientX + t2.clientX) / 2,
-      y: (t1.clientY + t2.clientY) / 2
-    });
+      const t1 = e.touches[0];
+      const t2 = e.touches[1];
+      const dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+      const mid = {
+        x: (t1.clientX + t2.clientX) / 2,
+        y: (t1.clientY + t2.clientY) / 2
+      };
 
-    const onTouchStart = (e) => {
-      if (e.touches.length >= 2) {
-        // Multi-touch: Start Pinch to Zoom
-        if (e.cancelable) e.preventDefault();
+      pinchStartRef.current = {
+        dist: Math.max(dist, 10),
+        scale: scaleRef.current,
+        pan: { ...panRef.current },
+        center: mid
+      };
+    } else if (e.touches.length === 1) {
+      // Single touch: Pan / Drag
+      touchModeRef.current = 'drag';
+      isDraggingRef.current = true;
+      hasMovedRef.current = false;
+      setIsDragging(true);
+
+      const touch = e.touches[0];
+      dragStartRef.current = {
+        x: touch.clientX - panRef.current.x,
+        y: touch.clientY - panRef.current.y
+      };
+      setDragStart(dragStartRef.current);
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (e.cancelable) {
+      e.preventDefault();
+    }
+
+    if (e.touches.length >= 2) {
+      // Multi-touch pinch-to-zoom calculation
+      if (touchModeRef.current !== 'pinch' || !pinchStartRef.current.dist) {
         touchModeRef.current = 'pinch';
         isDraggingRef.current = false;
         setIsDragging(false);
-
-        const dist = getTouchDist(e.touches[0], e.touches[1]);
-        const mid = getTouchMid(e.touches[0], e.touches[1]);
-
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+        const dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+        const mid = {
+          x: (t1.clientX + t2.clientX) / 2,
+          y: (t1.clientY + t2.clientY) / 2
+        };
         pinchStartRef.current = {
           dist: Math.max(dist, 10),
           scale: scaleRef.current,
           pan: { ...panRef.current },
           center: mid
         };
-      } else if (e.touches.length === 1) {
-        // Single touch: Pan / Drag
-        touchModeRef.current = 'drag';
-        isDraggingRef.current = true;
-        hasMovedRef.current = false;
-        setIsDragging(true);
-
-        dragStartRef.current = {
-          x: e.touches[0].clientX - panRef.current.x,
-          y: e.touches[0].clientY - panRef.current.y
-        };
-        setDragStart(dragStartRef.current);
+        return;
       }
-    };
 
-    const onTouchMove = (e) => {
-      if (e.touches.length >= 2) {
-        // Multi-touch pinch-to-zoom calculation
-        if (e.cancelable) e.preventDefault();
+      const t1 = e.touches[0];
+      const t2 = e.touches[1];
+      const currentDist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+      const currentMid = {
+        x: (t1.clientX + t2.clientX) / 2,
+        y: (t1.clientY + t2.clientY) / 2
+      };
 
-        if (touchModeRef.current !== 'pinch' || !pinchStartRef.current.dist) {
-          touchModeRef.current = 'pinch';
-          isDraggingRef.current = false;
-          setIsDragging(false);
-          const dist = getTouchDist(e.touches[0], e.touches[1]);
-          const mid = getTouchMid(e.touches[0], e.touches[1]);
-          pinchStartRef.current = {
-            dist: Math.max(dist, 10),
-            scale: scaleRef.current,
-            pan: { ...panRef.current },
-            center: mid
-          };
-          return;
-        }
+      const scaleFactor = currentDist / pinchStartRef.current.dist;
+      const fitScale = getFitScale();
+      const minScale = Math.min(0.15, fitScale * 0.85);
+      const maxScale = 3.5;
+      const targetScale = Math.min(Math.max(pinchStartRef.current.scale * scaleFactor, minScale), maxScale);
 
-        const currentDist = getTouchDist(e.touches[0], e.touches[1]);
-        const currentMid = getTouchMid(e.touches[0], e.touches[1]);
+      // Center shift to keep zoom anchored around user pinch center
+      const deltaX = currentMid.x - pinchStartRef.current.center.x;
+      const deltaY = currentMid.y - pinchStartRef.current.center.y;
 
-        const scaleFactor = currentDist / pinchStartRef.current.dist;
+      const newPan = {
+        x: pinchStartRef.current.pan.x + deltaX,
+        y: pinchStartRef.current.pan.y + deltaY
+      };
+
+      scaleRef.current = targetScale;
+      panRef.current = newPan;
+      setScale(targetScale);
+      setPan(newPan);
+    } else if (e.touches.length === 1 && touchModeRef.current === 'drag') {
+      // Single-finger panning
+      const touch = e.touches[0];
+      const newX = touch.clientX - dragStartRef.current.x;
+      const newY = touch.clientY - dragStartRef.current.y;
+
+      const moveDist = Math.hypot(
+        touch.clientX - (dragStartRef.current.x + panRef.current.x),
+        touch.clientY - (dragStartRef.current.y + panRef.current.y)
+      );
+      if (moveDist > 4) {
+        hasMovedRef.current = true;
+      }
+
+      panRef.current = { x: newX, y: newY };
+      setPan({ x: newX, y: newY });
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    if (e.touches.length === 0) {
+      // Double-tap zoom toggle on background
+      const now = Date.now();
+      const target = e.target;
+      const isInteractive = target?.closest?.('button') || target?.closest?.('.seat-interactive-btn');
+
+      if (!hasMovedRef.current && !isInteractive && (now - lastTapRef.current.time) < 320) {
         const fitScale = getFitScale();
-        const minScale = Math.min(0.15, fitScale * 0.85);
-        const maxScale = 3.2;
-        const targetScale = Math.min(Math.max(pinchStartRef.current.scale * scaleFactor, minScale), maxScale);
-
-        // Center shift to keep zoom anchored around user pinch center
-        const deltaX = currentMid.x - pinchStartRef.current.center.x;
-        const deltaY = currentMid.y - pinchStartRef.current.center.y;
-
-        const newPan = {
-          x: pinchStartRef.current.pan.x + deltaX,
-          y: pinchStartRef.current.pan.y + deltaY
-        };
-
-        scaleRef.current = targetScale;
-        panRef.current = newPan;
-        setScale(targetScale);
-        setPan(newPan);
-      } else if (e.touches.length === 1 && touchModeRef.current === 'drag') {
-        // Single-finger panning
-        const touch = e.touches[0];
-        const newX = touch.clientX - dragStartRef.current.x;
-        const newY = touch.clientY - dragStartRef.current.y;
-
-        const moveDist = Math.hypot(
-          touch.clientX - (dragStartRef.current.x + panRef.current.x),
-          touch.clientY - (dragStartRef.current.y + panRef.current.y)
-        );
-        if (moveDist > 6) {
-          hasMovedRef.current = true;
-          if (e.cancelable) e.preventDefault();
-        }
-
-        panRef.current = { x: newX, y: newY };
-        setPan({ x: newX, y: newY });
-      }
-    };
-
-    const onTouchEnd = (e) => {
-      if (e.touches.length === 0) {
-        // Double-tap zoom toggle on background
-        const now = Date.now();
-        const target = e.target;
-        const isInteractive = target?.closest?.('button') || target?.closest?.('.seat-interactive-btn');
-
-        if (!hasMovedRef.current && !isInteractive && (now - lastTapRef.current.time) < 320) {
-          const fitScale = getFitScale();
-          if (scaleRef.current > fitScale + 0.3) {
-            fitToLayout();
-          } else {
-            const zoomInScale = Math.max(fitScale * 2.0, 1.35);
-            setScale(zoomInScale);
-            scaleRef.current = zoomInScale;
-          }
-          lastTapRef.current = { time: 0, x: 0, y: 0 };
+        if (scaleRef.current > fitScale + 0.3) {
+          fitToLayout();
         } else {
-          lastTapRef.current = {
-            time: now,
-            x: e.changedTouches?.[0]?.clientX || 0,
-            y: e.changedTouches?.[0]?.clientY || 0
-          };
+          const zoomInScale = Math.max(fitScale * 2.0, 1.35);
+          setScale(zoomInScale);
+          scaleRef.current = zoomInScale;
         }
-
-        touchModeRef.current = 'none';
-        isDraggingRef.current = false;
-        setIsDragging(false);
-      } else if (e.touches.length === 1) {
-        // Transition from 2 fingers down to 1 finger: seamless switch to drag
-        touchModeRef.current = 'drag';
-        isDraggingRef.current = true;
-        setIsDragging(true);
-        dragStartRef.current = {
-          x: e.touches[0].clientX - panRef.current.x,
-          y: e.touches[0].clientY - panRef.current.y
+        lastTapRef.current = { time: 0, x: 0, y: 0 };
+      } else {
+        lastTapRef.current = {
+          time: now,
+          x: e.changedTouches?.[0]?.clientX || 0,
+          y: e.changedTouches?.[0]?.clientY || 0
         };
-        setDragStart(dragStartRef.current);
+      }
+
+      touchModeRef.current = 'none';
+      isDraggingRef.current = false;
+      setIsDragging(false);
+    } else if (e.touches.length === 1) {
+      // Transition from 2 fingers down to 1 finger: seamless switch to drag
+      touchModeRef.current = 'drag';
+      isDraggingRef.current = true;
+      setIsDragging(true);
+      dragStartRef.current = {
+        x: e.touches[0].clientX - panRef.current.x,
+        y: e.touches[0].clientY - panRef.current.y
+      };
+      setDragStart(dragStartRef.current);
+    }
+  };
+
+  // Prevent browser-level page scrolling when dragging inside container on touch devices
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const preventTouchScroll = (e) => {
+      if (e.cancelable) {
+        e.preventDefault();
       }
     };
 
-    container.addEventListener('touchstart', onTouchStart, { passive: false });
-    container.addEventListener('touchmove', onTouchMove, { passive: false });
-    container.addEventListener('touchend', onTouchEnd, { passive: false });
-    container.addEventListener('touchcancel', onTouchEnd, { passive: false });
-
+    container.addEventListener('touchmove', preventTouchScroll, { passive: false });
     return () => {
-      container.removeEventListener('touchstart', onTouchStart);
-      container.removeEventListener('touchmove', onTouchMove);
-      container.removeEventListener('touchend', onTouchEnd);
-      container.removeEventListener('touchcancel', onTouchEnd);
+      container.removeEventListener('touchmove', preventTouchScroll);
     };
-  }, [getFitScale, fitToLayout]);
+  }, [layout]);
 
   // Safe seat click prevents accidental selection when panning
   const handleSeatClickSafe = (seat, price) => {
@@ -394,6 +405,10 @@ export default function VenueLayout({
       }}
       onMouseUp={handleEnd}
       onMouseLeave={handleEnd}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
     >
       {/* Floating Header Control Bar */}
       <div
@@ -816,9 +831,9 @@ export default function VenueLayout({
           id="auditorium-main-stage"
           style={{
             position: 'absolute',
-            left: '350px',
-            top: '985px',
-            width: '1000px',
+            left: '290px',
+            top: '1015px',
+            width: '1020px',
             height: '75px',
             background: 'linear-gradient(180deg, #1E293B 0%, #090D16 100%)',
             border: '2px solid #F59E0B',
