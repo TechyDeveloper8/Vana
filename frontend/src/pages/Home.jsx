@@ -257,7 +257,7 @@ export default function Home() {
           background: '#050505'
         }}
       >
-        <Marquee speed={50} gradient={false}>
+        <Marquee speed={80} gradient={false}>
           {[
             "Stand up Comedy",
             "Corporate Events",
@@ -271,7 +271,8 @@ export default function Home() {
                 margin: '0 36px',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '36px'
+                gap: '30px',
+                letterSpacing: '0 rem'
               }}
             >
               {item}
@@ -282,14 +283,14 @@ export default function Home() {
       </section>
 
       {/* 4. FEATURED LINE-UP */}
-      <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(16px, 4vw, 24px) clamp(48px, 8vw, 96px) clamp(16px, 4vw, 24px)' }}>
+      <section style={{ maxWidth: '1400px', margin: '0 auto', padding: 'clamp(48px, 6vw, 80px) clamp(16px, 4vw, 24px) clamp(56px, 8vw, 96px)' }}>
         <Reveal>
           <div
             style={{
               display: 'flex',
               alignItems: 'flex-end',
               justifyContent: 'space-between',
-              marginBottom: '48px',
+              marginBottom: '40px',
               flexWrap: 'wrap',
               gap: '16px'
             }}
@@ -303,7 +304,7 @@ export default function Home() {
                   textTransform: 'uppercase',
                   letterSpacing: '0.25em',
                   color: '#FF4500',
-                  marginBottom: '12px'
+                  marginBottom: '10px'
                 }}
               >
                 Now On Sale
@@ -406,12 +407,13 @@ export default function Home() {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
-              gap: '24px'
+              gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 340px), 1fr))',
+              gap: '28px',
+              alignItems: 'stretch'
             }}
           >
             {events.map((e, idx) => (
-              <Reveal key={e._id || idx} delay={idx * 0.1}>
+              <Reveal key={e._id || idx} delay={idx * 0.1} className="h-full">
                 <EventCard event={e} index={idx} />
               </Reveal>
             ))}

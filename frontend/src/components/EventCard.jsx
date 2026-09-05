@@ -60,13 +60,19 @@ export default function EventCard({ event, index = 0 }) {
       style={{
         border: '1px solid rgba(255, 255, 255, 0.08)',
         background: '#121212',
-        borderRadius: '0px'
+        borderRadius: '0px',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        textDecoration: 'none',
+        overflow: 'hidden'
       }}
     >
       <div
         className="relative overflow-hidden"
         style={{
           position: 'relative',
+          width: '100%',
           aspectRatio: '16/9',
           overflow: 'hidden',
           background: '#0D0D11'
@@ -170,18 +176,20 @@ export default function EventCard({ event, index = 0 }) {
         </span>
       </div>
 
-      <div style={{ padding: '24px' }}>
+      <div style={{ padding: 'clamp(18px, 3vw, 24px)', display: 'flex', flexDirection: 'column', flex: 1 }}>
         <h3
           className="font-display"
           style={{
             fontFamily: "'Cabinet Grotesk', -apple-system, sans-serif",
             fontWeight: 800,
-            fontSize: '1.35rem',
+            fontSize: 'clamp(1.2rem, 1.8vw, 1.38rem)',
             textTransform: 'uppercase',
             letterSpacing: '-0.02em',
-            lineHeight: 1.15,
+            lineHeight: 1.25,
             color: '#FFFFFF',
-            marginBottom: '12px'
+            marginBottom: '12px',
+            overflowWrap: 'break-word',
+            wordBreak: 'break-word'
           }}
         >
           {event.title}
@@ -192,17 +200,17 @@ export default function EventCard({ event, index = 0 }) {
           style={{
             display: 'flex',
             flexWrap: 'wrap',
-            gap: '16px',
+            gap: '10px 16px',
             fontSize: '12px',
-            color: '#737373',
+            color: '#A1A1A1',
             fontFamily: "'JetBrains Mono', monospace",
             marginBottom: '20px'
           }}
         >
-          <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
             <Calendar size={13} color="#FF4500" /> {dateStr}
           </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
             <MapPin size={13} color="#FF4500" /> {city}
           </span>
         </div>
@@ -213,27 +221,28 @@ export default function EventCard({ event, index = 0 }) {
             alignItems: 'center',
             justifyContent: 'space-between',
             borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-            paddingTop: '16px'
+            paddingTop: '16px',
+            marginTop: 'auto'
           }}
         >
           <span
             className="font-mono-x"
             style={{
-              fontSize: '12px',
+              fontSize: '11px',
               textTransform: 'uppercase',
-              letterSpacing: '0.05em',
+              letterSpacing: '0.08em',
               color: '#737373',
               fontFamily: "'JetBrains Mono', monospace"
             }}
           >
-            From
+            Starting From
           </span>
           <span
             className="font-display"
             style={{
               fontFamily: "'Cabinet Grotesk', sans-serif",
               fontWeight: 900,
-              fontSize: '1.4rem',
+              fontSize: '1.35rem',
               color: '#FF4500'
             }}
           >
