@@ -238,55 +238,23 @@ export default function EventDetails() {
         </Link>
       </div>
 
-      {/* 2. EVENT BANNER FRAME (FULL BLURRED GRADIENT COMBINATION BACKGROUND) */}
+      {/* 2. EVENT BANNER FRAME (RESPONSIVE WITH IMAGE SIZE) */}
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(16px, 4vw, 24px)' }}>
         <div
           style={{
             position: 'relative',
-            height: 'clamp(260px, 48vh, 520px)',
             width: '100%',
             overflow: 'hidden',
             borderRadius: '16px',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
-            background: 'radial-gradient(circle at 15% 15%, rgba(255, 69, 0, 0.4) 0%, transparent 55%), radial-gradient(circle at 85% 85%, rgba(138, 43, 226, 0.4) 0%, transparent 60%), linear-gradient(135deg, #180B22 0%, #0D0F18 50%, #150A08 100%)',
-            boxShadow: '0 24px 60px rgba(0, 0, 0, 0.65)'
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            background: '#0D0D11',
+            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}
         >
-          {/* Ambient heavily blurred banner colors filling the container */}
-          <img
-            src={eventBanner}
-            alt=""
-            aria-hidden="true"
-            referrerPolicy="no-referrer"
-            onError={(e) => {
-              e.currentTarget.onerror = null;
-              e.currentTarget.src = getFallbackImage(event.category, event.title);
-            }}
-            style={{
-              position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              filter: 'blur(35px) saturate(2.2) brightness(0.75)',
-              transform: 'scale(1.25)',
-              pointerEvents: 'none',
-              opacity: 0.92
-            }}
-          />
-
-          {/* Multi-gradient color combination overlay */}
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'radial-gradient(circle at 50% 50%, transparent 20%, rgba(5,5,5,0.45) 85%), linear-gradient(135deg, rgba(255, 69, 0, 0.2) 0%, rgba(147, 51, 234, 0.18) 50%, rgba(0, 0, 0, 0.3) 100%)',
-              pointerEvents: 'none',
-              zIndex: 1
-            }}
-          />
-
-          {/* Full uncropped sharp banner image fitting completely without any cropping */}
+          {/* Uncropped sharp banner image scaling naturally with its real aspect ratio */}
           <img
             src={eventBanner}
             alt={event.title}
@@ -296,12 +264,11 @@ export default function EventDetails() {
               e.currentTarget.src = getFallbackImage(event.category, event.title);
             }}
             style={{
-              position: 'relative',
               width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              zIndex: 2,
-              filter: 'drop-shadow(0 12px 36px rgba(0, 0, 0, 0.6))'
+              height: 'auto',
+              maxHeight: '72vh',
+              display: 'block',
+              objectFit: 'contain'
             }}
           />
         </div>
