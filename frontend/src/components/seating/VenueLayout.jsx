@@ -24,45 +24,81 @@ export default function VenueLayout({
 
   const containerRef = useRef(null);
 
-  const viewWidth = layout?.dimensions?.width || 1400;
-  const viewHeight = layout?.dimensions?.height || 950;
+  const viewWidth = layout?.dimensions?.width || 1750;
+  const viewHeight = layout?.dimensions?.height || 1120;
 
-  // Auto focus / center map based on activePlan
+  // Calculate dynamic scale to fit the entire venue layout architecture inside the container
+  const getFitScale = () => {
+    if (!containerRef.current) return 0.55;
+    const cw = containerRef.current.clientWidth || 1000;
+    const ch = containerRef.current.clientHeight || 580;
+    const scaleX = cw / viewWidth;
+    const scaleY = ch / viewHeight;
+    // Fit both dimensions comfortably with safe margin
+    return Math.max(0.18, Math.min(scaleX, scaleY) * 0.94);
+  };
+
+  const fitToLayout = () => {
+    const fs = getFitScale();
+    setScale(fs);
+    setPan({ x: 0, y: 0 });
+  };
+
+  // Auto focus / center map based on activePlan or fit all on initial load
   useEffect(() => {
-    if (activePlan === 'Silver' || activePlan === 'First Floor') {
-      setScale(1.25);
-      setPan({ x: 0, y: 220 });
-    } else if (activePlan === 'Gold') {
-      setScale(1.15);
-      setPan({ x: 0, y: -100 });
-    } else if (activePlan === 'Platinum') {
-      setScale(1.25);
-      setPan({ x: 0, y: -180 });
-    } else if (activePlan === 'VIP Lounge') {
-      setScale(1.35);
-      setPan({ x: 0, y: -380 });
-    } else {
-      setScale(1);
-      setPan({ x: 0, y: 0 });
-    }
-  }, [activePlan]);
+    const applyFitOrPlan = () => {
+      if (!containerRef.current) return;
+      const fitScale = getFitScale();
+
+      if (activePlan === 'Silver' || activePlan === 'First Floor') {
+        setScale(Math.max(fitScale * 1.8, 1.15));
+        setPan({ x: 0, y: Math.round(viewHeight * 0.22) });
+      } else if (activePlan === 'Gold') {
+        setScale(Math.max(fitScale * 1.6, 1.05));
+        setPan({ x: 0, y: 0 });
+      } else if (activePlan === 'Platinum') {
+        setScale(Math.max(fitScale * 1.8, 1.15));
+        setPan({ x: 0, y: -Math.round(viewHeight * 0.16) });
+      } else if (activePlan === 'VIP Lounge') {
+        setScale(Math.max(fitScale * 2.0, 1.25));
+        setPan({ x: 0, y: -Math.round(viewHeight * 0.32) });
+      } else {
+        // 'All': Fit the entire venue architecture 100% inside container
+        setScale(fitScale);
+        setPan({ x: 0, y: 0 });
+      }
+    };
+
+    const timer = setTimeout(applyFitOrPlan, 40);
+
+    const handleResize = () => {
+      if (activePlan === 'All') {
+        applyFitOrPlan();
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [activePlan, viewWidth, viewHeight]);
 
   // Zoom controls
   const handleZoom = (delta) => {
     setScale((prevScale) => {
-      const newScale = Math.min(Math.max(prevScale + delta, 0.5), 3.0);
+      const newScale = Math.min(Math.max(prevScale + delta, 0.18), 3.0);
       return Math.round(newScale * 100) / 100;
     });
   };
 
   const handlePresetZoom = (targetScale) => {
     setScale(targetScale);
-    setPan({ x: 0, y: targetScale === 1 ? 0 : 40 });
+    setPan({ x: 0, y: 0 });
   };
 
   const handleResetZoom = () => {
-    setScale(1);
-    setPan({ x: 0, y: 0 });
+    fitToLayout();
   };
 
   // Mouse wheel zoom
@@ -106,7 +142,7 @@ export default function VenueLayout({
       style={{
         position: 'relative',
         width: '100%',
-        height: 'clamp(360px, 55vh, 580px)',
+        height: 'clamp(440px, 66vh, 680px)',
         backgroundColor: '#0F172A',
         borderRadius: '20px',
         overflow: 'hidden',
@@ -184,56 +220,56 @@ export default function VenueLayout({
         >
           <button
             type="button"
-            onClick={() => handlePresetZoom(1)}
+            onClick={fitToLayout}
             style={{
-              padding: '4px 8px',
+              padding: '4px 10px',
               borderRadius: '6px',
-              border: scale === 1 ? '1px solid #F59E0B' : 'none',
-              background: scale === 1 ? '#F59E0B' : '#1E293B',
-              color: scale === 1 ? '#000' : '#FFF',
-              fontSize: '0.72rem',
+              border: scale <= getFitScale() + 0.05 ? '1px solid #F59E0B' : 'none',
+              background: scale <= getFitScale() + 0.05 ? '#F59E0B' : '#1E293B',
+              color: scale <= getFitScale() + 0.05 ? '#000' : '#FFF',
+              fontSize: '0.74rem',
               fontWeight: 700,
               cursor: 'pointer'
             }}
           >
-            Fit 1x
+            Fit Venue
           </button>
           <button
             type="button"
-            onClick={() => handlePresetZoom(1.5)}
+            onClick={() => handlePresetZoom(Math.max(getFitScale() * 1.8, 1.15))}
             style={{
               padding: '4px 8px',
               borderRadius: '6px',
-              border: scale === 1.5 ? '1px solid #F59E0B' : 'none',
-              background: scale === 1.5 ? '#F59E0B' : '#1E293B',
-              color: scale === 1.5 ? '#000' : '#FFF',
+              border: 'none',
+              background: '#1E293B',
+              color: '#FFF',
               fontSize: '0.72rem',
               fontWeight: 700,
               cursor: 'pointer'
             }}
           >
-            Focus 1.5x
+            Zoom In
           </button>
           <button
             type="button"
-            onClick={() => handlePresetZoom(2.2)}
+            onClick={() => handlePresetZoom(Math.max(getFitScale() * 2.5, 1.6))}
             style={{
               padding: '4px 8px',
               borderRadius: '6px',
-              border: scale === 2.2 ? '1px solid #F59E0B' : 'none',
-              background: scale === 2.2 ? '#F59E0B' : '#1E293B',
-              color: scale === 2.2 ? '#000' : '#FFF',
+              border: 'none',
+              background: '#1E293B',
+              color: '#FFF',
               fontSize: '0.72rem',
               fontWeight: 700,
               cursor: 'pointer'
             }}
           >
-            Close-up 2.2x
+            Close-up
           </button>
           <button
             type="button"
             onClick={handleResetZoom}
-            title="Reset"
+            title="Reset to Fit View"
             style={{
               padding: '4px 8px',
               borderRadius: '6px',
@@ -442,6 +478,92 @@ export default function VenueLayout({
             pointerEvents: 'none'
           }}
         />
+
+        {/* MAIN PERFORMANCE STAGE (LOCATED IN FRONT OF VIP SEATS AT BOTTOM OF VENUE) */}
+        <div
+          id="auditorium-main-stage"
+          style={{
+            position: 'absolute',
+            left: '320px',
+            top: '985px',
+            width: '960px',
+            height: '75px',
+            background: 'linear-gradient(180deg, #1E293B 0%, #090D16 100%)',
+            border: '2px solid #F59E0B',
+            borderRadius: '14px 14px 40px 40px',
+            boxShadow: '0 0 45px rgba(245, 158, 11, 0.4), inset 0 2px 14px rgba(255, 255, 255, 0.18)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 6,
+            pointerEvents: 'none',
+            overflow: 'hidden'
+          }}
+        >
+          {/* Row of Stage Footlights facing the audience */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '6px',
+              display: 'flex',
+              gap: '24px',
+              alignItems: 'center'
+            }}
+          >
+            {Array.from({ length: 18 }).map((_, i) => (
+              <div
+                key={i}
+                style={{
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  background: '#F59E0B',
+                  boxShadow: '0 0 8px #F59E0B'
+                }}
+              />
+            ))}
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '14px',
+              marginTop: '4px'
+            }}
+          >
+            <span style={{ color: '#F59E0B', fontSize: '15px' }}>✦</span>
+            <span
+              style={{
+                fontFamily: "'Cabinet Grotesk', -apple-system, sans-serif",
+                fontSize: '15px',
+                fontWeight: 900,
+                letterSpacing: '0.28em',
+                color: '#F59E0B',
+                textTransform: 'uppercase',
+                textShadow: '0 0 15px rgba(245, 158, 11, 0.6)'
+              }}
+            >
+              STAGE
+            </span>
+            <span style={{ color: '#F59E0B', fontSize: '15px' }}>✦</span>
+          </div>
+
+          <div
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: '10px',
+              fontWeight: 700,
+              letterSpacing: '0.14em',
+              color: '#94A3B8',
+              textTransform: 'uppercase',
+              marginTop: '3px'
+            }}
+          >
+            FRONT OF VIP SEATS (V1 - V15) • MAIN PERFORMANCE PLATFORM
+          </div>
+        </div>
 
         {/* DYNAMIC REACT HTML SEATS MAPPING */}
         {layout.seats.map((seat) => {

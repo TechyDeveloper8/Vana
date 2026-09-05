@@ -477,7 +477,6 @@ export default function BookTicket() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px', marginBottom: '14px' }}>
                 <div><span style={{ color: '#94A3B8' }}>Booking Ref:</span> <strong style={{ color: 'var(--gold-accent)' }}>{bookingSuccess.bookingId}</strong></div>
                 <div><span style={{ color: '#94A3B8' }}>Event:</span> <strong style={{ color: '#F8FAFC' }}>{bookingSuccess.eventTitle}</strong></div>
-                <div><span style={{ color: '#94A3B8' }}>Performance Showtime:</span> <strong style={{ color: '#60A5FA' }}>{formattedShow}</strong></div>
                 <div><span style={{ color: '#94A3B8' }}>Attendee:</span> <strong style={{ color: '#F8FAFC' }}>{bookingSuccess.userName}</strong> ({bookingSuccess.userPhone || 'N/A'})</div>
               </div>
 
@@ -633,54 +632,6 @@ export default function BookTicket() {
           </div>
         )}
 
-        {/* Showtime / Date Selector */}
-        <div
-          style={{
-            maxWidth: '1200px',
-            margin: '0 auto 20px auto',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            background: '#141824',
-            padding: '12px 18px',
-            borderRadius: '16px',
-            border: '1px solid rgba(212, 175, 55, 0.25)',
-            flexWrap: 'wrap',
-            gap: '10px'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <i className="fa-solid fa-clock-rotate-left" style={{ color: 'var(--gold-accent)', fontSize: '1.1rem' }}></i>
-            <span style={{ fontWeight: 600, fontSize: '0.88rem', color: '#F8FAFC' }}>Performance Showtime:</span>
-          </div>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            {['2026-09-15T18:00', '2026-09-16T18:00', '2026-09-17T18:00'].map((st) => {
-              const formatted = new Date(st).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-              const isActive = showtimeDate === st;
-              return (
-                <button
-                  key={st}
-                  onClick={() => {
-                    setShowtimeDate(st);
-                    setSelectedSeats([]);
-                  }}
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: '8px',
-                    border: isActive ? '1px solid var(--gold-primary)' : '1px solid rgba(212, 175, 55, 0.2)',
-                    background: isActive ? 'var(--gold-gradient)' : '#0B0E17',
-                    color: isActive ? '#0A0D14' : '#CBD5E1',
-                    fontWeight: isActive ? 800 : 500,
-                    fontSize: '0.8rem',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {formatted}
-                </button>
-              );
-            })}
-          </div>
-        </div>
 
         {/* Step 1: Choose Your Seating Plan */}
         <div style={{ maxWidth: '1200px', margin: '0 auto 20px auto' }}>

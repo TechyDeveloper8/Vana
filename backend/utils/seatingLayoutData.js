@@ -709,7 +709,7 @@ function generateVenueLayout() {
   return {
     venueId: 'ground-floor-main',
     name: 'Main Auditorium Seating',
-    dimensions: { width: 1750, height: 1100 },
+    dimensions: { width: 1750, height: 1120 },
     seats
   };
 }
