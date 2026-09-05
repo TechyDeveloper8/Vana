@@ -50,27 +50,25 @@ function generateVenueLayout() {
   };
 
   // =========================================================================
-  // 1. FIRST FLOOR — LEFT WING (EXPLICIT ROW-BY-ROW VECTOR CONFIGURATION)
-  // Rows 1H down to 1A. 1A is closest to Silver boundary, 1H is upper/back.
-  // Each row is a single continuous seat block: Seats [1..12], NO central aisle inside.
+  // 1. FIRST FLOOR — LEFT WING (ALIGNED HORIZONTAL ROW CONFIGURATION)
+  // Rows 1H down to 1A cleanly aligned with First Floor Center and Right rows across the aisle.
+  // Straight horizontal rows (rotation: 0), 30px vertical row separation, and comfortable 22px seat spacing.
   // =========================================================================
   const firstFloorLeftRowConfigs = [
-    { row: '1H', seats: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], originX: 200, originY: 110, rotation: -22, seatSpacing: 22 },
-    { row: '1G', seats: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], originX: 185, originY: 140, rotation: -20, seatSpacing: 22 },
-    { row: '1F', seats: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], originX: 170, originY: 170, rotation: -18, seatSpacing: 22 },
-    { row: '1E', seats: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], originX: 155, originY: 200, rotation: -16, seatSpacing: 22 },
-    { row: '1D', seats: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], originX: 140, originY: 230, rotation: -14, seatSpacing: 22 },
-    { row: '1C', seats: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], originX: 125, originY: 260, rotation: -12, seatSpacing: 22 },
-    { row: '1B', seats: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], originX: 110, originY: 290, rotation: -10, seatSpacing: 22 },
-    { row: '1A', seats: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], originX: 95,  originY: 320, rotation: -8,  seatSpacing: 22 }
+    { row: '1H', seats: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], originX: 196, originY: 110, rotation: 0, seatSpacing: 22 },
+    { row: '1G', seats: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], originX: 196, originY: 140, rotation: 0, seatSpacing: 22 },
+    { row: '1F', seats: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], originX: 196, originY: 170, rotation: 0, seatSpacing: 22 },
+    { row: '1E', seats: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], originX: 196, originY: 200, rotation: 0, seatSpacing: 22 },
+    { row: '1D', seats: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], originX: 196, originY: 230, rotation: 0, seatSpacing: 22 },
+    { row: '1C', seats: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], originX: 196, originY: 260, rotation: 0, seatSpacing: 22 },
+    { row: '1B', seats: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], originX: 196, originY: 290, rotation: 0, seatSpacing: 22 },
+    { row: '1A', seats: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], originX: 196, originY: 320, rotation: 0, seatSpacing: 22 }
   ];
 
   firstFloorLeftRowConfigs.forEach((config) => {
     config.seats.forEach((seatNum, idx) => {
-      const rad = (config.rotation * Math.PI) / 180;
-      const offsetX = idx * config.seatSpacing;
-      const x = config.originX + offsetX * Math.cos(rad);
-      const y = config.originY + offsetX * Math.sin(rad);
+      const x = config.originX + idx * config.seatSpacing;
+      const y = config.originY;
 
       addSeat({
         seatId: `FFL-${config.row}-${seatNum}`,
@@ -85,7 +83,7 @@ function generateVenueLayout() {
         block: 'First-Floor-Left',
         x,
         y,
-        rotation: config.rotation
+        rotation: 0
       });
     });
   });
