@@ -103,9 +103,9 @@ async function inspectAndReset() {
     for (const st of showtimes) {
       const showtimeKey = typeof st === 'string' ? st : (st.date || 'Default');
       const docs = freshLayout.seats.map(seat => {
-        let price = defaultPlatinumPrice;
+        let price = defaultGoldPrice;
         if (seat.category === 'Silver') price = defaultSilverPrice;
-        if (seat.category === 'Gold') price = defaultGoldPrice;
+        if (seat.category === 'Platinum') price = defaultPlatinumPrice;
         if (seat.category === 'VIP Lounge') price = defaultVipPrice;
 
         return {

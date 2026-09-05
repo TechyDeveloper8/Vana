@@ -326,8 +326,8 @@ export default function AdminEvents() {
       driveFileId: formData.driveFileId,
       ticketTiers: [
         { tierName: 'Silver (First Floor Rows 1A–1H)', price: 500, totalSeats: 260, availableSeats: 260 },
-        { tierName: 'Gold (Rows A–E)', price: 700, totalSeats: 150, availableSeats: 150 },
-        { tierName: 'Platinum (Rows F–Q)', price: 1000, totalSeats: 450, availableSeats: 450 },
+        { tierName: 'Gold (Rows F–Q)', price: 700, totalSeats: 450, availableSeats: 450 },
+        { tierName: 'Platinum (Rows A–E)', price: 1000, totalSeats: 150, availableSeats: 150 },
         { tierName: 'VIP Lounge (Row V)', price: 1500, totalSeats: 40, availableSeats: 40 }
       ]
     };

@@ -33,11 +33,11 @@ export default function VenueLayout({
       setScale(1.25);
       setPan({ x: 0, y: 220 });
     } else if (activePlan === 'Gold') {
-      setScale(1.25);
-      setPan({ x: 0, y: -180 });
-    } else if (activePlan === 'Platinum') {
       setScale(1.15);
       setPan({ x: 0, y: -100 });
+    } else if (activePlan === 'Platinum') {
+      setScale(1.25);
+      setPan({ x: 0, y: -180 });
     } else if (activePlan === 'VIP Lounge') {
       setScale(1.35);
       setPan({ x: 0, y: -380 });

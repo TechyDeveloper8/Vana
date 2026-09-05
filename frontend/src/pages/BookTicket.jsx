@@ -182,6 +182,7 @@ export default function BookTicket() {
     // 4. Default fallbacks matching venue layout
     if (tierCategory === 'Silver') return 500;
     if (tierCategory === 'Gold') return 700;
+    if (tierCategory === 'Platinum') return 1000;
     if (tierCategory === 'VIP Lounge' || tierCategory === 'VIP') return 1500;
     return 1000;
   };
@@ -754,7 +755,7 @@ export default function BookTicket() {
                 <strong style={{ fontSize: '0.88rem', color: 'var(--gold-accent)' }}>🥇 Gold Plan</strong>
                 <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--gold-accent)' }}>₹{getTierPrice('Gold')}</span>
               </div>
-              <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--text-light)' }}>Rows A–E • Premium Front Stage</p>
+              <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--text-light)' }}>Rows F–Q • Main Auditorium</p>
             </button>
 
             {/* Platinum Plan */}
@@ -776,7 +777,7 @@ export default function BookTicket() {
                 <strong style={{ fontSize: '0.88rem', color: '#E2E8F0' }}>💎 Platinum Plan</strong>
                 <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--gold-accent)' }}>₹{getTierPrice('Platinum')}</span>
               </div>
-              <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--text-light)' }}>Rows F–Q • Main Auditorium</p>
+              <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--text-light)' }}>Rows A–E • Premium Front Stage</p>
             </button>
 
             {/* VIP Lounge Plan */}

@@ -383,7 +383,7 @@ export default function AdminSeating() {
                 </div>
 
                 <div style={{ marginBottom: '12px' }}>
-                  <label style={{ display: 'block', fontSize: '0.78rem', color: '#CBD5E1', marginBottom: '4px' }}>Gold Category (Rows A–E)</label>
+                  <label style={{ display: 'block', fontSize: '0.78rem', color: '#CBD5E1', marginBottom: '4px' }}>Gold Category (Rows F–Q)</label>
                   <input
                     type="number"
                     min="0"
@@ -394,7 +394,7 @@ export default function AdminSeating() {
                 </div>
 
                 <div style={{ marginBottom: '12px' }}>
-                  <label style={{ display: 'block', fontSize: '0.78rem', color: '#CBD5E1', marginBottom: '4px' }}>Platinum Category (Rows F–Q)</label>
+                  <label style={{ display: 'block', fontSize: '0.78rem', color: '#CBD5E1', marginBottom: '4px' }}>Platinum Category (Rows A–E)</label>
                   <input
                     type="number"
                     min="0"

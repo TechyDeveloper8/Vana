@@ -379,8 +379,8 @@ function generateVenueLayout() {
   const leftOriginY = 195 + groundYOffset;
 
   allRowsOrdered.forEach((r, rIdx) => {
-    const isGold = ['A', 'B', 'C', 'D', 'E'].includes(r);
-    const category = isGold ? 'Gold' : 'Platinum';
+    const isPlatinum = ['A', 'B', 'C', 'D', 'E'].includes(r);
+    const category = isPlatinum ? 'Platinum' : 'Gold';
     const seatCount = 12;
     const efGap = rIdx >= 12 ? 25 : 0;
 
@@ -441,7 +441,7 @@ function generateVenueLayout() {
         position: i + 1,
         side: 'LEFT',
         section: 'Ground Floor',
-        category: 'Platinum',
+        category: 'Gold',
         block: 'Center-Left',
         x,
         y: cg.y,
@@ -464,7 +464,7 @@ function generateVenueLayout() {
         position: i + 1,
         side: 'RIGHT',
         section: 'Ground Floor',
-        category: 'Platinum',
+        category: 'Gold',
         block: 'Center-Right',
         x,
         y: cg.y,
@@ -473,15 +473,15 @@ function generateVenueLayout() {
     }
   });
 
-  // Center Gold Curved Centered Rows: E, D, C, B
-  const centerGoldRows = [
+  // Center Platinum Curved Centered Rows: E, D, C, B
+  const centerPlatinumRows = [
     { row: 'E', start: 13, end: 25, y: 460 + groundYOffset },
     { row: 'D', start: 13, end: 23, y: 488 + groundYOffset },
     { row: 'C', start: 13, end: 21, y: 516 + groundYOffset },
     { row: 'B', start: 13, end: 19, y: 544 + groundYOffset }
   ];
 
-  centerGoldRows.forEach((cp) => {
+  centerPlatinumRows.forEach((cp) => {
     const totalSeats = cp.end - cp.start + 1;
     const centerIdx = (totalSeats - 1) / 2;
 
@@ -499,7 +499,7 @@ function generateVenueLayout() {
         position: i + 1,
         side: 'CENTER',
         section: 'Ground Floor',
-        category: 'Gold',
+        category: 'Platinum',
         block: 'Center-Front',
         x: arcX,
         y: arcY,
@@ -605,8 +605,8 @@ function generateVenueLayout() {
   };
 
   allRowsOrdered.forEach((r, rIdx) => {
-    const isGold = ['A', 'B', 'C', 'D', 'E'].includes(r);
-    const category = isGold ? 'Gold' : 'Platinum';
+    const isPlatinum = ['A', 'B', 'C', 'D', 'E'].includes(r);
+    const category = isPlatinum ? 'Platinum' : 'Gold';
     const rowSeats = rightGroundRowMappings[r] || [];
     const efGap = rIdx >= 12 ? 25 : 0;
 

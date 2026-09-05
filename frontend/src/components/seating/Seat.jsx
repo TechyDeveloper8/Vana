@@ -50,6 +50,12 @@ export default function Seat({
           };
         } else if (seat.category === 'Gold') {
           return {
+            background: 'linear-gradient(135deg, #334155 0%, #1E293B 100%)',
+            borderColor: '#64748B',
+            color: '#F8FAFC'
+          };
+        } else if (seat.category === 'Platinum') {
+          return {
             background: 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)',
             borderColor: '#94A3B8',
             color: '#F8FAFC'
@@ -61,7 +67,6 @@ export default function Seat({
             color: '#FFFFFF'
           };
         } else {
-          // Platinum
           return {
             background: 'linear-gradient(135deg, #334155 0%, #1E293B 100%)',
             borderColor: '#64748B',
