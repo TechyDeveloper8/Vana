@@ -63,7 +63,29 @@ export default function EventCard({ event, index = 0 }) {
         borderRadius: '0px'
       }}
     >
-      <div className="relative aspect-[4/3] overflow-hidden" style={{ position: 'relative', aspectRatio: '4/3', overflow: 'hidden' }}>
+      <div className="relative aspect-[16/10] overflow-hidden" style={{ position: 'relative', aspectRatio: '16/10', overflow: 'hidden', background: '#0A0D14' }}>
+        {/* Ambient blurred backdrop fills any letterbox area with the image's own colors */}
+        <img
+          src={rawImg}
+          alt=""
+          aria-hidden="true"
+          referrerPolicy="no-referrer"
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = getFallbackImage(category, event.title);
+          }}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            filter: 'blur(20px) brightness(0.35)',
+            transform: 'scale(1.15)',
+            pointerEvents: 'none'
+          }}
+        />
+        {/* Full uncropped sharp image fitting completely without cutting left/right */}
         <img
           src={rawImg}
           alt={event.title}
@@ -73,20 +95,19 @@ export default function EventCard({ event, index = 0 }) {
             e.currentTarget.onerror = null;
             e.currentTarget.src = getFallbackImage(category, event.title);
           }}
-          className="w-full h-full object-cover transition-all duration-700"
+          className="w-full h-full transition-all duration-500"
           style={{
+            position: 'relative',
             width: '100%',
             height: '100%',
-            objectFit: 'cover',
-            filter: 'grayscale(100%)',
-            transition: 'all 0.7s cubic-bezier(0.16, 1, 0.3, 1)'
+            objectFit: 'contain',
+            zIndex: 1,
+            transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.filter = 'grayscale(0%)';
-            e.currentTarget.style.transform = 'scale(1.05)';
+            e.currentTarget.style.transform = 'scale(1.03)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.filter = 'grayscale(100%)';
             e.currentTarget.style.transform = 'scale(1)';
           }}
         />
@@ -94,8 +115,9 @@ export default function EventCard({ event, index = 0 }) {
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)',
-            pointerEvents: 'none'
+            background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 60%, transparent 100%)',
+            pointerEvents: 'none',
+            zIndex: 2
           }}
         />
         <span

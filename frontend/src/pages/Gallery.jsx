@@ -101,19 +101,38 @@ export default function Gallery() {
                     background: '#141824'
                   }}
                 >
+                  {/* Ambient blurred backdrop */}
+                  <img
+                    src={cover}
+                    alt=""
+                    aria-hidden="true"
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      filter: 'blur(20px) brightness(0.35)',
+                      transform: 'scale(1.15)',
+                      pointerEvents: 'none'
+                    }}
+                  />
+                  {/* Sharp uncropped full cover image */}
                   <img
                     src={cover}
                     alt={album.title}
                     style={{
+                      position: 'relative',
                       width: '100%',
                       height: '100%',
-                      objectFit: 'cover',
-                      transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
+                      objectFit: 'contain',
+                      zIndex: 1,
+                      transition: 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
                     }}
                     onError={(e) => {
                       e.target.src = 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80';
                     }}
-                    onMouseOver={(e) => (e.target.style.transform = 'scale(1.08)')}
+                    onMouseOver={(e) => (e.target.style.transform = 'scale(1.04)')}
                     onMouseOut={(e) => (e.target.style.transform = 'scale(1)')}
                   />
 

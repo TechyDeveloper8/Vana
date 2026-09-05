@@ -218,7 +218,29 @@ export default function EventDetails() {
   return (
     <div style={{ background: '#050505', color: '#FFFFFF', minHeight: '100vh', paddingBottom: '96px' }}>
       {/* Hero Banner Section */}
-      <div style={{ position: 'relative', height: '58vh', minHeight: '420px', overflow: 'hidden' }}>
+      <div style={{ position: 'relative', height: '58vh', minHeight: '420px', overflow: 'hidden', background: '#050505' }}>
+        {/* Ambient blurred backdrop fills the hero area without empty gaps */}
+        <img
+          src={eventBanner}
+          alt=""
+          aria-hidden="true"
+          referrerPolicy="no-referrer"
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = getFallbackImage(event.category, event.title);
+          }}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            filter: 'blur(30px) brightness(0.35)',
+            transform: 'scale(1.15)',
+            pointerEvents: 'none'
+          }}
+        />
+        {/* Uncropped full image centered */}
         <img
           src={eventBanner}
           alt={event.title}
@@ -227,13 +249,20 @@ export default function EventDetails() {
             e.currentTarget.onerror = null;
             e.currentTarget.src = getFallbackImage(event.category, event.title);
           }}
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          style={{
+            position: 'relative',
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            zIndex: 1
+          }}
         />
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(to top, #050505 0%, rgba(5,5,5,0.6) 50%, rgba(5,5,5,0.3) 100%)'
+            background: 'linear-gradient(to top, #050505 0%, rgba(5,5,5,0.6) 50%, rgba(5,5,5,0.2) 100%)',
+            zIndex: 2
           }}
         />
 

@@ -315,8 +315,14 @@ export default function AdminGallery() {
                   <div style={{ height: '200px', overflow: 'hidden', position: 'relative', background: '#0B0E17' }}>
                     <img
                       src={cover || 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80'}
+                      alt=""
+                      aria-hidden="true"
+                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(16px) brightness(0.35)', transform: 'scale(1.15)', pointerEvents: 'none' }}
+                    />
+                    <img
+                      src={cover || 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80'}
                       alt={album.title}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      style={{ position: 'relative', width: '100%', height: '100%', objectFit: 'contain', zIndex: 1 }}
                       onError={(e) => {
                         e.target.src = 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80';
                       }}
@@ -545,7 +551,7 @@ export default function AdminGallery() {
                             height: '140px'
                           }}
                         >
-                          <img src={imgUrl} alt={`Album pic ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <img src={imgUrl} alt={`Album pic ${index}`} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
 
                           {/* Cover badge */}
                           {isCover && (

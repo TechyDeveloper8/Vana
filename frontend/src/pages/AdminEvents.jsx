@@ -552,7 +552,7 @@ export default function AdminEvents() {
                               <img
                                 src={evt.bannerImage}
                                 alt={evt.title}
-                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                                 loading="lazy"
                                 onError={(e) => {
                                   if (evt.driveFileId && !e.target.dataset.triedThumbnail) {
@@ -1125,7 +1125,7 @@ export default function AdminEvents() {
                         src={formData.bannerImage}
                         alt="Banner Preview"
                         onError={handleBannerImgError}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                       />
                     </div>
 
