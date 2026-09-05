@@ -11,9 +11,13 @@ const {
   createCashfreePaymentOrder,
   verifyCashfreePayment,
   cancelCashfreeOrder,
-  getCashfreeStatus
+  getCashfreeStatus,
+  streamBookingQr
 } = require('../controllers/bookingController');
 const { protect, optionalAuth, adminOnly } = require('../middleware/authMiddleware');
+
+// Public QR Code Stream Endpoint (for gate scanners & web pass verification)
+router.get('/qr/:bookingId', streamBookingQr);
 
 // Cashfree Payment Gateway Endpoints
 router.get('/cashfree/status', getCashfreeStatus);

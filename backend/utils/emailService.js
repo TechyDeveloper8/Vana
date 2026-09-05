@@ -200,16 +200,21 @@ exports.sendTicketEmail = async (booking) => {
       return { success: false, error: 'Recipient email missing' };
     }
 
-    const attachments = [];
-    let qrImageSrc = booking.qrCodeUrl || '';
+    // Construct QR payload for gate scanner check-in
+    const qrPayload = JSON.stringify({
+      bookingId: booking.bookingId,
+      eventId: booking.eventId,
+      eventTitle: booking.eventTitle,
+      quantity: booking.quantity,
+      seats: (booking.selectedSeats && booking.selectedSeats.length > 0)
+        ? booking.selectedSeats.map(s => s.displayLabel || s.seatId).join(', ')
+        : (booking.ticketCategory || 'Standard Pass'),
+      showtime: booking.showtimeDate || 'Main Show Event'
+    });
 
-    if (booking.qrCodeUrl && booking.qrCodeUrl.startsWith('data:image')) {
-      const base64Data = booking.qrCodeUrl.split(';base64,').pop();
-      attachments.push({
-        filename: `ticket-${booking.bookingId}-qr.png`,
-        content: Buffer.from(base64Data, 'base64')
-      });
-    }
+    // High-resolution HTTPS QR image URL that renders 100% reliably directly inside Gmail, Outlook, Apple Mail, and Yahoo
+    // Avoids base64 data:image which Gmail proxy blocks, and avoids PDF/file attachments
+    const qrImageSrc = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=8&data=${encodeURIComponent(qrPayload)}`;
 
     const formattedShowtime = booking.showtimeDate && booking.showtimeDate !== 'Default'
       ? (isNaN(new Date(booking.showtimeDate)) ? booking.showtimeDate : new Date(booking.showtimeDate).toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }))
@@ -337,12 +342,24 @@ exports.sendTicketEmail = async (booking) => {
               <span class="badge">✓ ${booking.paymentStatus || 'Paid (Verified)'}</span>
             </div>
 
-            ${qrImageSrc ? `
-            <div class="qr-section">
-              <img src="${qrImageSrc}" alt="Entry QR Code" />
-              <div class="qr-hint">Present QR code at Venue Gate Scanner for Admission</div>
+            <div class="qr-section" style="text-align: center; margin: 25px 0 10px 0; background: #FFFFFF; padding: 24px; border-radius: 16px; border: 1px solid #E7DDD1; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+              <div style="font-size: 13px; font-weight: bold; color: #1F1F1F; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">
+                ❖ OFFICIAL ENTRY PASS QR CODE ❖
+              </div>
+              <img
+                src="${qrImageSrc}"
+                alt="Entry QR Pass"
+                width="220"
+                height="220"
+                style="display: block; margin: 0 auto; width: 220px; height: 220px; border: 3px solid #B8860B; border-radius: 12px; padding: 8px; background: #FFFFFF;"
+              />
+              <div style="font-size: 14px; font-weight: 800; color: #B8860B; margin-top: 12px; font-family: monospace; letter-spacing: 1.5px;">
+                PASS ID: ${booking.bookingId}
+              </div>
+              <div class="qr-hint" style="font-size: 12px; color: #71717A; margin-top: 6px;">
+                📲 Present this QR code directly from this email on your phone at the venue gate for instant check-in.
+              </div>
             </div>
-            ` : ''}
           </div>
 
           <div style="font-size: 13px; color: #5F5F5F; line-height: 1.5;">
@@ -366,8 +383,7 @@ exports.sendTicketEmail = async (booking) => {
     return await sendMailWithFallback({
       to: userEmail,
       subject: `Your Event Ticket Pass: ${booking.eventTitle} (${booking.bookingId})`,
-      html: htmlContent,
-      attachments
+      html: htmlContent
     });
   } catch (error) {
     console.error(`[EMAIL SERVICE ERROR] Failed to send ticket email for Booking ${booking.bookingId}:`, error.message);

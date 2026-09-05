@@ -225,19 +225,7 @@ export default function Footer() {
                   >
                     enquiry@vanaentertainments.com
                   </a>
-                  <a
-                    href="mailto:hello@vana.live"
-                    style={{
-                      color: '#737373',
-                      fontSize: '12px',
-                      textDecoration: 'none',
-                      transition: 'color 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = '#FF4500')}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = '#737373')}
-                  >
-                    hello@vana.live
-                  </a>
+
                 </div>
               </div>
 

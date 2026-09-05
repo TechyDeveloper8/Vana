@@ -832,3 +832,41 @@ exports.getCashfreeStatus = async (req, res) => {
   }
 };
 
+// 11. Stream Direct QR Code Image for Booking Pass
+exports.streamBookingQr = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const booking = await Booking.findOne({ bookingId });
+    if (!booking) {
+      return res.status(404).send('Booking pass not found');
+    }
+
+    const qrPayload = JSON.stringify({
+      bookingId: booking.bookingId,
+      eventId: booking.eventId,
+      eventTitle: booking.eventTitle,
+      quantity: booking.quantity,
+      seats: (booking.selectedSeats && booking.selectedSeats.length > 0)
+        ? booking.selectedSeats.map(s => s.displayLabel || s.seatId).join(', ')
+        : (booking.ticketCategory || 'Standard Pass'),
+      showtime: booking.showtimeDate || 'Main Show Event'
+    });
+
+    const buffer = await QRCode.toBuffer(qrPayload, {
+      width: 300,
+      margin: 1,
+      color: { dark: '#000000', light: '#ffffff' }
+    });
+
+    res.set({
+      'Content-Type': 'image/png',
+      'Cache-Control': 'public, max-age=86400'
+    });
+    return res.send(buffer);
+  } catch (error) {
+    console.error('Stream Booking QR Error:', error);
+    res.status(500).send('Error generating QR pass');
+  }
+};
+
+

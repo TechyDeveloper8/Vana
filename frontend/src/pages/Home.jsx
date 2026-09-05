@@ -169,7 +169,7 @@ export default function Home() {
               marginBottom: '20px'
             }}
           >
-            Live Events · Since 2014
+            Live Events · Since 2026
           </motion.p>
 
           <h1
