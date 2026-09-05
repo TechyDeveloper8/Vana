@@ -140,7 +140,7 @@ export default function Home() {
             style={{
               position: 'absolute',
               inset: 0,
-              background: 'linear-gradient(to top, #050505 0%, rgba(5,5,5,0.65) 45%, rgba(5,5,5,0.3) 100%)'
+              background: 'radial-gradient(circle at 18% 32%, rgba(255, 69, 0, 0.3) 0%, transparent 50%), radial-gradient(circle at 82% 68%, rgba(138, 43, 226, 0.26) 0%, transparent 55%), linear-gradient(to top, #050505 0%, rgba(5,5,5,0.6) 45%, rgba(5,5,5,0.2) 100%)'
             }}
           />
         </motion.div>

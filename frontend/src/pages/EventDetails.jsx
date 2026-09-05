@@ -217,119 +217,159 @@ export default function EventDetails() {
 
   return (
     <div style={{ background: '#050505', color: '#FFFFFF', minHeight: '100vh', paddingBottom: '96px' }}>
-      {/* Hero Banner Section */}
-      <div style={{ position: 'relative', height: '58vh', minHeight: '420px', overflow: 'hidden', background: '#050505' }}>
-        {/* Ambient blurred backdrop fills the hero area without empty gaps */}
-        <img
-          src={eventBanner}
-          alt=""
-          aria-hidden="true"
-          referrerPolicy="no-referrer"
-          onError={(e) => {
-            e.currentTarget.onerror = null;
-            e.currentTarget.src = getFallbackImage(event.category, event.title);
-          }}
+      {/* 1. TOP NAVIGATION / BREADCRUMB */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '32px clamp(16px, 4vw, 24px) 16px' }}>
+        <Link
+          to="/events"
           style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            filter: 'blur(30px) brightness(0.35)',
-            transform: 'scale(1.15)',
-            pointerEvents: 'none'
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            color: '#A1A1A1',
+            fontSize: '13px',
+            textDecoration: 'none',
+            fontWeight: 600,
+            transition: 'color 0.2s ease'
           }}
-        />
-        {/* Uncropped full image centered */}
-        <img
-          src={eventBanner}
-          alt={event.title}
-          referrerPolicy="no-referrer"
-          onError={(e) => {
-            e.currentTarget.onerror = null;
-            e.currentTarget.src = getFallbackImage(event.category, event.title);
-          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = '#FF4500')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = '#A1A1A1')}
+        >
+          <ArrowLeft size={16} /> All Events
+        </Link>
+      </div>
+
+      {/* 2. EVENT BANNER FRAME (FULL BLURRED GRADIENT COMBINATION BACKGROUND) */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(16px, 4vw, 24px)' }}>
+        <div
           style={{
             position: 'relative',
+            height: 'clamp(260px, 48vh, 520px)',
             width: '100%',
-            height: '100%',
-            objectFit: 'contain',
-            zIndex: 1
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'linear-gradient(to top, #050505 0%, rgba(5,5,5,0.6) 50%, rgba(5,5,5,0.2) 100%)',
-            zIndex: 2
-          }}
-        />
-
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            maxWidth: '1400px',
-            margin: '0 auto',
-            padding: '96px 24px 48px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'flex-end'
+            overflow: 'hidden',
+            borderRadius: '16px',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            background: 'radial-gradient(circle at 15% 15%, rgba(255, 69, 0, 0.4) 0%, transparent 55%), radial-gradient(circle at 85% 85%, rgba(138, 43, 226, 0.4) 0%, transparent 60%), linear-gradient(135deg, #180B22 0%, #0D0F18 50%, #150A08 100%)',
+            boxShadow: '0 24px 60px rgba(0, 0, 0, 0.65)'
           }}
         >
-          <Link
-            to="/events"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              color: '#A1A1A1',
-              fontSize: '13px',
-              textDecoration: 'none',
-              marginBottom: '24px',
-              width: 'fit-content'
+          {/* Ambient heavily blurred banner colors filling the container */}
+          <img
+            src={eventBanner}
+            alt=""
+            aria-hidden="true"
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = getFallbackImage(event.category, event.title);
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#FF4500')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#A1A1A1')}
-          >
-            <ArrowLeft size={16} /> All Events
-          </Link>
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              filter: 'blur(35px) saturate(2.2) brightness(0.75)',
+              transform: 'scale(1.25)',
+              pointerEvents: 'none',
+              opacity: 0.92
+            }}
+          />
 
+          {/* Multi-gradient color combination overlay */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'radial-gradient(circle at 50% 50%, transparent 20%, rgba(5,5,5,0.45) 85%), linear-gradient(135deg, rgba(255, 69, 0, 0.2) 0%, rgba(147, 51, 234, 0.18) 50%, rgba(0, 0, 0, 0.3) 100%)',
+              pointerEvents: 'none',
+              zIndex: 1
+            }}
+          />
+
+          {/* Full uncropped sharp banner image fitting completely without any cropping */}
+          <img
+            src={eventBanner}
+            alt={event.title}
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = getFallbackImage(event.category, event.title);
+            }}
+            style={{
+              position: 'relative',
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              zIndex: 2,
+              filter: 'drop-shadow(0 12px 36px rgba(0, 0, 0, 0.6))'
+            }}
+          />
+        </div>
+      </div>
+
+      {/* 3. RESPONSIVE EVENT TITLE & BADGE DOWNSIDE THE BANNER */}
+      <div
+        style={{
+          maxWidth: '1400px',
+          margin: '0 auto',
+          padding: 'clamp(28px, 4vw, 40px) clamp(16px, 4vw, 24px) 0'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '12px' }}>
           <span
             className="font-mono-x"
             style={{
               fontFamily: "'JetBrains Mono', monospace",
               fontSize: '11px',
               textTransform: 'uppercase',
-              letterSpacing: '0.2em',
+              letterSpacing: '0.15em',
               color: '#FF4500',
-              marginBottom: '12px'
+              background: 'rgba(255, 69, 0, 0.12)',
+              border: '1px solid rgba(255, 69, 0, 0.3)',
+              padding: '6px 14px',
+              borderRadius: '999px',
+              fontWeight: 700
             }}
           >
-            {event.category || 'Live Spectacle'}
+            ✦ {event.category || 'Live Spectacle'}
           </span>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="heading"
+          <span
+            className="font-mono-x"
             style={{
-              fontFamily: "'Cabinet Grotesk', -apple-system, sans-serif",
-              fontWeight: 900,
-              fontSize: 'clamp(2.5rem, 6vw, 5rem)',
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: '11px',
               textTransform: 'uppercase',
-              letterSpacing: '-0.03em',
-              lineHeight: 0.95,
-              color: '#FFFFFF',
-              margin: 0,
-              maxWidth: '900px'
+              letterSpacing: '0.12em',
+              color: '#10B981',
+              background: 'rgba(16, 185, 129, 0.1)',
+              border: '1px solid rgba(16, 185, 129, 0.25)',
+              padding: '6px 12px',
+              borderRadius: '999px'
             }}
           >
-            {event.title}
-          </motion.h1>
+            ● Certified Production
+          </span>
         </div>
+
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="heading"
+          style={{
+            fontFamily: "'Cabinet Grotesk', -apple-system, sans-serif",
+            fontWeight: 900,
+            fontSize: 'clamp(2.2rem, 5.5vw, 4.2rem)',
+            textTransform: 'uppercase',
+            letterSpacing: '-0.025em',
+            lineHeight: 1.05,
+            color: '#FFFFFF',
+            margin: 0,
+            maxWidth: '1100px'
+          }}
+        >
+          {event.title}
+        </motion.h1>
       </div>
 
       {/* Main Content & Ticket Selector Grid */}
@@ -354,7 +394,7 @@ export default function EventDetails() {
         style={{
           maxWidth: '1400px',
           margin: '0 auto',
-          padding: 'clamp(32px, 6vw, 56px) clamp(16px, 4vw, 24px)'
+          padding: 'clamp(24px, 4vw, 36px) clamp(16px, 4vw, 24px) clamp(48px, 6vw, 64px)'
         }}
       >
         {/* Left Column: Synopsis & Metadata */}

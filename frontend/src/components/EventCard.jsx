@@ -63,8 +63,16 @@ export default function EventCard({ event, index = 0 }) {
         borderRadius: '0px'
       }}
     >
-      <div className="relative aspect-[16/10] overflow-hidden" style={{ position: 'relative', aspectRatio: '16/10', overflow: 'hidden', background: '#0A0D14' }}>
-        {/* Ambient blurred backdrop fills any letterbox area with the image's own colors */}
+      <div
+        className="relative aspect-[16/10] overflow-hidden"
+        style={{
+          position: 'relative',
+          aspectRatio: '16/10',
+          overflow: 'hidden',
+          background: 'radial-gradient(circle at 15% 15%, rgba(255, 69, 0, 0.4) 0%, transparent 55%), radial-gradient(circle at 85% 85%, rgba(138, 43, 226, 0.4) 0%, transparent 60%), linear-gradient(135deg, #180B22 0%, #0D0F18 50%, #150A08 100%)'
+        }}
+      >
+        {/* Ambient blurred backdrop fills any letterbox area with the banner's vibrant colors */}
         <img
           src={rawImg}
           alt=""
@@ -80,9 +88,20 @@ export default function EventCard({ event, index = 0 }) {
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            filter: 'blur(20px) brightness(0.35)',
-            transform: 'scale(1.15)',
-            pointerEvents: 'none'
+            filter: 'blur(30px) saturate(2.2) brightness(0.75)',
+            transform: 'scale(1.25)',
+            pointerEvents: 'none',
+            opacity: 0.92
+          }}
+        />
+        {/* Full multi-color gradient combination overlay */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'radial-gradient(circle at 50% 50%, transparent 20%, rgba(5,5,5,0.45) 85%), linear-gradient(135deg, rgba(255, 69, 0, 0.22) 0%, rgba(147, 51, 234, 0.2) 50%, rgba(0, 0, 0, 0.35) 100%)',
+            pointerEvents: 'none',
+            zIndex: 1
           }}
         />
         {/* Full uncropped sharp image fitting completely without cutting left/right */}
@@ -101,7 +120,8 @@ export default function EventCard({ event, index = 0 }) {
             width: '100%',
             height: '100%',
             objectFit: 'contain',
-            zIndex: 1,
+            zIndex: 2,
+            filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.55))',
             transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
           }}
           onMouseEnter={(e) => {
@@ -115,7 +135,7 @@ export default function EventCard({ event, index = 0 }) {
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 60%, transparent 100%)',
+            background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 40%)',
             pointerEvents: 'none',
             zIndex: 2
           }}
@@ -134,7 +154,8 @@ export default function EventCard({ event, index = 0 }) {
             backdropFilter: 'blur(8px)',
             padding: '4px 10px',
             border: '1px solid rgba(255, 255, 255, 0.12)',
-            color: '#FF4500'
+            color: '#FF4500',
+            zIndex: 3
           }}
         >
           {category}
@@ -152,7 +173,8 @@ export default function EventCard({ event, index = 0 }) {
             justifyContent: 'center',
             background: '#FF4500',
             color: '#050505',
-            transition: 'all 0.3s ease'
+            transition: 'all 0.3s ease',
+            zIndex: 3
           }}
         >
           <ArrowUpRight size={18} strokeWidth={2.5} />
