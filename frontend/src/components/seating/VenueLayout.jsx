@@ -1,10 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Seat from './Seat';
 
 /**
  * VenueLayout Component (100% Standard React HTML/CSS)
  * NO SVG or Canvas used for seats or venue map rendering.
- * Features Mobile-First quick zoom presets, activePlan filtering, and touch gestures.
+ * Features Mobile-First quick zoom presets, activePlan filtering, two-finger pinch-to-zoom,
+ * single-finger pan, double-tap zoom, and auto-centering.
  */
 export default function VenueLayout({
   layout,
@@ -24,25 +25,48 @@ export default function VenueLayout({
 
   const containerRef = useRef(null);
 
-  const viewWidth = layout?.dimensions?.width || 1750;
-  const viewHeight = layout?.dimensions?.height || 1120;
+  // Gesture tracking refs for 60fps zero-latency touch and mouse updates
+  const panRef = useRef({ x: 0, y: 0 });
+  const scaleRef = useRef(1);
+  const isDraggingRef = useRef(false);
+  const dragStartRef = useRef({ x: 0, y: 0 });
+  const touchModeRef = useRef('none'); // 'none' | 'drag' | 'pinch'
+  const pinchStartRef = useRef({ dist: 0, scale: 1, center: { x: 0, y: 0 }, pan: { x: 0, y: 0 } });
+  const hasMovedRef = useRef(false);
+  const lastTapRef = useRef({ time: 0, x: 0, y: 0 });
+
+  // Standardized auditorium architecture bounds
+  const viewWidth = 1700;
+  const viewHeight = 1120;
+
+  // Keep refs synchronized with state
+  useEffect(() => {
+    panRef.current = pan;
+  }, [pan]);
+
+  useEffect(() => {
+    scaleRef.current = scale;
+  }, [scale]);
 
   // Calculate dynamic scale to fit the entire venue layout architecture inside the container
-  const getFitScale = () => {
+  const getFitScale = useCallback(() => {
     if (!containerRef.current) return 0.55;
     const cw = containerRef.current.clientWidth || 1000;
     const ch = containerRef.current.clientHeight || 580;
     const scaleX = cw / viewWidth;
     const scaleY = ch / viewHeight;
     // Fit both dimensions comfortably with safe margin
-    return Math.max(0.18, Math.min(scaleX, scaleY) * 0.94);
-  };
+    return Math.max(0.16, Math.min(scaleX, scaleY) * 0.92);
+  }, [viewWidth, viewHeight]);
 
-  const fitToLayout = () => {
+  // Automatically center and fit the entire venue layout inside the container
+  const fitToLayout = useCallback(() => {
     const fs = getFitScale();
     setScale(fs);
+    scaleRef.current = fs;
     setPan({ x: 0, y: 0 });
-  };
+    panRef.current = { x: 0, y: 0 };
+  }, [getFitScale]);
 
   // Auto focus / center map based on activePlan or fit all on initial load
   useEffect(() => {
@@ -51,21 +75,39 @@ export default function VenueLayout({
       const fitScale = getFitScale();
 
       if (activePlan === 'Silver' || activePlan === 'First Floor') {
-        setScale(Math.max(fitScale * 1.8, 1.15));
-        setPan({ x: 0, y: Math.round(viewHeight * 0.22) });
+        const s = Math.max(fitScale * 1.8, 1.15);
+        const p = { x: 0, y: Math.round(viewHeight * 0.26) };
+        setScale(s);
+        setPan(p);
+        scaleRef.current = s;
+        panRef.current = p;
       } else if (activePlan === 'Gold') {
-        setScale(Math.max(fitScale * 1.6, 1.05));
-        setPan({ x: 0, y: 0 });
+        const s = Math.max(fitScale * 1.6, 1.05);
+        const p = { x: 0, y: 0 };
+        setScale(s);
+        setPan(p);
+        scaleRef.current = s;
+        panRef.current = p;
       } else if (activePlan === 'Platinum') {
-        setScale(Math.max(fitScale * 1.8, 1.15));
-        setPan({ x: 0, y: -Math.round(viewHeight * 0.16) });
+        const s = Math.max(fitScale * 1.8, 1.15);
+        const p = { x: 0, y: -Math.round(viewHeight * 0.22) };
+        setScale(s);
+        setPan(p);
+        scaleRef.current = s;
+        panRef.current = p;
       } else if (activePlan === 'VIP Lounge') {
-        setScale(Math.max(fitScale * 2.0, 1.25));
-        setPan({ x: 0, y: -Math.round(viewHeight * 0.32) });
+        const s = Math.max(fitScale * 2.0, 1.25);
+        const p = { x: 0, y: -Math.round(viewHeight * 0.34) };
+        setScale(s);
+        setPan(p);
+        scaleRef.current = s;
+        panRef.current = p;
       } else {
-        // 'All': Fit the entire venue architecture 100% inside container
+        // 'All': Fit the entire venue architecture 100% inside container, dead-center
         setScale(fitScale);
         setPan({ x: 0, y: 0 });
+        scaleRef.current = fitScale;
+        panRef.current = { x: 0, y: 0 };
       }
     };
 
@@ -82,19 +124,25 @@ export default function VenueLayout({
       clearTimeout(timer);
       window.removeEventListener('resize', handleResize);
     };
-  }, [activePlan, viewWidth, viewHeight]);
+  }, [activePlan, viewWidth, viewHeight, getFitScale]);
 
   // Zoom controls
   const handleZoom = (delta) => {
     setScale((prevScale) => {
-      const newScale = Math.min(Math.max(prevScale + delta, 0.18), 3.0);
-      return Math.round(newScale * 100) / 100;
+      const fitScale = getFitScale();
+      const minScale = Math.min(0.15, fitScale * 0.85);
+      const newScale = Math.min(Math.max(prevScale + delta, minScale), 3.2);
+      const rounded = Math.round(newScale * 100) / 100;
+      scaleRef.current = rounded;
+      return rounded;
     });
   };
 
   const handlePresetZoom = (targetScale) => {
     setScale(targetScale);
+    scaleRef.current = targetScale;
     setPan({ x: 0, y: 0 });
+    panRef.current = { x: 0, y: 0 };
   };
 
   const handleResetZoom = () => {
@@ -108,23 +156,206 @@ export default function VenueLayout({
     handleZoom(delta);
   };
 
-  // Mouse & Touch Drag Handlers
+  // Desktop Mouse Drag Handlers
   const handleStart = (clientX, clientY) => {
+    isDraggingRef.current = true;
+    hasMovedRef.current = false;
     setIsDragging(true);
-    setDragStart({ x: clientX - pan.x, y: clientY - pan.y });
+    dragStartRef.current = { x: clientX - panRef.current.x, y: clientY - panRef.current.y };
+    setDragStart(dragStartRef.current);
   };
 
   const handleMove = (clientX, clientY) => {
-    if (isDragging) {
-      setPan({
-        x: clientX - dragStart.x,
-        y: clientY - dragStart.y
-      });
+    if (isDraggingRef.current) {
+      const moveDist = Math.hypot(
+        clientX - (dragStartRef.current.x + panRef.current.x),
+        clientY - (dragStartRef.current.y + panRef.current.y)
+      );
+      if (moveDist > 5) {
+        hasMovedRef.current = true;
+      }
+      const newX = clientX - dragStartRef.current.x;
+      const newY = clientY - dragStartRef.current.y;
+      panRef.current = { x: newX, y: newY };
+      setPan({ x: newX, y: newY });
     }
   };
 
   const handleEnd = () => {
+    isDraggingRef.current = false;
+    touchModeRef.current = 'none';
     setIsDragging(false);
+  };
+
+  // Mobile Touch Gestures (Multi-touch Pinch to Zoom + 1-finger Drag + Double Tap)
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const getTouchDist = (t1, t2) => Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+    const getTouchMid = (t1, t2) => ({
+      x: (t1.clientX + t2.clientX) / 2,
+      y: (t1.clientY + t2.clientY) / 2
+    });
+
+    const onTouchStart = (e) => {
+      if (e.touches.length >= 2) {
+        // Multi-touch: Start Pinch to Zoom
+        if (e.cancelable) e.preventDefault();
+        touchModeRef.current = 'pinch';
+        isDraggingRef.current = false;
+        setIsDragging(false);
+
+        const dist = getTouchDist(e.touches[0], e.touches[1]);
+        const mid = getTouchMid(e.touches[0], e.touches[1]);
+
+        pinchStartRef.current = {
+          dist: Math.max(dist, 10),
+          scale: scaleRef.current,
+          pan: { ...panRef.current },
+          center: mid
+        };
+      } else if (e.touches.length === 1) {
+        // Single touch: Pan / Drag
+        touchModeRef.current = 'drag';
+        isDraggingRef.current = true;
+        hasMovedRef.current = false;
+        setIsDragging(true);
+
+        dragStartRef.current = {
+          x: e.touches[0].clientX - panRef.current.x,
+          y: e.touches[0].clientY - panRef.current.y
+        };
+        setDragStart(dragStartRef.current);
+      }
+    };
+
+    const onTouchMove = (e) => {
+      if (e.touches.length >= 2) {
+        // Multi-touch pinch-to-zoom calculation
+        if (e.cancelable) e.preventDefault();
+
+        if (touchModeRef.current !== 'pinch' || !pinchStartRef.current.dist) {
+          touchModeRef.current = 'pinch';
+          isDraggingRef.current = false;
+          setIsDragging(false);
+          const dist = getTouchDist(e.touches[0], e.touches[1]);
+          const mid = getTouchMid(e.touches[0], e.touches[1]);
+          pinchStartRef.current = {
+            dist: Math.max(dist, 10),
+            scale: scaleRef.current,
+            pan: { ...panRef.current },
+            center: mid
+          };
+          return;
+        }
+
+        const currentDist = getTouchDist(e.touches[0], e.touches[1]);
+        const currentMid = getTouchMid(e.touches[0], e.touches[1]);
+
+        const scaleFactor = currentDist / pinchStartRef.current.dist;
+        const fitScale = getFitScale();
+        const minScale = Math.min(0.15, fitScale * 0.85);
+        const maxScale = 3.2;
+        const targetScale = Math.min(Math.max(pinchStartRef.current.scale * scaleFactor, minScale), maxScale);
+
+        // Center shift to keep zoom anchored around user pinch center
+        const deltaX = currentMid.x - pinchStartRef.current.center.x;
+        const deltaY = currentMid.y - pinchStartRef.current.center.y;
+
+        const newPan = {
+          x: pinchStartRef.current.pan.x + deltaX,
+          y: pinchStartRef.current.pan.y + deltaY
+        };
+
+        scaleRef.current = targetScale;
+        panRef.current = newPan;
+        setScale(targetScale);
+        setPan(newPan);
+      } else if (e.touches.length === 1 && touchModeRef.current === 'drag') {
+        // Single-finger panning
+        const touch = e.touches[0];
+        const newX = touch.clientX - dragStartRef.current.x;
+        const newY = touch.clientY - dragStartRef.current.y;
+
+        const moveDist = Math.hypot(
+          touch.clientX - (dragStartRef.current.x + panRef.current.x),
+          touch.clientY - (dragStartRef.current.y + panRef.current.y)
+        );
+        if (moveDist > 6) {
+          hasMovedRef.current = true;
+          if (e.cancelable) e.preventDefault();
+        }
+
+        panRef.current = { x: newX, y: newY };
+        setPan({ x: newX, y: newY });
+      }
+    };
+
+    const onTouchEnd = (e) => {
+      if (e.touches.length === 0) {
+        // Double-tap zoom toggle on background
+        const now = Date.now();
+        const target = e.target;
+        const isInteractive = target?.closest?.('button') || target?.closest?.('.seat-interactive-btn');
+
+        if (!hasMovedRef.current && !isInteractive && (now - lastTapRef.current.time) < 320) {
+          const fitScale = getFitScale();
+          if (scaleRef.current > fitScale + 0.3) {
+            fitToLayout();
+          } else {
+            const zoomInScale = Math.max(fitScale * 2.0, 1.35);
+            setScale(zoomInScale);
+            scaleRef.current = zoomInScale;
+          }
+          lastTapRef.current = { time: 0, x: 0, y: 0 };
+        } else {
+          lastTapRef.current = {
+            time: now,
+            x: e.changedTouches?.[0]?.clientX || 0,
+            y: e.changedTouches?.[0]?.clientY || 0
+          };
+        }
+
+        touchModeRef.current = 'none';
+        isDraggingRef.current = false;
+        setIsDragging(false);
+      } else if (e.touches.length === 1) {
+        // Transition from 2 fingers down to 1 finger: seamless switch to drag
+        touchModeRef.current = 'drag';
+        isDraggingRef.current = true;
+        setIsDragging(true);
+        dragStartRef.current = {
+          x: e.touches[0].clientX - panRef.current.x,
+          y: e.touches[0].clientY - panRef.current.y
+        };
+        setDragStart(dragStartRef.current);
+      }
+    };
+
+    container.addEventListener('touchstart', onTouchStart, { passive: false });
+    container.addEventListener('touchmove', onTouchMove, { passive: false });
+    container.addEventListener('touchend', onTouchEnd, { passive: false });
+    container.addEventListener('touchcancel', onTouchEnd, { passive: false });
+
+    return () => {
+      container.removeEventListener('touchstart', onTouchStart);
+      container.removeEventListener('touchmove', onTouchMove);
+      container.removeEventListener('touchend', onTouchEnd);
+      container.removeEventListener('touchcancel', onTouchEnd);
+    };
+  }, [getFitScale, fitToLayout]);
+
+  // Safe seat click prevents accidental selection when panning
+  const handleSeatClickSafe = (seat, price) => {
+    if (hasMovedRef.current) {
+      return; // Ignore tap after dragging
+    }
+    if (adminMode) {
+      onAdminToggleSeat?.(seat, price);
+    } else {
+      onSeatClick?.(seat, price);
+    }
   };
 
   if (!layout || !layout.seats) {
@@ -152,21 +383,17 @@ export default function VenueLayout({
         touchAction: 'none'
       }}
       onWheel={handleWheel}
-      onMouseDown={(e) => handleStart(e.clientX, e.clientY)}
-      onMouseMove={(e) => handleMove(e.clientX, e.clientY)}
+      onMouseDown={(e) => {
+        if (e.button !== 0 || touchModeRef.current !== 'none') return;
+        handleStart(e.clientX, e.clientY);
+      }}
+      onMouseMove={(e) => {
+        if (touchModeRef.current === 'none') {
+          handleMove(e.clientX, e.clientY);
+        }
+      }}
       onMouseUp={handleEnd}
       onMouseLeave={handleEnd}
-      onTouchStart={(e) => {
-        if (e.touches.length === 1) {
-          handleStart(e.touches[0].clientX, e.touches[0].clientY);
-        }
-      }}
-      onTouchMove={(e) => {
-        if (e.touches.length === 1) {
-          handleMove(e.touches[0].clientX, e.touches[0].clientY);
-        }
-      }}
-      onTouchEnd={handleEnd}
     >
       {/* Floating Header Control Bar */}
       <div
@@ -285,41 +512,146 @@ export default function VenueLayout({
         </div>
       </div>
 
-      {/* Touch Pan Hint Pill */}
+      {/* Touch Pan & Zoom Hint Pill */}
       <div
         style={{
           position: 'absolute',
-          bottom: '12px',
-          left: '12px',
+          bottom: '14px',
+          left: '14px',
           zIndex: 20,
-          background: 'rgba(15, 23, 42, 0.85)',
-          backdropFilter: 'blur(6px)',
-          padding: '4px 10px',
-          borderRadius: '8px',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
-          color: '#94A3B8',
-          fontSize: '0.7rem',
+          background: 'rgba(15, 23, 42, 0.88)',
+          backdropFilter: 'blur(8px)',
+          padding: '6px 12px',
+          borderRadius: '10px',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          color: '#CBD5E1',
+          fontSize: '0.72rem',
           pointerEvents: 'none',
           display: 'flex',
           alignItems: 'center',
-          gap: '4px'
+          gap: '6px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
         }}
       >
-        <i className="fa-solid fa-hand-pointer" style={{ color: '#F59E0B' }}></i>
-        <span>Drag to pan • Tap seats to select</span>
+        <i className="fa-solid fa-up-down-left-right" style={{ color: '#F59E0B' }}></i>
+        <span>Drag to pan • Pinch to zoom</span>
+      </div>
+
+      {/* Floating Mobile-Friendly Zoom Controls (+, −, ⤢) */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '14px',
+          right: '14px',
+          zIndex: 30,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '6px',
+          background: 'rgba(15, 23, 42, 0.92)',
+          backdropFilter: 'blur(10px)',
+          padding: '5px',
+          borderRadius: '12px',
+          border: '1px solid rgba(255, 255, 255, 0.15)',
+          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.5)'
+        }}
+      >
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleZoom(0.25);
+          }}
+          title="Zoom In"
+          aria-label="Zoom In"
+          style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '8px',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            background: '#1E293B',
+            color: '#F8FAFC',
+            fontSize: '19px',
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+            transition: 'background 0.15s ease'
+          }}
+        >
+          +
+        </button>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleZoom(-0.25);
+          }}
+          title="Zoom Out"
+          aria-label="Zoom Out"
+          style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '8px',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            background: '#1E293B',
+            color: '#F8FAFC',
+            fontSize: '21px',
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+            transition: 'background 0.15s ease'
+          }}
+        >
+          −
+        </button>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            fitToLayout();
+          }}
+          title="Fit Entire Venue"
+          aria-label="Fit Venue"
+          style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '8px',
+            border: '1px solid rgba(245, 158, 11, 0.6)',
+            background: '#292524',
+            color: '#F59E0B',
+            fontSize: '13px',
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+            transition: 'background 0.15s ease'
+          }}
+        >
+          <i className="fa-solid fa-expand"></i>
+        </button>
       </div>
 
       {/* Main Transform Canvas */}
       <div
         id="venue-pan-area"
         style={{
-          position: 'relative',
+          position: 'absolute',
+          left: '50%',
+          top: '50%',
           width: `${viewWidth}px`,
           height: `${viewHeight}px`,
-          transform: `translate(${pan.x}px, ${pan.y}px) scale(${scale})`,
+          transform: `translate(calc(-50% + ${pan.x}px), calc(-50% + ${pan.y}px)) scale(${scale})`,
           transformOrigin: 'center center',
-          transition: isDragging ? 'none' : 'transform 0.15s ease-out',
-          margin: '0 auto'
+          transition: isDragging || touchModeRef.current === 'pinch' ? 'none' : 'transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)',
+          margin: 0,
+          willChange: 'transform'
         }}
       >
 
@@ -331,9 +663,9 @@ export default function VenueLayout({
           { label: '1F', x: 135, y: 164 },
           { label: '1E', x: 120, y: 194 },
           { label: '1D', x: 105, y: 224 },
-          { label: '1C', x: 90,  y: 254 },
-          { label: '1B', x: 75,  y: 284 },
-          { label: '1A', x: 60,  y: 314 }
+          { label: '1C', x: 90, y: 254 },
+          { label: '1B', x: 75, y: 284 },
+          { label: '1A', x: 60, y: 314 }
         ].map((r) => (
           <div
             key={`ffl-rowlabel-${r.label}`}
@@ -484,9 +816,9 @@ export default function VenueLayout({
           id="auditorium-main-stage"
           style={{
             position: 'absolute',
-            left: '320px',
+            left: '350px',
             top: '985px',
-            width: '960px',
+            width: '1000px',
             height: '75px',
             background: 'linear-gradient(180deg, #1E293B 0%, #090D16 100%)',
             border: '2px solid #F59E0B',
@@ -549,20 +881,6 @@ export default function VenueLayout({
             </span>
             <span style={{ color: '#F59E0B', fontSize: '15px' }}>✦</span>
           </div>
-
-          <div
-            style={{
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: '10px',
-              fontWeight: 700,
-              letterSpacing: '0.14em',
-              color: '#94A3B8',
-              textTransform: 'uppercase',
-              marginTop: '3px'
-            }}
-          >
-            FRONT OF VIP SEATS (V1 - V15) • MAIN PERFORMANCE PLATFORM
-          </div>
         </div>
 
         {/* DYNAMIC REACT HTML SEATS MAPPING */}
@@ -572,7 +890,7 @@ export default function VenueLayout({
           const price = typeof avail.price === 'number' && avail.price > 0
             ? avail.price
             : (seat.price || (seat.category === 'Silver' ? 500 : seat.category === 'Gold' ? 700 : seat.category === 'VIP Lounge' ? 1500 : 1000));
-          
+
           // Determine if seat should be dimmed based on active plan selection
           const isDimmed = activePlan !== 'All' && seat.category !== activePlan && !(activePlan === 'Silver' && (seat.category === 'Silver' || seat.section?.startsWith('FIRST_FLOOR')));
 
@@ -586,7 +904,7 @@ export default function VenueLayout({
               isDimmed={isDimmed}
               adminMode={adminMode}
               isAdminSelected={adminSelectedSeatIds.includes(seat.seatId)}
-              onClick={adminMode ? onAdminToggleSeat : onSeatClick}
+              onClick={handleSeatClickSafe}
               onMouseEnter={(s) => setHoveredSeat({ ...s, status, price })}
               onMouseLeave={() => setHoveredSeat(null)}
             />
