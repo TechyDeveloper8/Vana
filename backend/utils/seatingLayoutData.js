@@ -250,7 +250,7 @@ function generateVenueLayout() {
       row: '1G',
       groups: [
         [36, 37, 38, 39, 40],
-        [41, 42, 43, 44, 45]
+        [41, 42, 43, 44, 45, 46]
       ],
       originX: 1260,
       originY: 140,
@@ -262,7 +262,7 @@ function generateVenueLayout() {
       row: '1F',
       groups: [
         [39],
-        [40, 41, 42, 43, 44, 45, 46, 47, 48, 49]
+        [40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50]
       ],
       originX: 1260,
       originY: 170,

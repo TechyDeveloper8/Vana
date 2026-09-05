@@ -405,8 +405,8 @@ exports.adminUpdateTierPrices = async (req, res) => {
     const minPrice = numericPrices.length > 0 ? Math.min(...numericPrices) : 500;
 
     const formattedTiers = [
-      { tierName: 'Silver (First Floor Rows 1A–1H)', price: Number(prices.Silver || 500), totalSeats: 331, availableSeats: 331 },
-      { tierName: 'Gold (Rows F–Q)', price: Number(prices.Gold || 700), totalSeats: 507, availableSeats: 507 },
+      { tierName: 'Silver (First Floor Rows 1A–1H)', price: Number(prices.Silver || 500), totalSeats: 332, availableSeats: 332 },
+      { tierName: 'Gold (Rows F–Q)', price: Number(prices.Gold || 700), totalSeats: 501, availableSeats: 501 },
       { tierName: 'Platinum (Rows A–E)', price: Number(prices.Platinum || 1000), totalSeats: 160, availableSeats: 160 },
       { tierName: 'VIP Lounge (Row V)', price: Number(prices['VIP Lounge'] || 1500), totalSeats: 15, availableSeats: 15 }
     ];
