@@ -285,59 +285,6 @@ export default function Home() {
         </Marquee>
       </section>
 
-      {/* 3. KEY STATS ROW */}
-      <section style={{ maxWidth: '1400px', margin: '0 auto', padding: 'clamp(48px, 8vw, 96px) clamp(16px, 4vw, 24px)' }}>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))',
-            gap: '24px'
-          }}
-        >
-          {[
-            ["500+", "Events Produced"],
-            ["1.2M", "Tickets Sold"],
-            ["40+", "Cities Across India"],
-            ["11", "Years Live Experience"]
-          ].map(([num, label], i) => (
-            <Reveal key={label} delay={i * 0.08}>
-              <div
-                style={{
-                  borderLeft: '1px solid #FF4500',
-                  paddingLeft: '24px'
-                }}
-              >
-                <div
-                  className="font-display"
-                  style={{
-                    fontFamily: "'Cabinet Grotesk', sans-serif",
-                    fontWeight: 900,
-                    fontSize: 'clamp(2.5rem, 4vw, 3.75rem)',
-                    color: '#FFFFFF',
-                    lineHeight: 1
-                  }}
-                >
-                  {num}
-                </div>
-                <div
-                  className="font-mono-x"
-                  style={{
-                    fontFamily: "'JetBrains Mono', monospace",
-                    fontSize: '11px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.15em',
-                    color: '#737373',
-                    marginTop: '10px'
-                  }}
-                >
-                  {label}
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
       {/* 4. FEATURED LINE-UP */}
       <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(16px, 4vw, 24px) clamp(48px, 8vw, 96px) clamp(16px, 4vw, 24px)' }}>
         <Reveal>
